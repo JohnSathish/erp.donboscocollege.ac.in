@@ -1,0 +1,696 @@
+// Don Bosco College Tura — Admin login (glassmorphism, mesh, responsive, optional dark)
+
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: var(--admin-font-sans);
+}
+
+.admin-login {
+  --admin-font-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  --admin-font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --admin-blue-deep: #0c1929;
+  --admin-blue-mid: #152a45;
+  --admin-cyan: #22d3ee;
+  --admin-violet: #7c3aed;
+  --admin-text: #0f172a;
+  --admin-text-muted: #475569;
+  --admin-border: rgba(255, 255, 255, 0.35);
+  --admin-glass-bg: rgba(255, 255, 255, 0.72);
+  --admin-glass-border: rgba(255, 255, 255, 0.55);
+  --admin-input-bg: rgba(255, 255, 255, 0.85);
+  --admin-focus: rgba(34, 211, 238, 0.45);
+  --admin-shadow: 0 24px 48px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  color: var(--admin-text);
+  font-family: var(--admin-font-sans);
+  -webkit-font-smoothing: antialiased;
+
+  @media (prefers-color-scheme: dark) {
+    --admin-text: #f1f5f9;
+    --admin-text-muted: #94a3b8;
+    --admin-glass-bg: rgba(15, 23, 42, 0.55);
+    --admin-glass-border: rgba(148, 163, 184, 0.2);
+    --admin-input-bg: rgba(30, 41, 59, 0.65);
+    --admin-border: rgba(148, 163, 184, 0.25);
+    --admin-focus: rgba(34, 211, 238, 0.35);
+    --admin-shadow: 0 24px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  }
+}
+
+/* --- Ambient mesh background --- */
+.admin-login__ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(135deg, #0c4a6e 0%, #1e3a8a 35%, #312e81 65%, #4c1d95 100%);
+  pointer-events: none;
+}
+
+.admin-login__mesh {
+  position: absolute;
+  inset: 0;
+  opacity: 0.9;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 40%, rgba(34, 211, 238, 0.35), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(124, 58, 237, 0.4), transparent 50%),
+    radial-gradient(ellipse 50% 60% at 60% 80%, rgba(59, 130, 246, 0.35), transparent 55%),
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06), transparent 70%);
+}
+
+.admin-login__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+
+  &--1 {
+    width: min(50vw, 420px);
+    height: min(50vw, 420px);
+    top: -10%;
+    left: -5%;
+    background: #22d3ee;
+  }
+
+  &--2 {
+    width: min(45vw, 380px);
+    height: min(45vw, 380px);
+    bottom: -5%;
+    right: 10%;
+    background: #a78bfa;
+  }
+
+  &--3 {
+    width: min(40vw, 320px);
+    height: min(40vw, 320px);
+    top: 40%;
+    left: 35%;
+    background: #38bdf8;
+    opacity: 0.35;
+  }
+}
+
+/* Optional “campus” layer: soft shapes + grain feel without external assets */
+.admin-login__campus {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.75) 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+  pointer-events: none;
+}
+
+/* --- Layout: split screen --- */
+.admin-login__layout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(320px, 520px);
+  min-height: 100vh;
+  align-items: stretch;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-login__hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 5vw, 4rem);
+  color: #f8fafc;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+
+  @media (max-width: 960px) {
+    min-height: auto;
+    padding: 2rem 1.5rem 1rem;
+    text-align: center;
+  }
+}
+
+.admin-login__hero-inner {
+  max-width: 28rem;
+  animation: admin-login-fade-up 0.7s ease 0.05s both;
+}
+
+.admin-login__eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  font-family: var(--admin-font-sans);
+}
+
+.admin-login__hero-title {
+  margin: 0 0 0.75rem;
+  font-family: var(--admin-font-serif);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.admin-login__hero-tagline {
+  margin: 0 0 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  opacity: 0.92;
+  font-style: italic;
+  font-family: var(--admin-font-serif);
+}
+
+.admin-login__hero-list {
+  margin: 0;
+  padding-left: 1.15rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  opacity: 0.88;
+
+  li + li {
+    margin-top: 0.35rem;
+  }
+
+  @media (max-width: 960px) {
+    display: none;
+  }
+}
+
+.admin-login__main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* --- Glass card --- */
+.admin-login__glass {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem 2rem 1.75rem;
+  border-radius: 18px;
+  background: var(--admin-glass-bg);
+  border: 1px solid var(--admin-glass-border);
+  box-shadow: var(--admin-shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease,
+    border-color 0.3s ease;
+  animation: admin-login-fade-up 0.55s ease both;
+
+  &--error {
+    animation: admin-login-shake 0.5s ease;
+    border-color: rgba(248, 113, 113, 0.55);
+    box-shadow:
+      var(--admin-shadow),
+      0 0 0 3px rgba(248, 113, 113, 0.15);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+
+    &--error {
+      animation: none;
+    }
+  }
+}
+
+.admin-login__brand {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.admin-login__logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.admin-login__logo {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+  border-radius: 50%;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.15);
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+.admin-login__college-name {
+  margin: 0 0 0.35rem;
+  font-family: var(--admin-font-serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--admin-text);
+  line-height: 1.25;
+}
+
+.admin-login__subtitle {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--admin-text-muted);
+  font-weight: 500;
+}
+
+/* --- Form --- */
+.admin-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.admin-login__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Floating label inputs */
+.admin-login__float {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-login__icon {
+  position: absolute;
+  left: 1rem;
+  font-size: 1.15rem;
+  color: #64748b;
+  z-index: 1;
+  pointer-events: none;
+  transition: color 0.25s ease;
+
+  .admin-login__float:focus-within & {
+    color: #0891b2;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: #94a3b8;
+
+    .admin-login__float:focus-within & {
+      color: #22d3ee;
+    }
+  }
+}
+
+.admin-login__input {
+  width: 100%;
+  padding: 1.1rem 1rem 0.55rem 2.85rem;
+  border: 1.5px solid rgba(148, 163, 184, 0.45);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-family: var(--admin-font-sans);
+  background: var(--admin-input-bg);
+  color: var(--admin-text);
+  box-sizing: border-box;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+
+  &--has-toggle {
+    padding-right: 3rem;
+  }
+
+  &::placeholder {
+    color: transparent;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: rgba(34, 211, 238, 0.75);
+    box-shadow: 0 0 0 4px var(--admin-focus);
+  }
+
+  &:focus + .admin-login__label,
+  &:not(:placeholder-shown) + .admin-login__label {
+    top: 0.62rem;
+    transform: translateY(0) scale(0.78);
+    color: #0891b2;
+  }
+
+  &--invalid {
+    border-color: rgba(239, 68, 68, 0.75);
+    background: rgba(254, 242, 242, 0.5);
+
+    &:focus {
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      background: rgba(127, 29, 29, 0.2);
+    }
+  }
+}
+
+.admin-login__label {
+  position: absolute;
+  left: 2.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  color: var(--admin-text-muted);
+  pointer-events: none;
+  transform-origin: left top;
+  transition:
+    top 0.25s ease,
+    transform 0.25s ease,
+    color 0.25s ease;
+}
+
+.admin-login__toggle {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    transform 0.15s ease;
+
+  &:hover {
+    color: #0e7490;
+    background: rgba(34, 211, 238, 0.12);
+  }
+
+  &:active {
+    transform: translateY(-50%) scale(0.96);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: #94a3b8;
+
+    &:hover {
+      color: #22d3ee;
+      background: rgba(34, 211, 238, 0.1);
+    }
+  }
+}
+
+.admin-login__toggle-icon {
+  font-size: 1.2rem;
+}
+
+.admin-login__error {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #b91c1c;
+  padding-left: 0.15rem;
+
+  @media (prefers-color-scheme: dark) {
+    color: #fca5a5;
+  }
+}
+
+.admin-login__row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.35rem;
+}
+
+.admin-login__link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #0369a1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0e7490;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: #38bdf8;
+
+    &:hover {
+      color: #7dd3fc;
+    }
+  }
+}
+
+.admin-login__secure {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  padding: 0.35rem 0;
+
+  &-icon {
+    font-size: 1rem;
+    color: #059669;
+    flex-shrink: 0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .admin-login__secure-icon {
+      color: #34d399;
+    }
+  }
+}
+
+.admin-login__captcha {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 3.5rem;
+  padding: 0.75rem;
+  border: 1px dashed rgba(148, 163, 184, 0.6);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  background: rgba(255, 255, 255, 0.2);
+
+  small {
+    font-size: 0.7rem;
+    opacity: 0.85;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background: rgba(15, 23, 42, 0.35);
+  }
+}
+
+.admin-login__messages {
+  margin-top: -0.25rem;
+}
+
+.admin-login__alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  animation: admin-login-fade-up 0.35s ease both;
+
+  &--error {
+    background: rgba(254, 242, 242, 0.95);
+    color: #7f1d1d;
+    border: 1px solid rgba(252, 165, 165, 0.8);
+
+    @media (prefers-color-scheme: dark) {
+      background: rgba(127, 29, 29, 0.35);
+      color: #fecaca;
+      border-color: rgba(248, 113, 113, 0.35);
+    }
+  }
+}
+
+.admin-login__alert-icon {
+  flex-shrink: 0;
+  font-size: 1.15rem;
+  margin-top: 0.1rem;
+}
+
+/* Submit */
+.admin-login__submit {
+  margin-top: 0.25rem;
+  width: 100%;
+  padding: 0.95rem 1.25rem;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: var(--admin-font-sans);
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #0369a1 0%, #0891b2 45%, #22d3ee 100%);
+  box-shadow: 0 10px 28px rgba(8, 145, 178, 0.38);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 36px rgba(8, 145, 178, 0.48);
+    filter: brightness(1.03);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 8px 20px rgba(8, 145, 178, 0.35);
+  }
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(34, 211, 238, 0.55);
+    outline-offset: 2px;
+  }
+}
+
+.admin-login__submit-text,
+.admin-login__submit-loading {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.admin-login__spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: admin-login-spin 0.75s linear infinite;
+}
+
+.admin-login__footer {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(148, 163, 184, 0.35);
+  text-align: center;
+}
+
+.admin-login__footer-link {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #0369a1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: #0e7490;
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    color: #38bdf8;
+  }
+}
+
+@keyframes admin-login-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes admin-login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes admin-login-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-8px);
+  }
+
+  40% {
+    transform: translateX(8px);
+  }
+
+  60% {
+    transform: translateX(-5px);
+  }
+
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-login__submit:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .admin-login__spinner {
+    animation: none;
+    border-top-color: transparent;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-login__glass {
+    padding: 1.5rem 1.25rem 1.35rem;
+    border-radius: 16px;
+  }
+
+  .admin-login__college-name {
+    font-size: 1.15rem;
+  }
+}

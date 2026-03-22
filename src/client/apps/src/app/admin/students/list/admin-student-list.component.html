@@ -1,0 +1,170 @@
+<div class="student-list">
+  <div class="student-list__header">
+    <div>
+      <h1>Student Management</h1>
+      <p>View and manage students</p>
+    </div>
+  </div>
+
+  <div class="student-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Search by name, student number, email..."
+        [formControl]="searchControl"
+        (keyup.enter)="onSearch()"
+      />
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+      >
+        <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+        Search
+      </button>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="Transferred">Transferred</option>
+        <option value="Graduated">Graduated</option>
+        <option value="Withdrawn">Withdrawn</option>
+        <option value="Suspended">Suspended</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Academic Year (e.g., 2024-25)"
+        [formControl]="academicYearFilterControl"
+        (keyup.enter)="onFilterChange()"
+      />
+    </div>
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Program ID"
+        [formControl]="programFilterControl"
+        (keyup.enter)="onFilterChange()"
+      />
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading students...
+    </div>
+  } @else if (students().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:users-group-rounded-bold" class="empty-icon"></iconify-icon>
+      <h3>No students found</h3>
+      <p>Students will appear here once they are enrolled from the admission process.</p>
+    </div>
+  } @else {
+    <div class="student-list__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Student #</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Program</th>
+            <th>Shift</th>
+            <th>Academic Year</th>
+            <th>Status</th>
+            <th>Enrollment Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (student of students(); track student.id) {
+            <tr>
+              <td>
+                <strong>{{ student.studentNumber }}</strong>
+              </td>
+              <td>{{ student.fullName }}</td>
+              <td>{{ student.email }}</td>
+              <td>{{ student.mobileNumber }}</td>
+              <td>{{ student.programCode || 'N/A' }}</td>
+              <td>{{ student.shift }}</td>
+              <td>{{ student.academicYear }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(student.status)">
+                  {{ student.status }}
+                </span>
+              </td>
+              <td>{{ student.enrollmentDate | date: 'shortDate' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="viewStudent(student.id)"
+                    title="View Details"
+                  >
+                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="editStudent(student.id)"
+                    title="Edit"
+                  >
+                    <iconify-icon icon="solar:pen-bold"></iconify-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="student-list__pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }} students
+      </div>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() - 1); loadStudents()"
+          [disabled]="currentPage() === 1 || loading()"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}</span>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() + 1); loadStudents()"
+          [disabled]="!hasMore() || loading()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

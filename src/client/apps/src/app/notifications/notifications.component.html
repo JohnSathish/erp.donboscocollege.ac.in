@@ -1,0 +1,18 @@
+<section class="notifications">
+  <h2>Admissions Updates</h2>
+  <ul class="notifications__list" *ngIf="notifications().length > 0; else empty">
+    <li *ngFor="let notification of notifications()">
+      <div class="notifications__meta">
+        <strong>{{ notification.title }}</strong>
+        <small>{{ notification.createdOnUtc | date: 'medium' }}</small>
+      </div>
+      <p>{{ notification.message }}</p>
+    </li>
+  </ul>
+
+  <ng-template #empty>
+    <p class="notifications__empty">
+      You will receive important announcements here once released by the admissions office.
+    </p>
+  </ng-template>
+</section>

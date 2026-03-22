@@ -1,0 +1,224 @@
+<div class="bulk-communication-container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-section">
+    <h6 class="page-title">Bulk Communication</h6>
+    <ul class="breadcrumb">
+      <li>
+        <a routerLink="/admin/dashboard" class="breadcrumb-link">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="breadcrumb-icon"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li>
+        <a routerLink="/admin/admissions" class="breadcrumb-link">
+          Admissions
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li class="breadcrumb-current">Bulk Communication</li>
+    </ul>
+  </div>
+
+  <!-- Main Form Card -->
+  <div class="card form-card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <iconify-icon icon="solar:chat-round-call-bold" class="title-icon"></iconify-icon>
+        Send Bulk Communication
+      </h2>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="communicationForm" (ngSubmit)="sendCommunication()">
+        <!-- Communication Channel -->
+        <div class="form-group">
+          <label for="channel" class="form-label">Communication Channel *</label>
+          <select id="channel" formControlName="channel" class="form-select">
+            <option *ngFor="let option of channelOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+          @if (communicationForm.get('channel')?.invalid && communicationForm.get('channel')?.touched) {
+            <span class="error-message">Channel is required</span>
+          }
+        </div>
+
+        <!-- Subject (for Email) -->
+        <div class="form-group" *ngIf="communicationForm.get('channel')?.value !== 'Sms'">
+          <label for="subject" class="form-label">Subject *</label>
+          <input
+            id="subject"
+            type="text"
+            formControlName="subject"
+            class="form-control"
+            placeholder="Enter email subject"
+            [class.invalid]="communicationForm.get('subject')?.invalid && communicationForm.get('subject')?.touched"
+          />
+          @if (communicationForm.get('subject')?.invalid && communicationForm.get('subject')?.touched) {
+            <span class="error-message">Subject is required (max 200 characters)</span>
+          }
+        </div>
+
+        <!-- Message -->
+        <div class="form-group">
+          <label for="message" class="form-label">Message *</label>
+          <textarea
+            id="message"
+            formControlName="message"
+            class="form-control"
+            rows="8"
+            placeholder="Enter your message here..."
+            [class.invalid]="communicationForm.get('message')?.invalid && communicationForm.get('message')?.touched"
+          ></textarea>
+          <div class="form-hint">
+            {{ communicationForm.get('message')?.value?.length || 0 }} / 2000 characters
+          </div>
+          @if (communicationForm.get('message')?.invalid && communicationForm.get('message')?.touched) {
+            <span class="error-message">Message is required (max 2000 characters)</span>
+          }
+        </div>
+
+        <!-- Recipient Filters -->
+        <div class="form-section">
+          <h3 class="section-title">Recipient Filters</h3>
+          <p class="section-description">Select recipients based on application status and other criteria. Leave filters empty to send to all applicants.</p>
+
+          <div formGroupName="filter" class="filters-grid">
+            <!-- Status Filter -->
+            <div class="form-group">
+              <label class="form-label">Application Status</label>
+              <div class="checkbox-group">
+                <label *ngFor="let status of statusOptions" class="checkbox-label">
+                  <input
+                    type="checkbox"
+                    [value]="status.value"
+                    (change)="toggleStatus(status.value, $event)"
+                    [checked]="isStatusSelected(status.value)"
+                  />
+                  <span>{{ status.label }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Application Submitted Filter -->
+            <div class="form-group">
+              <label for="isApplicationSubmitted" class="form-label">Application Submitted</label>
+              <select
+                id="isApplicationSubmitted"
+                formControlName="isApplicationSubmitted"
+                class="form-select"
+              >
+                <option [value]="null">All</option>
+                <option [value]="true">Yes</option>
+                <option [value]="false">No</option>
+              </select>
+            </div>
+
+            <!-- Payment Completed Filter -->
+            <div class="form-group">
+              <label for="isPaymentCompleted" class="form-label">Payment Completed</label>
+              <select
+                id="isPaymentCompleted"
+                formControlName="isPaymentCompleted"
+                class="form-select"
+              >
+                <option [value]="null">All</option>
+                <option [value]="true">Yes</option>
+                <option [value]="false">No</option>
+              </select>
+            </div>
+
+            <!-- Search Term -->
+            <div class="form-group">
+              <label for="searchTerm" class="form-label">Search (Name, Email, Application #)</label>
+              <input
+                id="searchTerm"
+                type="text"
+                formControlName="searchTerm"
+                class="form-control"
+                placeholder="Search by name, email, or application number..."
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            (click)="resetForm()"
+            class="btn btn-secondary"
+            [disabled]="sending()"
+          >
+            Reset
+          </button>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            [disabled]="communicationForm.invalid || sending()"
+          >
+            <span *ngIf="sending()">Sending...</span>
+            <span *ngIf="!sending()">Send Communication</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Results Card -->
+  <div *ngIf="result()" class="card results-card">
+    <div class="card-header">
+      <h2 class="card-title">
+        <iconify-icon icon="solar:check-circle-bold" class="title-icon"></iconify-icon>
+        Communication Results
+      </h2>
+    </div>
+    <div class="card-body">
+      <div class="results-summary">
+        <div class="result-item">
+          <span class="result-label">Total Recipients:</span>
+          <span class="result-value">{{ result()!.totalRecipients }}</span>
+        </div>
+        <div class="result-item result-success">
+          <span class="result-label">Emails Sent:</span>
+          <span class="result-value">{{ result()!.emailsSent }}</span>
+        </div>
+        <div class="result-item result-success">
+          <span class="result-label">SMS Sent:</span>
+          <span class="result-value">{{ result()!.smsSent }}</span>
+        </div>
+        <div class="result-item result-error" *ngIf="result()!.emailsFailed > 0">
+          <span class="result-label">Emails Failed:</span>
+          <span class="result-value">{{ result()!.emailsFailed }}</span>
+        </div>
+        <div class="result-item result-error" *ngIf="result()!.smsFailed > 0">
+          <span class="result-label">SMS Failed:</span>
+          <span class="result-value">{{ result()!.smsFailed }}</span>
+        </div>
+      </div>
+
+      <!-- Errors List -->
+      <div *ngIf="result()!.errors.length > 0" class="errors-section">
+        <h3 class="errors-title">Errors</h3>
+        <div class="errors-list">
+          <div *ngFor="let error of result()!.errors" class="error-item">
+            <div class="error-header">
+              <span class="error-app-number">{{ error.applicationNumber }}</span>
+              <span class="error-channel">{{ error.channel }}</span>
+            </div>
+            <div class="error-message">{{ error.errorMessage }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+

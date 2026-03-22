@@ -1,0 +1,276 @@
+<app-payment></app-payment>
+<section class="dashboard" *ngIf="summary() as summary">
+  <section class="dashboard__panel dashboard__panel--hero" id="overview">
+    <div class="dashboard__hero-inner">
+      <div class="dashboard__hero-avatar" *ngIf="profile() as p">
+        <img *ngIf="profilePhotoUrl()" [src]="profilePhotoUrl()" [alt]="p.fullName" />
+        <span *ngIf="!profilePhotoUrl()">{{ p.fullName.charAt(0) }}</span>
+      </div>
+      <div class="dashboard__hero-text">
+        <h1>Welcome back, {{ profile()?.fullName ?? 'Applicant' }} 👋</h1>
+        <p class="dashboard__subtitle">
+          Application Number: <strong>{{ profile()?.uniqueId ?? '—' }}</strong>
+        </p>
+        <p class="dashboard__subtitle">
+          Preferred Shift: <strong>{{ shiftLabel() }}</strong>
+        </p>
+        <div class="dashboard__progress-wrap" *ngIf="profileCompletionPercent() !== null">
+          <div class="dashboard__progress-label">
+            <span>Profile Completion</span>
+            <span>{{ profileCompletionPercent() }}%</span>
+          </div>
+          <div class="dashboard__progress-bar">
+            <div class="dashboard__progress-fill" [style.width.%]="profileCompletionPercent()"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <button routerLink="/app/profile/application" class="dashboard__cta">
+      Continue Application
+    </button>
+  </section>
+
+  <section class="dashboard__quick-actions" *ngIf="incompleteSteps().length || paymentPending()">
+    <h2 class="dashboard__quick-title">Quick Actions</h2>
+    <div class="dashboard__quick-grid">
+      <a *ngIf="incompleteSteps().length" routerLink="/app/profile/application" class="dashboard__quick-card">Complete Profile</a>
+      <a routerLink="/app/documents" class="dashboard__quick-card">Upload Documents</a>
+      <button *ngIf="paymentPending()" type="button" class="dashboard__quick-card" (click)="startPayment()">Pay Fees</button>
+    </div>
+  </section>
+
+  <div
+    class="dashboard__alert dashboard__alert--payment"
+    *ngIf="summary.fees.canPay"
+    role="status"
+    aria-live="polite"
+  >
+    <strong>Payment pending:</strong> Your application fee of ₹600 is due. Use the Pay Now button below to complete your submission.
+  </div>
+
+  <section class="dashboard__panel dashboard__panel--status" id="selection-status" [attr.data-status]="selectionStatus()">
+    <header class="dashboard__panel-header">
+      <h2>Application Status</h2>
+      <span class="badge" 
+            [class.badge--approved]="selectionStatus() === 'Approved'"
+            [class.badge--rejected]="selectionStatus() === 'Rejected'"
+            [class.badge--waiting]="selectionStatus() === 'WaitingList'"
+            [class.badge--exam]="selectionStatus() === 'EntranceExam'"
+            [class.badge--info]="selectionStatus() === 'Submitted' || selectionStatus() === 'Under Review'">
+        {{ selectionStatus() }}
+      </span>
+    </header>
+    <div class="dashboard__timeline">
+      <div class="dashboard__timeline-item" [class.done]="statusStepDone('Submitted')">
+        <span class="dashboard__timeline-dot"></span>
+        <span>Submitted</span>
+      </div>
+      <div class="dashboard__timeline-item" [class.done]="statusStepDone('Under Review')" [class.current]="selectionStatus() === 'Under Review'">
+        <span class="dashboard__timeline-dot"></span>
+        <span>Under Review</span>
+      </div>
+      <div class="dashboard__timeline-item" [class.done]="statusStepDone('Approved')" [class.current]="selectionStatus() === 'Approved'">
+        <span class="dashboard__timeline-dot"></span>
+        <span>Approved</span>
+      </div>
+    </div>
+    <div class="dashboard__status-message">
+      <p class="dashboard__text">{{ selectionNote() }}</p>
+      <div class="dashboard__status-actions" *ngIf="selectionStatus() === 'Approved'">
+        <p class="dashboard__hint" style="margin-top: 1rem; color: #16a34a; font-weight: 600;">
+          ✓ Next Steps: Please check your email for admission offer letter and payment instructions.
+        </p>
+        <button
+          type="button"
+          class="dashboard__cta dashboard__cta--secondary"
+          routerLink="/app/offer"
+          style="margin-top: 1rem;"
+        >
+          View Admission Offer
+        </button>
+      </div>
+      <div class="dashboard__status-actions" *ngIf="selectionStatus() === 'EntranceExam'">
+        <p class="dashboard__hint" style="margin-top: 1rem; color: #2563eb; font-weight: 600;">
+          📅 Exam Details: Check your email and this dashboard for exam date, time, and venue information.
+        </p>
+      </div>
+    </div>
+    <p class="dashboard__meta">
+      Preferred Shift: <strong>{{ shiftLabel() }}</strong>
+    </p>
+  </section>
+
+  <section
+    class="dashboard__panel dashboard__panel--courses"
+    id="course-details"
+    *ngIf="courseSelection() as cs"
+  >
+    <header class="dashboard__panel-header dashboard__panel-header--courses">
+      <h2>
+        <span class="dashboard__course-icon" aria-hidden="true">🎓</span>
+        Your Selected Course Details
+      </h2>
+    </header>
+    <p class="dashboard__course-meta" *ngIf="profile() as p">
+      <span>Application reference: <strong>{{ p.uniqueId }}</strong></span>
+      <span *ngIf="cs.applicationFeePaidOnUtc" class="dashboard__course-meta-sep">
+        · Fee paid: <strong>{{ cs.applicationFeePaidOnUtc | date: 'medium' }}</strong>
+      </span>
+    </p>
+    <dl class="dashboard__course-dl">
+      <div>
+        <dt>Shift</dt>
+        <dd>{{ cs.preferredShiftLabel }}</dd>
+      </div>
+      <div>
+        <dt>Major</dt>
+        <dd>{{ cs.majorSubject }}</dd>
+      </div>
+      <div>
+        <dt>Minor</dt>
+        <dd>{{ cs.minorSubject }}</dd>
+      </div>
+    </dl>
+    <h3 class="dashboard__course-subheading">Electives</h3>
+    <dl class="dashboard__course-dl dashboard__course-dl--stack">
+      <div>
+        <dt>MDC</dt>
+        <dd
+          class="dashboard__elective-dd"
+          [attr.title]="electiveTooltip(cs.mdc) || null"
+        >
+          <ng-container *ngIf="electiveDisplay(cs.mdc) as mdc">
+            <strong class="dashboard__elective-name">{{ mdc.name }}</strong>
+            <span *ngIf="mdc.showCode" class="dashboard__elective-code"> ({{ mdc.code }})</span>
+          </ng-container>
+        </dd>
+      </div>
+      <div>
+        <dt>AEC</dt>
+        <dd
+          class="dashboard__elective-dd"
+          [attr.title]="electiveTooltip(cs.aec) || null"
+        >
+          <ng-container *ngIf="electiveDisplay(cs.aec) as aec">
+            <strong class="dashboard__elective-name">{{ aec.name }}</strong>
+            <span *ngIf="aec.showCode" class="dashboard__elective-code"> ({{ aec.code }})</span>
+          </ng-container>
+        </dd>
+      </div>
+      <div>
+        <dt>SEC</dt>
+        <dd
+          class="dashboard__elective-dd"
+          [attr.title]="electiveTooltip(cs.sec) || null"
+        >
+          <ng-container *ngIf="electiveDisplay(cs.sec) as sec">
+            <strong class="dashboard__elective-name">{{ sec.name }}</strong>
+            <span *ngIf="sec.showCode" class="dashboard__elective-code"> ({{ sec.code }})</span>
+          </ng-container>
+        </dd>
+      </div>
+      <div>
+        <dt>VAC</dt>
+        <dd
+          class="dashboard__elective-dd"
+          [attr.title]="electiveTooltip(cs.vac) || null"
+        >
+          <ng-container *ngIf="electiveDisplay(cs.vac) as vac">
+            <strong class="dashboard__elective-name">{{ vac.name }}</strong>
+            <span *ngIf="vac.showCode" class="dashboard__elective-code"> ({{ vac.code }})</span>
+          </ng-container>
+        </dd>
+      </div>
+    </dl>
+    <p class="dashboard__course-hint">
+      These selections were saved with your submitted application and cannot be changed here.
+    </p>
+    <button type="button" class="dashboard__cta dashboard__cta--secondary" (click)="downloadCourseSummary()">
+      Download application summary
+    </button>
+  </section>
+
+  <section class="dashboard__panel" id="payment">
+    <header class="dashboard__panel-header">
+      <h2>Payment Details</h2>
+      <span class="badge" [class.badge--pending]="summary.fees.remaining > 0">
+        {{ summary.fees.status }}
+      </span>
+    </header>
+    <div class="dashboard__payment-cards">
+      <div class="dashboard__payment-card">
+        <span class="label">Total Fee</span>
+        <span class="value">₹{{ summary.fees.amountDue | number : '1.0-0' }}</span>
+      </div>
+      <div class="dashboard__payment-card">
+        <span class="label">Paid</span>
+        <span class="value">₹{{ summary.fees.amountPaid | number : '1.0-0' }}</span>
+      </div>
+      <div class="dashboard__payment-card dashboard__payment-card--outstanding">
+        <span class="label">Remaining</span>
+        <span class="value">₹{{ summary.fees.remaining | number : '1.0-0' }}</span>
+      </div>
+    </div>
+    <button
+      type="button"
+      class="dashboard__cta dashboard__cta--secondary"
+      *ngIf="summary.fees.canPay"
+      (click)="startPayment()"
+    >
+      Pay Now
+    </button>
+    <div *ngIf="summary.fees.status === 'Completed'" class="dashboard__payment-success">
+      <p class="dashboard__hint" style="color: #16a34a; font-weight: 500;">
+        ✓ Payment completed successfully!
+      </p>
+      <p class="dashboard__hint" *ngIf="summary.fees.transactionId" style="font-size: 0.9rem; margin-top: 0.5rem;">
+        Transaction ID: <strong>{{ summary.fees.transactionId }}</strong>
+      </p>
+    </div>
+    <p class="dashboard__hint" *ngIf="summary.fees.canPay">
+      Payment of ₹{{ summary.fees.amountDue | number : '1.0-0' }} is required to complete your application. Please proceed with the payment at the earliest.
+    </p>
+    <p class="dashboard__hint" *ngIf="!summary.fees.canPay && summary.fees.status !== 'Completed'">
+      The payment option will be available after all application steps are completed and submitted.
+    </p>
+  </section>
+
+  <section class="dashboard__panel" id="documents">
+    <header class="dashboard__panel-header">
+      <h2>Document Checklist</h2>
+      <span class="dashboard__doc-count" *ngIf="documents().length">
+        {{ documentsUploadedCount() }}/{{ documents().length }} uploaded
+      </span>
+    </header>
+    <ul class="dashboard__list">
+      <li *ngFor="let doc of documents()" [class.is-complete]="doc.isComplete">
+        <span class="dashboard__list-icon">{{ doc.isComplete ? '✔' : '📄' }}</span>
+        <div>
+          <strong>{{ doc.name }}</strong>
+          <p>{{ doc.description }}</p>
+        </div>
+        <span>{{ doc.status }}</span>
+      </li>
+      <li *ngIf="documents().length === 0">
+        No document requirements available yet. Check back soon.
+      </li>
+    </ul>
+  </section>
+
+  <section
+    class="dashboard__panel"
+    id="notifications"
+    *ngIf="notifications().length"
+  >
+    <header class="dashboard__panel-header">
+      <h2><span class="dashboard__notif-icon" aria-hidden="true">🔔</span> Notifications</h2>
+    </header>
+    <ul class="dashboard__notifications">
+      <li *ngFor="let notification of notifications(); let i = index" [class.dashboard__notif--new]="i === 0">
+        <h3>{{ notification.title }} <span *ngIf="i === 0" class="dashboard__notif-badge">New</span></h3>
+        <p>{{ notification.message }}</p>
+        <span>{{ notification.createdOnUtc | date: 'medium' }}</span>
+      </li>
+    </ul>
+  </section>
+</section>

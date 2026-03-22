@@ -1,0 +1,136 @@
+<div class="portal">
+  <button
+    type="button"
+    class="portal__menu-toggle"
+    (click)="toggleSidebar()"
+    [attr.aria-expanded]="sidebarOpen()"
+    aria-label="Toggle menu"
+  >
+    <span class="portal__menu-icon"></span>
+  </button>
+  <div class="portal__sidebar-backdrop" *ngIf="sidebarOpen()" (click)="toggleSidebar()"></div>
+  <aside class="portal__sidebar" [class.portal__sidebar--open]="sidebarOpen()">
+    <div class="portal__nav">
+      <a routerLink="/app/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="portal__nav-item">
+        <span class="portal__nav-icon">📋</span>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/app/profile/application" routerLinkActive="active" class="portal__nav-item">
+        <span class="portal__nav-icon">📝</span>
+        <span>Application Form</span>
+      </a>
+      <a routerLink="/app/dashboard" fragment="selection-status" class="portal__nav-item">
+        <span class="portal__nav-icon">📊</span>
+        <span>Application Status</span>
+      </a>
+      <a routerLink="/app/dashboard" fragment="payment" class="portal__nav-item">
+        <span class="portal__nav-icon">💳</span>
+        <span>Payments</span>
+      </a>
+      <a routerLink="/app/documents" routerLinkActive="active" class="portal__nav-item">
+        <span class="portal__nav-icon">📄</span>
+        <span>Documents</span>
+      </a>
+      <a routerLink="/app/notifications" routerLinkActive="active" class="portal__nav-item">
+        <span class="portal__nav-icon">🔔</span>
+        <span>Notifications</span>
+        <span class="portal__nav-badge" *ngIf="notificationCount() > 0" aria-label="Notifications">{{
+          notificationCount() > 9 ? '9+' : notificationCount()
+        }}</span>
+      </a>
+      <a routerLink="/app/profile/summary" routerLinkActive="active" class="portal__nav-item">
+        <span class="portal__nav-icon">⚙️</span>
+        <span>Settings</span>
+      </a>
+    </div>
+    <div class="portal__steps-header" *ngIf="applicationSteps().length > 0">
+      <h2>Form Sections</h2>
+      <p>Jump to a section to update your details.</p>
+    </div>
+    <div class="portal__steps-list" *ngIf="applicationSteps().length > 0">
+      <button
+        type="button"
+        *ngFor="let step of applicationSteps()"
+        [class.portal__step--active]="isSidebarStepActive(step)"
+        [class.portal__step--completed]="isSidebarStepCompleted(step)"
+        (click)="navigateToApplicationStep(step)"
+      >
+        <span class="portal__step-number">{{ step.index + 1 }}</span>
+        <span class="portal__step-content">
+          <strong>{{ step.title }}</strong>
+          <span>{{ step.description }}</span>
+        </span>
+      </button>
+    </div>
+    <div class="portal__actions">
+      <button class="portal__password" type="button" (click)="openChangePassword()">
+        Change Password
+      </button>
+      <button class="portal__logout" type="button" (click)="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <section class="portal__content">
+    <header class="portal__header portal__header--sticky">
+      <div class="portal__header-text">
+        <h1>Admissions Portal</h1>
+        <p>Monitor your application progress and complete pending tasks.</p>
+      </div>
+      <div class="portal__header-profile" *ngIf="profile() as applicant">
+        <div class="portal__header-avatar" [class.portal__header-avatar--photo]="profilePhotoUrl()">
+          <ng-container *ngIf="profilePhotoUrl(); else headerInitials">
+            <img
+              [src]="profilePhotoUrl()"
+              [alt]="applicant.fullName || 'Applicant profile photo'"
+            />
+          </ng-container>
+          <ng-template #headerInitials>
+            {{ applicant.fullName.charAt(0) }}
+          </ng-template>
+        </div>
+        <div class="portal__header-details">
+          <span class="portal__header-name">{{ applicant.fullName }}</span>
+          <span class="portal__header-id">{{ applicant.uniqueId }}</span>
+        </div>
+        <div class="portal__dropdown-wrap">
+          <button
+            type="button"
+            class="portal__dropdown-trigger"
+            (click)="toggleProfileDropdown()"
+            [attr.aria-expanded]="profileDropdownOpen()"
+            aria-haspopup="true"
+            aria-label="Account menu"
+          >
+            ▼
+          </button>
+          <div class="portal__dropdown" *ngIf="profileDropdownOpen()">
+            <a routerLink="/app/profile/summary" class="portal__dropdown-item" (click)="closeProfileDropdown()">Profile</a>
+            <button type="button" class="portal__dropdown-item" (click)="openChangePassword(); closeProfileDropdown()">Change Password</button>
+            <button type="button" class="portal__dropdown-item portal__dropdown-item--danger" (click)="logout(); closeProfileDropdown()">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+    <div class="portal__status portal__status--loading" *ngIf="loading()">
+      Loading your dashboard…
+    </div>
+    <div class="portal__status portal__status--error" *ngIf="!loading() && error()">
+      {{ error() }}
+    </div>
+    <div class="portal__banner" *ngIf="passwordUpdated">
+      Password updated successfully.
+    </div>
+    <div class="portal__main" *ngIf="!loading() && !error()">
+      <router-outlet></router-outlet>
+    </div>
+  </section>
+
+  <div class="portal__overlay" *ngIf="changePasswordOpen">
+    <div class="portal__dialog" role="dialog" aria-modal="true" aria-label="Change password">
+      <app-change-password
+        (closed)="handlePasswordClosed()"
+        (passwordUpdated)="handlePasswordUpdated()"
+      ></app-change-password>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<div class="wf-guide">
+  <header class="wf-guide__head">
+    <h1 class="wf-guide__title">Admission workflow</h1>
+    <p class="wf-guide__lead">
+      This is the end-to-end process the admin panel supports. Status names in <strong>bold</strong> are the values stored
+      in the system today; where your policy uses extra labels (e.g. “UNDER REVIEW”), use the closest status plus remarks.
+    </p>
+    <a routerLink="/admin/admissions/applications" class="wf-guide__cta">Go to applications</a>
+  </header>
+
+  <ol class="wf-guide__list">
+    @for (s of stages; track s.id) {
+      <li class="wf-guide__card">
+        <div class="wf-guide__card-head">
+          <span class="wf-guide__num">Stage {{ s.id }}</span>
+          <h2 class="wf-guide__card-title">{{ s.title }}</h2>
+          <span class="wf-guide__short">{{ s.short }}</span>
+        </div>
+        <div class="wf-guide__card-body">
+          <div class="wf-guide__block">
+            <span class="wf-guide__label">Status / outcome</span>
+            <p class="wf-guide__text">{{ s.statuses }}</p>
+          </div>
+          <div class="wf-guide__block">
+            <span class="wf-guide__label">Admin actions</span>
+            <p class="wf-guide__text">{{ s.adminActions }}</p>
+          </div>
+          <div class="wf-guide__links">
+            <span class="wf-guide__label">Shortcuts</span>
+            <div class="wf-guide__route-row">
+              @for (r of s.routes; track r) {
+                <a [routerLink]="r" class="wf-guide__link">{{ r }}</a>
+              }
+            </div>
+          </div>
+        </div>
+      </li>
+    }
+  </ol>
+
+  <section class="wf-guide__note">
+    <h3>How this maps to the database</h3>
+    <ul>
+      <li><strong>Stage 1</strong> — <code>isApplicationSubmitted</code> and <code>isPaymentCompleted</code> (application fee).</li>
+      <li><strong>Stage 2</strong> — Document checks on the application detail; use <strong>Submitted</strong> while reviewing; <strong>Rejected</strong> with remarks if documents fail.</li>
+      <li><strong>Stage 3–4</strong> — <strong>EntranceExam</strong>, <strong>WaitingList</strong>, <strong>Approved</strong>, <strong>Rejected</strong> for merit and decisions.</li>
+      <li><strong>Stage 5–6</strong> — <strong>Approved</strong> with payment + <strong>Enroll</strong> action → <strong>Enrolled</strong>.</li>
+    </ul>
+  </section>
+</div>

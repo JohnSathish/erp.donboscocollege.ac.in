@@ -1,0 +1,199 @@
+<div class="applications-list admission-approval">
+  <div class="breadcrumb-section">
+    <h6 class="page-title">Admission Approval</h6>
+    <ul class="breadcrumb">
+      <li>
+        <a routerLink="/admin/dashboard" class="breadcrumb-link">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="breadcrumb-icon"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li>
+        <a routerLink="/admin/admissions/applications" class="breadcrumb-link">Online Admission</a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li class="breadcrumb-current">Admission Approval</li>
+    </ul>
+  </div>
+
+  <p class="admission-approval__intro">
+    Applications with <strong>application fee paid</strong> and status
+    <strong>Submitted</strong>, <strong>EntranceExam</strong>, or <strong>WaitingList</strong> appear here for a final
+    <strong>approve</strong> or <strong>reject</strong> decision. Class XII ≥ {{ directAdmissionCutoff() }}% is the
+    configured merit threshold (see also Merit List &amp; Direct Admission).
+  </p>
+
+  <div class="header-actions">
+    <div class="action-buttons">
+      <a routerLink="/admin/admissions/workflow" class="btn btn-outline-secondary btn-workflow">
+        <iconify-icon icon="solar:map-bold" class="btn-icon"></iconify-icon>
+        Workflow guide
+      </a>
+      <button
+        type="button"
+        (click)="loadQueue()"
+        [disabled]="loading()"
+        class="btn btn-primary btn-refresh"
+      >
+        <iconify-icon icon="solar:refresh-bold" class="btn-icon"></iconify-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <div class="card filters-card">
+    <div class="card-body">
+      <div class="filters-grid">
+        <div class="filter-item filter-item--grow">
+          <label class="filter-label">Search</label>
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              [formControl]="searchControl"
+              placeholder="Name, application no., email…"
+              (keyup.enter)="onSearch()"
+              class="form-control search-input"
+            />
+            <iconify-icon icon="ion:search-outline" class="search-icon"></iconify-icon>
+          </div>
+          <button type="button" (click)="onSearch()" [disabled]="loading()" class="btn btn-primary btn-search">
+            Search
+          </button>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Shift</label>
+          <input
+            type="text"
+            [formControl]="shiftControl"
+            (change)="onFilterChange()"
+            class="form-control"
+            placeholder="e.g. ShiftI"
+          />
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Status (queue)</label>
+          <select [formControl]="statusFilterControl" class="form-select">
+            <option value="all">All pending</option>
+            <option value="Submitted">Submitted</option>
+            <option value="EntranceExam">Entrance exam</option>
+            <option value="WaitingList">Waiting list</option>
+          </select>
+        </div>
+
+        <div class="filter-item filter-item--checkbox">
+          <label class="filter-label">Merit threshold</label>
+          <label class="form-check-label">
+            <input
+              type="checkbox"
+              [formControl]="meritEligibleOnlyControl"
+              (change)="onFilterChange()"
+              class="form-check-input"
+            />
+            Only load ≥ {{ directAdmissionCutoff() }}% Class XII
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading(); else loadingState">
+    <div class="card table-card">
+      <div class="card-body">
+        <div class="table-toolbar">
+          <span class="table-count">
+            Showing {{ displayedRows().length }} applicant(s) in the approval queue
+          </span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table applications-table">
+            <thead>
+              <tr>
+                <th>Application No.</th>
+                <th>Name</th>
+                <th>Major</th>
+                <th>Shift</th>
+                <th>Class XII %</th>
+                <th>Status</th>
+                <th>Updated</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                *ngFor="let app of displayedRows(); trackBy: trackByApplicationId"
+                class="table-row"
+                [class.table-row--eligible]="rowMeetsCutoff(app)"
+              >
+                <td class="font-medium">{{ app.uniqueId }}</td>
+                <td>{{ app.fullName }}</td>
+                <td>{{ app.majorSubject || '—' }}</td>
+                <td>{{ app.shift || '—' }}</td>
+                <td>{{ formatPct(app) }}</td>
+                <td>
+                  <span class="status-badge" [ngClass]="statusBadgeClass(app.status)">{{ app.status }}</span>
+                </td>
+                <td>{{ app.statusUpdatedOnUtc | date: 'MMM d, yyyy, h:mm a' }}</td>
+                <td class="text-center">
+                  <div class="action-buttons-group">
+                    <button
+                      type="button"
+                      (click)="viewApplication(app.id)"
+                      class="btn btn-outline-primary btn-sm"
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-success btn-sm"
+                      (click)="approveApp(app)"
+                      [disabled]="loading() || actionAccountId() === app.id"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline-danger btn-sm"
+                      (click)="rejectApp(app)"
+                      [disabled]="loading() || actionAccountId() === app.id"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p *ngIf="!displayedRows().length && !error()" class="empty-message">
+          No applications in the approval queue. Adjust filters or check
+          <a routerLink="/admin/admissions/applications">Applications</a>.
+        </p>
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingState>
+    <div class="card loading-card">
+      <div class="card-body">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading approval queue…</p>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <div *ngIf="error()" class="card error-card">
+    <div class="card-body">
+      <div class="error-content">
+        <iconify-icon icon="solar:danger-triangle-bold" class="error-icon"></iconify-icon>
+        <p class="error-text">{{ error() }}</p>
+      </div>
+    </div>
+  </div>
+</div>

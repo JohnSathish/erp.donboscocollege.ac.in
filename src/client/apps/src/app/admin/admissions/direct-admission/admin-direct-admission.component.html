@@ -1,0 +1,141 @@
+<div class="direct-admission">
+  <div class="direct-admission__header">
+    <h1>Direct Admission - Create Offers</h1>
+    <p>Select students with percentage above the threshold and send them admission fee payment notifications.</p>
+  </div>
+
+  <div class="direct-admission__alerts" *ngIf="error() || success()">
+    <div class="alert alert--error" *ngIf="error()">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+    <div class="alert alert--success" *ngIf="success()">
+      <iconify-icon icon="solar:check-circle-bold" class="alert-icon"></iconify-icon>
+      {{ success() }}
+    </div>
+  </div>
+
+  <div class="direct-admission__form">
+    <div class="form-card">
+      <h2>Selection Criteria</h2>
+      <p class="form-description">
+        Configure the criteria for selecting students for direct admission. Students who meet the percentage
+        requirement will receive admission offers with payment instructions.
+      </p>
+
+      <form (ngSubmit)="createDirectAdmissionOffers()" #form="ngForm">
+        <div class="form-group">
+          <label for="minimumPercentage">
+            Minimum Percentage (Class XII) <span class="required">*</span>
+          </label>
+          <input
+            id="minimumPercentage"
+            type="number"
+            step="0.01"
+            min="0"
+            max="100"
+            [(ngModel)]="formData().minimumPercentage"
+            name="minimumPercentage"
+            required
+            class="form-control"
+            placeholder="60.00"
+          />
+          <small class="form-help">
+            Students with Class XII percentage equal to or above this value will be selected.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="admissionFeeAmount">
+            Admission Fee Amount (₹) <span class="required">*</span>
+          </label>
+          <input
+            id="admissionFeeAmount"
+            type="number"
+            step="0.01"
+            min="0"
+            [(ngModel)]="formData().admissionFeeAmount"
+            name="admissionFeeAmount"
+            required
+            class="form-control"
+            placeholder="10.00"
+          />
+          <small class="form-help">
+            The amount students need to pay to complete their admission. This is a placeholder amount and can be updated later.
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="expiryDate">Offer Expiry Date (Optional)</label>
+          <input
+            id="expiryDate"
+            type="date"
+            [(ngModel)]="formData().expiryDate"
+            name="expiryDate"
+            class="form-control"
+            [min]="getDefaultExpiryDate()"
+          />
+          <small class="form-help">
+            Leave empty to use default (30 days from today). Students must complete payment before this date.
+          </small>
+        </div>
+
+        <div class="form-actions">
+          <button
+            type="submit"
+            class="btn btn--primary"
+            [disabled]="loading() || !form.valid"
+          >
+            <iconify-icon icon="solar:user-check-bold" class="btn-icon" *ngIf="!loading()"></iconify-icon>
+            <span *ngIf="loading()">Processing...</span>
+            <span *ngIf="!loading()">Create Direct Admission Offers</span>
+          </button>
+          <button
+            type="button"
+            class="btn btn--secondary"
+            (click)="resetForm()"
+            [disabled]="loading()"
+          >
+            <iconify-icon icon="solar:refresh-bold" class="btn-icon"></iconify-icon>
+            Reset
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="direct-admission__result" *ngIf="result()">
+    <div class="result-card">
+      <h2>Results</h2>
+      
+      <div class="result-summary">
+        <div class="result-stat">
+          <div class="stat-value">{{ result()!.totalOffersCreated }}</div>
+          <div class="stat-label">Offers Created</div>
+        </div>
+        <div class="result-stat" *ngIf="result()!.errors.length > 0">
+          <div class="stat-value stat-value--error">{{ result()!.errors.length }}</div>
+          <div class="stat-label">Errors</div>
+        </div>
+      </div>
+
+      <div class="result-details" *ngIf="result()!.errors.length > 0">
+        <h3>Errors</h3>
+        <ul class="error-list">
+          <li *ngFor="let error of result()!.errors">{{ error }}</li>
+        </ul>
+      </div>
+
+      <div class="result-info">
+        <p>
+          <strong>Note:</strong> Selected students have been sent email and SMS notifications with payment
+          instructions. Once they complete the payment, they will be automatically enrolled as students.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+

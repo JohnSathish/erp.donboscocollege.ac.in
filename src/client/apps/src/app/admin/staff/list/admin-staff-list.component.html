@@ -1,0 +1,189 @@
+<div class="staff-list">
+  <div class="staff-list__header">
+    <div>
+      <h1>Staff Management</h1>
+      <p>View and manage staff members</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="createStaff()"
+    >
+      <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+      Add Staff Member
+    </button>
+  </div>
+
+  <div class="staff-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Search by name, employee number, email..."
+        [formControl]="searchControl"
+        (keyup.enter)="onSearch()"
+      />
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+      >
+        <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+        Search
+      </button>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="departmentFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Departments</option>
+        <option value="Computer Science">Computer Science</option>
+        <option value="Mathematics">Mathematics</option>
+        <option value="Physics">Physics</option>
+        <option value="Chemistry">Chemistry</option>
+        <option value="English">English</option>
+        <option value="Administration">Administration</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="employeeTypeFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Types</option>
+        <option value="Teaching">Teaching</option>
+        <option value="Non-Teaching">Non-Teaching</option>
+        <option value="Administrative">Administrative</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="OnLeave">On Leave</option>
+        <option value="Suspended">Suspended</option>
+        <option value="Resigned">Resigned</option>
+        <option value="Terminated">Terminated</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading staff members...
+    </div>
+  } @else if (staff().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:users-group-rounded-bold" class="empty-icon"></iconify-icon>
+      <h3>No staff members found</h3>
+      <p>Add your first staff member to get started.</p>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="createStaff()"
+      >
+        Add Staff Member
+      </button>
+    </div>
+  } @else {
+    <div class="staff-list__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Employee #</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Mobile</th>
+            <th>Department</th>
+            <th>Designation</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Join Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (member of staff(); track member.id) {
+            <tr>
+              <td>
+                <strong>{{ member.employeeNumber }}</strong>
+              </td>
+              <td>{{ member.fullName }}</td>
+              <td>{{ member.email }}</td>
+              <td>{{ member.mobileNumber }}</td>
+              <td>{{ member.department || 'N/A' }}</td>
+              <td>{{ member.designation || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getEmployeeTypeBadgeClass(member.employeeType)">
+                  {{ member.employeeType || 'N/A' }}
+                </span>
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(member.status)">
+                  {{ member.status }}
+                </span>
+              </td>
+              <td>{{ member.joinDate | date: 'shortDate' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="viewStaff(member.id)"
+                    title="View Details"
+                  >
+                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="staff-list__pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }} staff members
+      </div>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() - 1); loadStaff()"
+          [disabled]="currentPage() === 1 || loading()"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}</span>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() + 1); loadStaff()"
+          [disabled]="!hasMore() || loading()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

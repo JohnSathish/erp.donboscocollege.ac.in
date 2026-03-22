@@ -1,0 +1,145 @@
+.payment-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.payment-modal__content {
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.payment-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.payment-modal__header h2 {
+  margin: 0;
+  color: #1b5e9d;
+  font-size: 1.5rem;
+}
+
+.payment-modal__close {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #6b7280;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.payment-modal__close:hover {
+  background: #f3f4f6;
+}
+
+.payment-modal__body {
+  padding: 1.5rem;
+}
+
+.payment-modal__processing {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #1b5e9d;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.payment-modal__processing p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.payment-modal__hint {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 1rem !important;
+}
+
+.payment-modal__info {
+  text-align: center;
+}
+
+.payment-modal__info p {
+  margin: 0.5rem 0;
+  color: #374151;
+}
+
+.payment-modal__device-hint {
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: #475569;
+  text-align: left;
+  padding: 0.65rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 3px solid #1b5e9d;
+}
+
+.payment-modal__amount {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1b5e9d;
+  margin: 1rem 0 !important;
+}
+
+.payment-modal__button {
+  background: #1b5e9d;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: background-color 0.2s;
+  width: 100%;
+}
+
+.payment-modal__button:hover {
+  background: #155085;
+}
+
+.payment-modal__button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+

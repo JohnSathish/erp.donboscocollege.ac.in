@@ -1,0 +1,136 @@
+<div class="fee-structures-list">
+  <div class="fee-structures-list__header">
+    <h1>Fee Structures</h1>
+    <a routerLink="/admin/settings/fee-structures/new" class="btn btn-primary">Create New Fee Structure</a>
+  </div>
+
+  <div class="fee-structures-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search fee structures..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="form-control"
+      />
+      <button (click)="onSearch()" class="btn btn-secondary">Search</button>
+    </div>
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Academic Year (e.g., 2024-2025)"
+        [(ngModel)]="academicYearFilter"
+        (keyup.enter)="onFilterChange()"
+        class="form-control"
+      />
+    </div>
+    <div class="filter-group">
+      <select
+        [(ngModel)]="isActiveFilter"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option [ngValue]="null">All Status</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading fee structures...</div>
+  } @else {
+    <div class="fee-structures-list__table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Academic Year</th>
+            <th>Total Amount</th>
+            <th>Components</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fs of feeStructures(); track fs.id) {
+            <tr>
+              <td><strong>{{ fs.name }}</strong></td>
+              <td>{{ fs.programName || 'All Programs' }}</td>
+              <td>{{ fs.academicYear }}</td>
+              <td>{{ fs.totalAmount | currency: 'INR' }}</td>
+              <td>{{ fs.components.length }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="fs.isActive"
+                  [class.badge-secondary]="!fs.isActive"
+                >
+                  {{ fs.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    [routerLink]="['/admin/settings/fee-structures', fs.id]"
+                    class="btn btn-sm btn-primary"
+                  >
+                    View
+                  </a>
+                  <a
+                    [routerLink]="['/admin/settings/fee-structures', fs.id, 'edit']"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    (click)="toggleStatus(fs.id)"
+                    class="btn btn-sm btn-info"
+                  >
+                    {{ fs.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    (click)="deleteFeeStructure(fs.id)"
+                    class="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center">No fee structures found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <button
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="btn btn-sm"
+        >
+          Previous
+        </button>
+        <span
+          >Page {{ currentPage() }} of {{ getTotalPages() }} ({{ totalCount() }}
+          total)</span
+        >
+        <button
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() >= getTotalPages()"
+          class="btn btn-sm"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>
+
+

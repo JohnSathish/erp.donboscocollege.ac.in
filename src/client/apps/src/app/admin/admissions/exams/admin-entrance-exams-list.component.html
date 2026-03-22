@@ -1,0 +1,143 @@
+<div class="exams-list">
+  <div class="exams-list__header">
+    <h1>Entrance Exams</h1>
+    <a routerLink="/admin/admissions/exams/new" class="btn btn-primary">Create New Exam</a>
+  </div>
+
+  <div class="exams-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search exams..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="form-control"
+      />
+      <button (click)="onSearch()" class="btn btn-secondary">Search</button>
+    </div>
+    <div class="filter-group">
+      <select
+        [(ngModel)]="isActiveFilter"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option [ngValue]="null">All Status</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading exams...</div>
+  } @else {
+    <div class="exams-list__table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Exam Code</th>
+            <th>Exam Name</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Venue</th>
+            <th>Capacity</th>
+            <th>Registrations</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (exam of exams(); track exam.id) {
+            <tr>
+              <td>
+                <strong>{{ exam.examCode }}</strong>
+              </td>
+              <td>{{ exam.examName }}</td>
+              <td>{{ formatDate(exam.examDate) }}</td>
+              <td>
+                {{ formatTime(exam.examStartTime) }} -
+                {{ formatTime(exam.examEndTime) }}
+              </td>
+              <td>{{ exam.venue }}</td>
+              <td>
+                {{ exam.currentRegistrations }} / {{ exam.maxCapacity }}
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="
+                    exam.currentRegistrations < exam.maxCapacity
+                  "
+                  [class.badge-warning]="
+                    exam.currentRegistrations >= exam.maxCapacity * 0.8
+                  "
+                  [class.badge-danger]="
+                    exam.currentRegistrations >= exam.maxCapacity
+                  "
+                >
+                  {{ exam.currentRegistrations }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="exam.isActive"
+                  [class.badge-secondary]="!exam.isActive"
+                >
+                  {{ exam.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    [routerLink]="['/admin/admissions/exams', exam.id]"
+                    class="btn btn-sm btn-primary"
+                    >View</a
+                  >
+                  <a
+                    [routerLink]="['/admin/admissions/exams', exam.id, 'edit']"
+                    class="btn btn-sm btn-secondary"
+                    >Edit</a
+                  >
+                  <a
+                    [routerLink]="['/admin/admissions/exams', exam.id, 'registrations']"
+                    class="btn btn-sm btn-info"
+                    >Registrations</a
+                  >
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="text-center">No exams found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <button
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="btn btn-sm"
+        >
+          Previous
+        </button>
+        <span
+          >Page {{ currentPage() }} of {{ getTotalPages() }} ({{ totalCount() }}
+          total)</span
+        >
+        <button
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() >= getTotalPages()"
+          class="btn btn-sm"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>
+

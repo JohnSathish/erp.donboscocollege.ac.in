@@ -1,0 +1,153 @@
+<div class="admin-login">
+  <!-- Decorative mesh / ambient background -->
+  <div class="admin-login__ambient" aria-hidden="true">
+    <div class="admin-login__mesh"></div>
+    <div class="admin-login__glow admin-login__glow--1"></div>
+    <div class="admin-login__glow admin-login__glow--2"></div>
+    <div class="admin-login__glow admin-login__glow--3"></div>
+  </div>
+
+  <!-- Optional subtle campus layer (CSS-only blur + overlay; no external image dependency) -->
+  <div class="admin-login__campus" aria-hidden="true"></div>
+
+  <div class="admin-login__layout">
+    <!-- Left: brand / hero -->
+    <aside class="admin-login__hero">
+      <div class="admin-login__hero-inner">
+        <p class="admin-login__eyebrow">Welcome to Admin Panel</p>
+        <h1 class="admin-login__hero-title">Don Bosco College Tura</h1>
+        <p class="admin-login__hero-tagline">Excellence in Education since 1984 — Pursuit of Excellence</p>
+        <ul class="admin-login__hero-list">
+          <li>Secure access for admissions &amp; operations</li>
+          <li>Trusted by faculty and administration</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Right: glass card + form -->
+    <main class="admin-login__main">
+      <div
+        class="admin-login__glass"
+        [class.admin-login__glass--error]="serverError"
+        role="region"
+        aria-labelledby="admin-login-heading"
+      >
+        <header class="admin-login__brand">
+          <div class="admin-login__logo-wrap">
+            <img
+              src="/vision-mission-1.png"
+              alt=""
+              width="112"
+              height="112"
+              class="admin-login__logo"
+              decoding="async"
+            />
+          </div>
+          <h2 id="admin-login-heading" class="admin-login__college-name">Don Bosco College Tura</h2>
+          <p class="admin-login__subtitle">Sign in to continue</p>
+        </header>
+
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+          class="admin-login__form"
+          [attr.aria-busy]="isSubmitting"
+        >
+          <!-- Username -->
+          <div class="admin-login__field">
+            <div class="admin-login__float">
+              <input
+                id="admin-username"
+                type="text"
+                formControlName="username"
+                autocomplete="username"
+                class="admin-login__input"
+                [class.admin-login__input--invalid]="controlInvalid('username')"
+                placeholder=" "
+                aria-required="true"
+                [attr.aria-invalid]="controlInvalid('username') ? 'true' : null"
+                aria-describedby="username-error"
+              />
+              <label for="admin-username" class="admin-login__label">Username</label>
+              <iconify-icon icon="solar:user-bold" class="admin-login__icon" aria-hidden="true"></iconify-icon>
+            </div>
+            <span id="username-error" class="admin-login__error" *ngIf="controlInvalid('username')" role="alert">
+              Username is required.
+            </span>
+          </div>
+
+          <!-- Password -->
+          <div class="admin-login__field">
+            <div class="admin-login__float">
+              <input
+                id="admin-password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                autocomplete="current-password"
+                class="admin-login__input admin-login__input--has-toggle"
+                [class.admin-login__input--invalid]="controlInvalid('password')"
+                placeholder=" "
+                aria-required="true"
+                [attr.aria-invalid]="controlInvalid('password') ? 'true' : null"
+                aria-describedby="password-error"
+              />
+              <label for="admin-password" class="admin-login__label">Password</label>
+              <iconify-icon icon="solar:lock-password-bold" class="admin-login__icon" aria-hidden="true"></iconify-icon>
+              <button
+                type="button"
+                class="admin-login__toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+                [attr.aria-pressed]="showPassword"
+              >
+                <iconify-icon
+                  [icon]="showPassword ? 'solar:eye-bold' : 'solar:eye-closed-bold'"
+                  class="admin-login__toggle-icon"
+                  aria-hidden="true"
+                ></iconify-icon>
+              </button>
+            </div>
+            <span id="password-error" class="admin-login__error" *ngIf="controlInvalid('password')" role="alert">
+              Password is required (min. 5 characters).
+            </span>
+          </div>
+
+          <div class="admin-login__row">
+            <a href="#" class="admin-login__link" (click)="$event.preventDefault()">Forgot password?</a>
+          </div>
+
+          <div class="admin-login__secure">
+            <iconify-icon icon="solar:shield-check-bold" class="admin-login__secure-icon" aria-hidden="true"></iconify-icon>
+            <span>Secure login — your session is protected</span>
+          </div>
+
+          <!-- CAPTCHA placeholder (integrate provider later) -->
+          <div class="admin-login__captcha" aria-label="CAPTCHA placeholder">
+            <span>CAPTCHA verification</span>
+            <small>Placeholder — connect your provider here</small>
+          </div>
+
+          <div class="admin-login__messages" *ngIf="serverError" role="alert" aria-live="polite">
+            <div class="admin-login__alert admin-login__alert--error">
+              <iconify-icon icon="solar:danger-triangle-bold" class="admin-login__alert-icon" aria-hidden="true"></iconify-icon>
+              <span>{{ serverError }}</span>
+            </div>
+          </div>
+
+          <button type="submit" class="admin-login__submit" [disabled]="isSubmitting">
+            <span class="admin-login__submit-text" *ngIf="!isSubmitting">Sign in</span>
+            <span class="admin-login__submit-loading" *ngIf="isSubmitting">
+              <span class="admin-login__spinner" aria-hidden="true"></span>
+              Signing in…
+            </span>
+          </button>
+        </form>
+
+        <footer class="admin-login__footer">
+          <a href="#" class="admin-login__footer-link" (click)="$event.preventDefault()">Terms and Conditions</a>
+        </footer>
+      </div>
+    </main>
+  </div>
+</div>

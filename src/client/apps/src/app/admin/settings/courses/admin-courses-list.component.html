@@ -1,0 +1,125 @@
+<div class="courses-list">
+  <div class="courses-list__header">
+    <h1>Courses</h1>
+    <a routerLink="/admin/settings/courses/new" class="btn btn-primary">Create New Course</a>
+  </div>
+
+  <div class="courses-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search courses..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="form-control"
+      />
+      <button (click)="onSearch()" class="btn btn-secondary">Search</button>
+    </div>
+    <div class="filter-group">
+      <select
+        [(ngModel)]="isActiveFilter"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option [ngValue]="null">All Status</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading courses...</div>
+  } @else {
+    <div class="courses-list__table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Program</th>
+            <th>Credit Hours</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (course of courses(); track course.id) {
+            <tr>
+              <td><strong>{{ course.code }}</strong></td>
+              <td>{{ course.name }}</td>
+              <td>{{ course.programName || 'N/A' }}</td>
+              <td>{{ course.creditHours }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="course.isActive"
+                  [class.badge-secondary]="!course.isActive"
+                >
+                  {{ course.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    [routerLink]="['/admin/settings/courses', course.id]"
+                    class="btn btn-sm btn-primary"
+                  >
+                    View
+                  </a>
+                  <a
+                    [routerLink]="['/admin/settings/courses', course.id, 'edit']"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    (click)="toggleStatus(course.id)"
+                    class="btn btn-sm btn-info"
+                  >
+                    {{ course.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    (click)="deleteCourse(course.id)"
+                    class="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center">No courses found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <button
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="btn btn-sm"
+        >
+          Previous
+        </button>
+        <span
+          >Page {{ currentPage() }} of {{ getTotalPages() }} ({{ totalCount() }}
+          total)</span
+        >
+        <button
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() >= getTotalPages()"
+          class="btn btn-sm"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>
+
+

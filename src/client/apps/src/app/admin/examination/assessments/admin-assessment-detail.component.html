@@ -1,0 +1,195 @@
+<div class="assessment-detail">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading assessment...
+    </div>
+  } @else if (error()) {
+    <div class="error-state">
+      <iconify-icon icon="solar:close-circle-bold" class="error-icon"></iconify-icon>
+      <h3>{{ error() }}</h3>
+      <button type="button" class="btn btn--primary" (click)="goBack()">
+        <iconify-icon icon="solar:arrow-left-bold" class="btn-icon"></iconify-icon>
+        Back to List
+      </button>
+    </div>
+  } @else if (assessment()) {
+    <div class="assessment-detail__header">
+      <div>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="goBack()"
+        >
+          <iconify-icon icon="solar:arrow-left-bold" class="btn-icon"></iconify-icon>
+          Back
+        </button>
+        <h1>{{ assessment()!.name }}</h1>
+        <p class="text-muted">{{ assessment()!.code }} • {{ assessment()!.courseName || 'N/A' }}</p>
+      </div>
+      <div class="header-actions">
+        @if (!assessment()!.isPublished) {
+          <button
+            type="button"
+            class="btn btn--primary"
+            (click)="publishAssessment()"
+          >
+            <iconify-icon icon="solar:upload-bold" class="btn-icon"></iconify-icon>
+            Publish Assessment
+          </button>
+        }
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="editAssessment()"
+        >
+          <iconify-icon icon="solar:pen-bold" class="btn-icon"></iconify-icon>
+          Edit
+        </button>
+      </div>
+    </div>
+
+    <div class="assessment-detail__content">
+      <!-- Basic Information -->
+      <div class="info-card">
+        <h2>Basic Information</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Assessment Code</span>
+            <span class="info-value">{{ assessment()!.code }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Assessment Type</span>
+            <span class="info-value">
+              <span class="badge badge--info">{{ assessment()!.type }}</span>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Course</span>
+            <span class="info-value">{{ assessment()!.courseName || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Academic Term</span>
+            <span class="info-value">{{ assessment()!.academicTermName || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Class Section</span>
+            <span class="info-value">{{ assessment()!.classSectionName || 'N/A' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Status</span>
+            <span class="info-value">
+              <span class="badge" [ngClass]="getStatusBadgeClass(assessment()!.status)">
+                {{ assessment()!.status }}
+              </span>
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Maximum Marks</span>
+            <span class="info-value">{{ assessment()!.maxMarks }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Passing Marks</span>
+            <span class="info-value">{{ assessment()!.passingMarks }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Total Weightage</span>
+            <span class="info-value">{{ assessment()!.totalWeightage }}%</span>
+          </div>
+          @if (assessment()!.scheduledDate) {
+            <div class="info-item">
+              <span class="info-label">Scheduled Date</span>
+              <span class="info-value">{{ assessment()!.scheduledDate | date: 'short' }}</span>
+            </div>
+          }
+          @if (assessment()!.duration) {
+            <div class="info-item">
+              <span class="info-label">Duration</span>
+              <span class="info-value">{{ assessment()!.duration }}</span>
+            </div>
+          }
+          @if (assessment()!.isPublished && assessment()!.publishedOnUtc) {
+            <div class="info-item">
+              <span class="info-label">Published On</span>
+              <span class="info-value">{{ assessment()!.publishedOnUtc | date: 'short' }}</span>
+            </div>
+          }
+          @if (assessment()!.publishedBy) {
+            <div class="info-item">
+              <span class="info-label">Published By</span>
+              <span class="info-value">{{ assessment()!.publishedBy }}</span>
+            </div>
+          }
+        </div>
+        @if (assessment()!.instructions) {
+          <div class="instructions-box">
+            <h3>Instructions</h3>
+            <p>{{ assessment()!.instructions }}</p>
+          </div>
+        }
+      </div>
+
+      <!-- Assessment Components -->
+      <div class="info-card">
+        <h2>Assessment Components</h2>
+        @if (assessment()!.components && assessment()!.components.length > 0) {
+          <div class="components-table-wrapper">
+            <table class="components-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Component Name</th>
+                  <th>Code</th>
+                  <th>Max Marks</th>
+                  <th>Passing Marks</th>
+                  <th>Weightage</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (component of assessment()!.components; track component.id) {
+                  <tr>
+                    <td>{{ component.displayOrder }}</td>
+                    <td>
+                      <strong>{{ component.name }}</strong>
+                    </td>
+                    <td>{{ component.code || 'N/A' }}</td>
+                    <td>{{ component.maxMarks }}</td>
+                    <td>{{ component.passingMarks }}</td>
+                    <td>{{ component.weightage }}%</td>
+                  </tr>
+                  @if (component.instructions) {
+                    <tr class="component-instructions">
+                      <td colspan="6">
+                        <div class="instructions-text">
+                          <strong>Instructions:</strong> {{ component.instructions }}
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+              </tbody>
+            </table>
+          </div>
+          <div class="components-summary">
+            <div class="summary-item">
+              <span class="summary-label">Total Components:</span>
+              <span class="summary-value">{{ assessment()!.components.length }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Total Component Weightage:</span>
+              <span class="summary-value">
+                {{ getTotalComponentWeightage() }}%
+              </span>
+            </div>
+          </div>
+        } @else {
+          <div class="empty-state">
+            <iconify-icon icon="solar:document-text-bold" class="empty-icon"></iconify-icon>
+            <p>No components defined for this assessment.</p>
+          </div>
+        }
+      </div>
+    </div>
+  }
+</div>
+

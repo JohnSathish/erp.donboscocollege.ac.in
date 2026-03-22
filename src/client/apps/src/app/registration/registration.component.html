@@ -1,0 +1,328 @@
+<div class="reg-page">
+  <div class="reg-page__container">
+    <!-- Left: Registration Form (flex: 2) -->
+    <section class="reg-page__main">
+      <div class="reg-card reg-card--form">
+        <form class="reg-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <header class="reg-form__header">
+            <img
+              src="/vision-mission-1.png"
+              alt="Don Bosco College, Tura"
+              class="reg-form__logo"
+              width="100"
+              height="100"
+            />
+            <h1 class="reg-form__college-name">Don Bosco College, Tura</h1>
+            <div class="reg-form__address">
+              <p>Meghalaya - 794002. Ph. 03651-222361, Mob. 9436308357</p>
+              <p>Email: <a href="mailto:principaldbct@gmail.com" class="reg-form__address-link">principaldbct@gmail.com</a></p>
+              <p>Website: <a href="https://www.donboscocollege.ac.in" target="_blank" rel="noopener noreferrer" class="reg-form__address-link">www.donboscocollege.ac.in</a></p>
+              <p class="reg-form__address-naac">(Re-accredited with 'B' Grade by NAAC Bangalore)</p>
+            </div>
+          </header>
+          <h2 class="reg-form__title">Applicant Registration: 2026–2027</h2>
+          <p class="reg-form__subtitle">
+            Four Year Undergraduate Programme (FYUP) Semester I Admissions
+          </p>
+
+          <p class="reg-form__section-label">Personal & contact details</p>
+          <div class="reg-form__grid">
+            <label class="reg-field" [class.reg-field--invalid]="controlInvalid('fullName')" [class.reg-field--valid]="controlValid('fullName')">
+              <span class="reg-field__label">Full Name *</span>
+              <input
+                type="text"
+                formControlName="fullName"
+                autocomplete="name"
+                placeholder="Applicant name as per Class X"
+                class="reg-field__input"
+              />
+              <span class="reg-field__success" *ngIf="controlValid('fullName')" aria-hidden="true">✓</span>
+              <span class="reg-field__error" *ngIf="controlInvalid('fullName')">
+                Please enter the applicant's full name.
+              </span>
+            </label>
+
+            <label class="reg-field" [class.reg-field--invalid]="controlInvalid('dateOfBirth')" [class.reg-field--valid]="controlValid('dateOfBirth')">
+              <span class="reg-field__label">Date of Birth *</span>
+              <div class="reg-field__date-wrap">
+                <input
+                  type="text"
+                  formControlName="dateOfBirth"
+                  placeholder="mm/dd/yyyy"
+                  inputmode="numeric"
+                  (input)="onDateInput($event)"
+                  class="reg-field__input"
+                />
+                <button
+                  type="button"
+                  class="reg-field__date-btn"
+                  aria-label="Select date"
+                  (click)="openCalendar(nativeDateInput)"
+                >
+                  📅
+                </button>
+                <input
+                  #nativeDateInput
+                  type="date"
+                  class="reg-field__native-date"
+                  (change)="applyNativeDate($event)"
+                />
+              </div>
+              <span class="reg-field__success" *ngIf="controlValid('dateOfBirth')" aria-hidden="true">✓</span>
+              <ng-container *ngIf="form.get('dateOfBirth') as dobControl">
+                <span class="reg-field__error" *ngIf="dobControl.hasError('invalidFormat')">
+                  Use the format mm/dd/yyyy.
+                </span>
+                <span class="reg-field__error" *ngIf="dobControl.hasError('futureDate')">
+                  Date of birth cannot be in the future.
+                </span>
+                <span class="reg-field__error" *ngIf="controlInvalid('dateOfBirth') && !dobControl.errors?.['invalidFormat'] && !dobControl.errors?.['futureDate']">
+                  Select a valid date of birth.
+                </span>
+              </ng-container>
+            </label>
+
+            <label class="reg-field" [class.reg-field--invalid]="controlInvalid('gender')" [class.reg-field--valid]="controlValid('gender')">
+              <span class="reg-field__label">Gender *</span>
+              <select formControlName="gender" class="reg-field__input">
+                <option value="" disabled>Select gender</option>
+                <option *ngFor="let option of genderOptions" [value]="option">
+                  {{ option }}
+                </option>
+              </select>
+              <span class="reg-field__success" *ngIf="controlValid('gender')" aria-hidden="true">✓</span>
+              <span class="reg-field__error" *ngIf="controlInvalid('gender')">
+                Please select a gender.
+              </span>
+            </label>
+
+            <label class="reg-field" [class.reg-field--invalid]="controlInvalid('email')" [class.reg-field--valid]="controlValid('email')">
+              <span class="reg-field__label">Email *</span>
+              <input
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="applicant@example.com"
+                class="reg-field__input"
+              />
+              <span class="reg-field__success" *ngIf="controlValid('email')" aria-hidden="true">✓</span>
+              <span
+                class="reg-field__error"
+                *ngIf="form.get('email')?.hasError('duplicate'); else emailGeneralError"
+              >
+                An account already exists for this email address.
+              </span>
+              <ng-template #emailGeneralError>
+                <span class="reg-field__error" *ngIf="controlInvalid('email')">
+                  Enter a valid email address.
+                </span>
+              </ng-template>
+            </label>
+
+            <div class="reg-field reg-field--full">
+              <span class="reg-field__label">Profile Photo *</span>
+              <div
+                class="reg-upload"
+                [class.reg-upload--active]="photoDropZoneActive"
+                [class.reg-upload--has-file]="photoPreview"
+                (dragover)="onPhotoDragOver($event)"
+                (dragleave)="onPhotoDragLeave($event)"
+                (drop)="onPhotoDrop($event)"
+                (click)="triggerPhotoInput(photoFileInput)"
+              >
+                <input
+                  #photoFileInput
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  class="reg-upload__hidden"
+                  (change)="onProfilePhotoSelected($event)"
+                />
+                <img
+                  *ngIf="photoPreview"
+                  [src]="photoPreview"
+                  alt="Preview"
+                  class="reg-upload__preview"
+                />
+                <ng-container *ngIf="!photoPreview">
+                  <span class="reg-upload__text">Drag & drop your photo here or click to browse</span>
+                  <span class="reg-upload__hint">JPEG or PNG, max 2 MB</span>
+                </ng-container>
+              </div>
+              <span class="reg-field__error" *ngIf="photoError">{{ photoError }}</span>
+            </div>
+
+            <label class="reg-field" [class.reg-field--invalid]="controlInvalid('mobileNumber')" [class.reg-field--valid]="controlValid('mobileNumber')">
+              <span class="reg-field__label">Mobile Number *</span>
+              <input
+                type="tel"
+                formControlName="mobileNumber"
+                autocomplete="tel"
+                placeholder="Enter contact number"
+                (input)="onMobileInput($event)"
+                class="reg-field__input"
+              />
+              <span class="reg-field__success" *ngIf="controlValid('mobileNumber')" aria-hidden="true">✓</span>
+              <span class="reg-field__hint">
+                Student's number, linked to Aadhaar—not a parent's number.
+              </span>
+              <span
+                class="reg-field__error"
+                *ngIf="form.get('mobileNumber')?.hasError('duplicate'); else mobileGeneralError"
+              >
+                An account already exists for this mobile number.
+              </span>
+              <ng-template #mobileGeneralError>
+                <span class="reg-field__error" *ngIf="controlInvalid('mobileNumber')">
+                  Enter a valid 10-digit contact number.
+                </span>
+              </ng-template>
+            </label>
+          </div>
+
+          <label class="reg-terms">
+            <input type="checkbox" formControlName="agreedToTerms" />
+            <span>
+              I confirm that the information provided is accurate and I agree to the college's admissions policies.
+            </span>
+          </label>
+          <span class="reg-field__error" *ngIf="controlInvalid('agreedToTerms')">
+            You must accept the declaration before submitting.
+          </span>
+
+          <div class="reg-form__banner reg-form__banner--error" *ngIf="submitError">
+            {{ submitError }}
+          </div>
+
+          <div class="reg-form__success" *ngIf="success">
+            <h3>Registration Successful</h3>
+            <p>Credentials are shown below and have been sent via email and SMS.</p>
+            <dl>
+              <div><dt>Application Number</dt><dd>{{ success.uniqueId }}</dd></div>
+              <div><dt>Temporary Password</dt><dd>{{ success.temporaryPassword }}</dd></div>
+            </dl>
+            <button type="button" class="reg-btn reg-btn--primary" (click)="goToLogin()">
+              Go to Login
+            </button>
+          </div>
+
+          <button type="submit" class="reg-btn reg-btn--submit" [disabled]="isSubmitting">
+            <span *ngIf="!isSubmitting">Register</span>
+            <span *ngIf="isSubmitting" class="reg-form__spinner" aria-live="polite">Submitting…</span>
+          </button>
+
+          <p class="reg-form__login-row">
+            Already registered?
+            <a routerLink="/login" class="reg-form__login-link">Log in</a>
+          </p>
+        </form>
+      </div>
+    </section>
+
+    <!-- Right: Instruction Panel (flex: 1, sticky) -->
+    <aside class="reg-page__sidebar">
+      <!-- Mobile: accordion using <details> -->
+      <details class="reg-instructions-details">
+        <summary class="reg-instructions-details__summary">Read Instructions</summary>
+        <div class="reg-card reg-card--instructions">
+          <h2 class="reg-instructions__title">Welcome to Admission 2026–2027 Portal</h2>
+          <p class="reg-instructions__subtitle">Important Steps to Follow Before Registration</p>
+
+          <ol class="reg-instructions__steps">
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">1</span>
+              Register using a valid Email ID and Mobile Number.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">2</span>
+              After successful registration, login credentials will be sent to your registered email.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">3</span>
+              Log in and complete your Personal Details. Click "Save Details" after filling.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">4</span>
+              Enter Class X and XII marks, including aggregate percentage, in the Marks Section and click "Next/Update".
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">5</span>
+              Upload required documents: Passport Photo (Max: 100 KB), Other Documents (Max: 2 MB each).
+            </li>
+          </ol>
+
+          <div class="reg-instructions__warning">
+            <strong>Note:</strong> Registration to the portal does NOT guarantee admission.
+          </div>
+
+          <div class="reg-instructions__notes">
+            <h3 class="reg-instructions__notes-title">Important</h3>
+            <ul>
+              <li>Admission will be granted based on merit and the decision of the Admission Committee.</li>
+              <li>The decision of the Admission Committee will be final.</li>
+              <li>Ensure your Email ID and Mobile Number are correct and active throughout the admission process.</li>
+              <li>Do not miss important updates—check your email and portal regularly.</li>
+            </ul>
+          </div>
+
+          <a href="#" class="reg-instructions__download" download>Download Instructions PDF</a>
+
+          <div class="reg-instructions__help">
+            <strong>Need help?</strong> Contact the admissions office during working hours.
+          </div>
+        </div>
+      </details>
+
+      <!-- Desktop: equal-height panel with scrollable body -->
+      <div class="reg-card reg-card--instructions reg-card--sticky reg-card--equal-height">
+        <h2 class="reg-instructions__title">Welcome to Admission 2026–2027 Portal</h2>
+        <p class="reg-instructions__subtitle">Important Steps to Follow Before Registration</p>
+
+        <div class="reg-instructions__body">
+          <ol class="reg-instructions__steps">
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">1</span>
+              Register using a valid Email ID and Mobile Number.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">2</span>
+              After successful registration, login credentials will be sent to your registered email.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">3</span>
+              Log in and complete your Personal Details. Click "Save Details" after filling.
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">4</span>
+              Enter Class X and XII marks, including aggregate percentage, in the Marks Section and click "Next/Update".
+            </li>
+            <li class="reg-instructions__step">
+              <span class="reg-instructions__num" aria-hidden="true">5</span>
+              Upload required documents: Passport Photo (Max: 100 KB), Other Documents (Max: 2 MB each).
+            </li>
+          </ol>
+
+          <div class="reg-instructions__warning">
+            <strong>Note:</strong> Registration to the portal does NOT guarantee admission.
+          </div>
+
+          <div class="reg-instructions__notes">
+            <h3 class="reg-instructions__notes-title">Important</h3>
+            <ul>
+              <li>Admission will be granted based on merit and the decision of the Admission Committee.</li>
+              <li>The decision of the Admission Committee will be final.</li>
+              <li>Ensure your Email ID and Mobile Number are correct and active throughout the admission process.</li>
+              <li>Do not miss important updates—check your email and portal regularly.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="reg-instructions__footer">
+          <a href="#" class="reg-instructions__download" download>Download Instructions PDF</a>
+          <div class="reg-instructions__help">
+            <strong>Need help?</strong> Contact the admissions office during working hours.
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>

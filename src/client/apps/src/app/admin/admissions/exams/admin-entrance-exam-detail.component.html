@@ -1,0 +1,147 @@
+<div class="exam-detail">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-section">
+    <h6 class="page-title">Exam Details</h6>
+    <ul class="breadcrumb">
+      <li>
+        <a routerLink="/admin/dashboard" class="breadcrumb-link">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="breadcrumb-icon"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li>
+        <a routerLink="/admin/admissions/exams" class="breadcrumb-link">
+          Entrance Exams
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li class="breadcrumb-current">Details</li>
+    </ul>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading exam details...</div>
+  } @else if (exam()) {
+    <div class="exam-detail__header">
+      <div class="header-content">
+        <h1>{{ exam()!.examName }}</h1>
+        <div class="header-actions">
+          <a
+            [routerLink]="['/admin/admissions/exams', exam()!.id, 'edit']"
+            class="btn btn-secondary"
+          >
+            Edit
+          </a>
+          <a
+            [routerLink]="['/admin/admissions/exams', exam()!.id, 'registrations']"
+            class="btn btn-primary"
+          >
+            View Registrations
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="exam-detail__content">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-label">Exam Code</div>
+          <div class="info-value">{{ exam()!.examCode }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Status</div>
+          <div class="info-value">
+            <span
+              class="badge"
+              [class.badge-success]="exam()!.isActive"
+              [class.badge-secondary]="!exam()!.isActive"
+            >
+              {{ exam()!.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Exam Date</div>
+          <div class="info-value">{{ formatDate(exam()!.examDate) }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Time</div>
+          <div class="info-value">
+            {{ formatTime(exam()!.examStartTime) }} - {{ formatTime(exam()!.examEndTime) }}
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Venue</div>
+          <div class="info-value">{{ exam()!.venue }}</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Capacity</div>
+          <div class="info-value">
+            {{ exam()!.currentRegistrations }} / {{ exam()!.maxCapacity }}
+          </div>
+        </div>
+      </div>
+
+      @if (exam()!.venueAddress) {
+        <div class="detail-section">
+          <h3>Venue Address</h3>
+          <p>{{ exam()!.venueAddress }}</p>
+        </div>
+      }
+
+      @if (exam()!.description) {
+        <div class="detail-section">
+          <h3>Description</h3>
+          <p>{{ exam()!.description }}</p>
+        </div>
+      }
+
+      @if (exam()!.instructions) {
+        <div class="detail-section">
+          <h3>Instructions</h3>
+          <p>{{ exam()!.instructions }}</p>
+        </div>
+      }
+
+      <div class="detail-section">
+        <h3>Additional Information</h3>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-item-label">Created On:</span>
+            <span class="info-item-value">{{ exam()!.createdOnUtc | date: 'medium' }}</span>
+          </div>
+          @if (exam()!.createdBy) {
+            <div class="info-item">
+              <span class="info-item-label">Created By:</span>
+              <span class="info-item-value">{{ exam()!.createdBy }}</span>
+            </div>
+          }
+          @if (exam()!.updatedOnUtc) {
+            <div class="info-item">
+              <span class="info-item-label">Updated On:</span>
+              <span class="info-item-value">{{ exam()!.updatedOnUtc | date: 'medium' }}</span>
+            </div>
+          }
+          @if (exam()!.updatedBy) {
+            <div class="info-item">
+              <span class="info-item-label">Updated By:</span>
+              <span class="info-item-value">{{ exam()!.updatedBy }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="error">Exam not found</div>
+  }
+</div>
+
+
+
+
+
+
+
+
+

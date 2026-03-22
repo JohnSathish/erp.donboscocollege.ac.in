@@ -1,0 +1,81 @@
+boardCode,streamCode,subjectName,sortOrder
+MBOSE,ARTS,English,10
+MBOSE,ARTS,Alternative English,20
+MBOSE,ARTS,Garo (MIL),30
+MBOSE,ARTS,Elective Garo,40
+MBOSE,ARTS,Education,50
+MBOSE,ARTS,Economics,60
+MBOSE,ARTS,History,70
+MBOSE,ARTS,Political Science,80
+MBOSE,ARTS,Sociology,90
+MBOSE,ARTS,Geography,100
+MBOSE,ARTS,Philosophy,110
+MBOSE,ARTS,Psychology,120
+MBOSE,ARTS,Mathematics,130
+MBOSE,SCIENCE,English,10
+MBOSE,SCIENCE,Physics,20
+MBOSE,SCIENCE,Chemistry,30
+MBOSE,SCIENCE,Mathematics,40
+MBOSE,SCIENCE,Biology,50
+MBOSE,SCIENCE,Computer Science,60
+MBOSE,SCIENCE,Environmental Science,70
+MBOSE,COMMERCE,English,10
+MBOSE,COMMERCE,Accountancy,20
+MBOSE,COMMERCE,Business Studies,30
+MBOSE,COMMERCE,Economics,40
+MBOSE,COMMERCE,Mathematics,50
+MBOSE,COMMERCE,Computer Science,60
+MBOSE,COMMERCE,Entrepreneurship,70
+CBSE,ARTS,English Core,10
+CBSE,ARTS,English Elective,20
+CBSE,ARTS,History,30
+CBSE,ARTS,Political Science,40
+CBSE,ARTS,Geography,50
+CBSE,ARTS,Economics,60
+CBSE,ARTS,Sociology,70
+CBSE,ARTS,Psychology,80
+CBSE,ARTS,Philosophy,90
+CBSE,ARTS,Physical Education,100
+CBSE,ARTS,Fine Arts,110
+CBSE,ARTS,Home Science,120
+CBSE,ARTS,Mathematics,130
+CBSE,SCIENCE,English,10
+CBSE,SCIENCE,Physics,20
+CBSE,SCIENCE,Chemistry,30
+CBSE,SCIENCE,Mathematics,40
+CBSE,SCIENCE,Biology,50
+CBSE,SCIENCE,Computer Science,60
+CBSE,SCIENCE,Informatics Practices,70
+CBSE,SCIENCE,Physical Education,80
+CBSE,COMMERCE,English,10
+CBSE,COMMERCE,Accountancy,20
+CBSE,COMMERCE,Business Studies,30
+CBSE,COMMERCE,Economics,40
+CBSE,COMMERCE,Mathematics,50
+CBSE,COMMERCE,Applied Mathematics,60
+CBSE,COMMERCE,Informatics Practices,70
+CBSE,COMMERCE,Entrepreneurship,80
+ISC,ARTS,English,10
+ISC,ARTS,History,20
+ISC,ARTS,Political Science,30
+ISC,ARTS,Sociology,40
+ISC,ARTS,Psychology,50
+ISC,ARTS,Geography,60
+ISC,ARTS,Economics,70
+ISC,ARTS,Home Science,80
+ISC,ARTS,Environmental Science,90
+ISC,ARTS,Physical Education,100
+ISC,SCIENCE,English,10
+ISC,SCIENCE,Physics,20
+ISC,SCIENCE,Chemistry,30
+ISC,SCIENCE,Mathematics,40
+ISC,SCIENCE,Biology,50
+ISC,SCIENCE,Computer Science,60
+ISC,SCIENCE,Environmental Science,70
+ISC,COMMERCE,English,10
+ISC,COMMERCE,Accounts,20
+ISC,COMMERCE,Commerce,30
+ISC,COMMERCE,Economics,40
+ISC,COMMERCE,Mathematics,50
+ISC,COMMERCE,Computer Science,60
+ISC,COMMERCE,Business Studies,70

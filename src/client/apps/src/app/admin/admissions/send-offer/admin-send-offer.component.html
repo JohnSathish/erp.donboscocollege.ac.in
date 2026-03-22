@@ -1,0 +1,116 @@
+<div class="send-offer">
+  <div class="send-offer__header">
+    <h1>Send Individual Admission Offer</h1>
+    <p>Send an admission offer to a specific student by application number</p>
+  </div>
+
+  <div class="send-offer__messages">
+    <div class="alert alert--error" *ngIf="errorMessage()">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ errorMessage() }}
+    </div>
+    <div class="alert alert--success" *ngIf="successMessage()">
+      <iconify-icon icon="solar:check-circle-bold" class="alert-icon"></iconify-icon>
+      {{ successMessage() }}
+    </div>
+  </div>
+
+  <form [formGroup]="offerForm" (ngSubmit)="sendOffer()" class="send-offer__form">
+    <div class="form-group">
+      <label for="applicationNumber">Application Number *</label>
+      <input
+        id="applicationNumber"
+        type="text"
+        formControlName="applicationNumber"
+        placeholder="e.g., DBCT25-0001"
+        [class.is-invalid]="offerForm.get('applicationNumber')?.invalid && offerForm.get('applicationNumber')?.touched"
+      />
+      <div
+        *ngIf="offerForm.get('applicationNumber')?.invalid && offerForm.get('applicationNumber')?.touched"
+        class="invalid-feedback"
+      >
+        <div *ngIf="offerForm.get('applicationNumber')?.errors?.['required']">
+          Application number is required.
+        </div>
+        <div *ngIf="offerForm.get('applicationNumber')?.errors?.['pattern']">
+          Please enter a valid application number (e.g., DBCT25-0001).
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="admissionFeeAmount">Admission Fee Amount (₹) *</label>
+      <input
+        id="admissionFeeAmount"
+        type="number"
+        formControlName="admissionFeeAmount"
+        min="0"
+        step="0.01"
+        placeholder="e.g., 10.00"
+        [class.is-invalid]="offerForm.get('admissionFeeAmount')?.invalid && offerForm.get('admissionFeeAmount')?.touched"
+      />
+      <div
+        *ngIf="offerForm.get('admissionFeeAmount')?.invalid && offerForm.get('admissionFeeAmount')?.touched"
+        class="invalid-feedback"
+      >
+        <div *ngIf="offerForm.get('admissionFeeAmount')?.errors?.['required']">
+          Admission fee amount is required.
+        </div>
+        <div *ngIf="offerForm.get('admissionFeeAmount')?.errors?.['min']">
+          Admission fee cannot be negative.
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="expiryDays">Offer Expiry (Days) *</label>
+      <input
+        id="expiryDays"
+        type="number"
+        formControlName="expiryDays"
+        min="1"
+        max="30"
+        placeholder="e.g., 2"
+        [class.is-invalid]="offerForm.get('expiryDays')?.invalid && offerForm.get('expiryDays')?.touched"
+      />
+      <div
+        *ngIf="offerForm.get('expiryDays')?.invalid && offerForm.get('expiryDays')?.touched"
+        class="invalid-feedback"
+      >
+        <div *ngIf="offerForm.get('expiryDays')?.errors?.['required']">
+          Expiry days is required.
+        </div>
+        <div *ngIf="offerForm.get('expiryDays')?.errors?.['min'] || offerForm.get('expiryDays')?.errors?.['max']">
+          Expiry days must be between 1 and 30.
+        </div>
+      </div>
+      <small class="form-hint">The offer will expire after this many days from today.</small>
+    </div>
+
+    <div class="form-group">
+      <label for="remarks">Remarks (Optional)</label>
+      <textarea
+        id="remarks"
+        formControlName="remarks"
+        rows="3"
+        placeholder="Any additional notes or remarks..."
+      ></textarea>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary" [disabled]="loading()">
+        <iconify-icon icon="solar:letter-bold" class="btn-icon" *ngIf="!loading()"></iconify-icon>
+        <span *ngIf="loading()">Sending Offer...</span>
+        <span *ngIf="!loading()">Send Admission Offer</span>
+      </button>
+      <button type="button" class="btn btn--secondary" (click)="resetForm()" [disabled]="loading()">
+        <iconify-icon icon="solar:refresh-bold" class="btn-icon"></iconify-icon>
+        Reset Form
+      </button>
+    </div>
+  </form>
+</div>
+
+
+
+

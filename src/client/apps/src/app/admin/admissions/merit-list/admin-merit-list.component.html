@@ -1,0 +1,171 @@
+<div class="merit-list">
+  <div class="merit-list__header">
+    <h1>Merit List & Ranking</h1>
+    <p>Generate and view merit lists based on applicant scores and rankings.</p>
+  </div>
+
+  <div class="merit-list__settings card-like" *ngIf="!settingsLoading()">
+    <div class="merit-list__settings-head">
+      <h2 class="merit-list__settings-title">Merit eligibility (Class XII %)</h2>
+      <p class="merit-list__settings-desc">
+        Minimum Class XII percentage required to appear on the merit list and for direct admission.
+        This value is saved in the database and applies immediately to new merit generation and list views.
+        The applicant portal base URL still comes from server configuration.
+      </p>
+    </div>
+    <div class="merit-list__settings-row">
+      <label class="merit-list__settings-label" for="meritCutoff">Minimum %</label>
+      <input
+        id="meritCutoff"
+        type="number"
+        min="0"
+        max="100"
+        step="0.01"
+        class="merit-list__settings-input"
+        [ngModel]="meritCutoffDraft()"
+        (ngModelChange)="meritCutoffDraft.set($event)"
+      />
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="saveMeritCutoff()"
+        [disabled]="savingSettings()"
+      >
+        {{ savingSettings() ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </div>
+  <div class="merit-list__settings merit-list__settings--loading" *ngIf="settingsLoading()">
+    <p>Loading settings…</p>
+  </div>
+
+  <div class="merit-list__actions" *ngIf="error()">
+    <div class="alert alert--error">{{ error() }}</div>
+  </div>
+
+  <div class="merit-list__filters">
+    <div class="filter-group">
+      <label for="shift">Shift:</label>
+      <input
+        id="shift"
+        type="text"
+        [(ngModel)]="filters().shift"
+        placeholder="Filter by shift"
+      />
+    </div>
+    <div class="filter-group">
+      <label for="majorSubject">Major Subject:</label>
+      <input
+        id="majorSubject"
+        type="text"
+        [(ngModel)]="filters().majorSubject"
+        placeholder="Filter by major subject"
+      />
+    </div>
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="applyFilters()"
+        [disabled]="loading()"
+      >
+        Apply Filters
+      </button>
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="clearFilters()"
+        [disabled]="loading()"
+      >
+        Clear
+      </button>
+      <button
+        type="button"
+        class="btn btn--success"
+        (click)="generateMeritList()"
+        [disabled]="generating() || loading()"
+      >
+        {{ generating() ? 'Generating...' : 'Generate Merit List' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="merit-list__content" *ngIf="meritList() as list">
+    <div class="merit-list__stats">
+      <p>
+        Showing {{ list.meritScores.length }} of {{ list.totalCount }} ranked
+        applicants
+      </p>
+    </div>
+
+    <table class="merit-list__table" *ngIf="list.meritScores.length > 0">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Application No.</th>
+          <th>Name</th>
+          <th>Class XII %</th>
+          <th>CUET Score</th>
+          <th>Entrance Exam</th>
+          <th>Total Score</th>
+          <th>Shift</th>
+          <th>Major Subject</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let score of list.meritScores">
+          <td class="rank">{{ score.rank }}</td>
+          <td>{{ score.applicationNumber }}</td>
+          <td>{{ score.fullName }}</td>
+          <td>{{ score.classXIIPercentage | number : '1.2-2' }}%</td>
+          <td>{{ score.cuetScore ?? '—' }}</td>
+          <td>{{ score.entranceExamScore ?? '—' }}</td>
+          <td class="total-score">
+            <strong>{{ score.totalScore | number : '1.2-2' }}</strong>
+          </td>
+          <td>{{ score.shift }}</td>
+          <td>{{ score.majorSubject }}</td>
+          <td>
+            <button
+              type="button"
+              class="btn btn--small btn--primary"
+              (click)="createOffer(score.accountId)"
+            >
+              Create Offer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div *ngIf="list.meritScores.length === 0" class="merit-list__empty">
+      <p>No merit scores found. Generate a merit list to get started.</p>
+    </div>
+
+    <div class="merit-list__pagination" *ngIf="list.totalCount > pageSize">
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onPageChange(page() - 1)"
+        [disabled]="page() === 1 || loading()"
+      >
+        Previous
+      </button>
+      <span>Page {{ page() }} of {{ Math.ceil(list.totalCount / pageSize) }}</span>
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onPageChange(page() + 1)"
+        [disabled]="page() * pageSize >= list.totalCount || loading()"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="merit-list__loading">
+    <p>Loading merit list...</p>
+  </div>
+</div>
+

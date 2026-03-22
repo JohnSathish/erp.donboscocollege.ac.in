@@ -1,0 +1,249 @@
+<section class="registration-page" aria-labelledby="registration-heading">
+  <div class="registration-page__inner">
+    <div class="registration-page__grid">
+      <article class="registration-card">
+        <header class="registration-card__header">
+          <img
+            src="assets/college-logo.png"
+            alt=""
+            class="registration-card__logo"
+            width="96"
+            height="96"
+          />
+          <div class="registration-card__brand">
+            <h1 class="registration-card__college">Don Bosco College, Tura</h1>
+            <p class="registration-card__meta">
+              West Garo Hills, Meghalaya · admissions&#64;donboscocollege.ac.in
+            </p>
+          </div>
+        </header>
+
+        <h2 id="registration-heading" class="registration-card__title">
+          Applicant Registration: {{ admissionCycleLabel }}
+        </h2>
+        <p class="registration-card__subtitle">
+          Four Year Undergraduate Programme (FYUP) Semester I Admissions
+        </p>
+        <p class="registration-card__intro">
+          Please provide accurate information as on official documents. Fields marked with
+          <span class="registration-card__req" aria-hidden="true">*</span> are mandatory.
+        </p>
+        <p class="registration-card__offline-hint">
+          <strong>Offline applicants:</strong> use your <strong>6-digit form number</strong> as the login ID and your
+          <strong>mobile number</strong> as your first password on the applicant portal. You will be prompted to change
+          your password after signing in. Do not use this page if you already received a form from the office.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="registration-form">
+          <h3 class="registration-form__section-title">Personal &amp; contact details</h3>
+
+          <div class="registration-form__grid">
+            <label class="registration-field">
+              <span class="registration-field__label">Full name <span class="registration-field__star">*</span></span>
+              <input
+                type="text"
+                formControlName="fullName"
+                autocomplete="name"
+                placeholder="Applicant name as per Class X"
+              />
+              <span class="registration-field__error" *ngIf="controlInvalid('fullName')">
+                Please enter the applicant's full name.
+              </span>
+            </label>
+
+            <label class="registration-field">
+              <span class="registration-field__label">Date of birth <span class="registration-field__star">*</span></span>
+              <input type="date" formControlName="dateOfBirth" [attr.max]="maxDate" />
+              <span class="registration-field__error" *ngIf="controlInvalid('dateOfBirth')">
+                Select a valid date of birth.
+              </span>
+            </label>
+
+            <label class="registration-field">
+              <span class="registration-field__label">Gender <span class="registration-field__star">*</span></span>
+              <select formControlName="gender">
+                <option value="" disabled>Select gender</option>
+                <option *ngFor="let option of genderOptions" [value]="option">
+                  {{ option }}
+                </option>
+              </select>
+              <span class="registration-field__error" *ngIf="controlInvalid('gender')">
+                Please select a gender.
+              </span>
+            </label>
+
+            <label class="registration-field">
+              <span class="registration-field__label">Email <span class="registration-field__star">*</span></span>
+              <input
+                type="email"
+                formControlName="email"
+                autocomplete="email"
+                placeholder="applicant@example.com"
+              />
+              <span class="registration-field__error" *ngIf="controlInvalid('email')">
+                Enter a valid email address.
+              </span>
+            </label>
+
+            <label class="registration-field registration-field--full">
+              <span class="registration-field__label">Mobile number <span class="registration-field__star">*</span></span>
+              <input
+                type="tel"
+                formControlName="mobileNumber"
+                autocomplete="tel"
+                placeholder="Enter contact number"
+              />
+              <span class="registration-field__error" *ngIf="controlInvalid('mobileNumber')">
+                Enter a valid contact number (numbers, + or -).
+              </span>
+            </label>
+
+            <div class="registration-field registration-field--full">
+              <span class="registration-field__label">
+                Profile photo <span class="registration-field__star">*</span>
+              </span>
+              <input
+                #photoInput
+                type="file"
+                class="registration-drop__input"
+                accept="image/jpeg,image/png"
+                (change)="onPhotoSelected($event)"
+                aria-hidden="true"
+                tabindex="-1"
+              />
+              <div
+                role="button"
+                tabindex="0"
+                class="registration-drop"
+                [class.registration-drop--active]="isDragActive"
+                [class.registration-drop--has-file]="photoFile"
+                (click)="openPhotoPicker()"
+                (keydown.enter)="openPhotoPicker()"
+                (keydown.space)="$event.preventDefault(); openPhotoPicker()"
+                (dragover)="onDragOver($event)"
+                (dragleave)="onDragLeave($event)"
+                (drop)="onDrop($event)"
+                aria-describedby="photo-help"
+              >
+                <ng-container *ngIf="!photoPreviewUrl; else photoPreview">
+                  <span class="registration-drop__icon" aria-hidden="true">📷</span>
+                  <span class="registration-drop__text">
+                    Drag &amp; drop your photo here or <strong>click to browse</strong>
+                  </span>
+                  <span id="photo-help" class="registration-drop__hint">
+                    JPEG or PNG, max 2 MB
+                  </span>
+                </ng-container>
+                <ng-template #photoPreview>
+                  <img [src]="photoPreviewUrl!" alt="Photo preview" class="registration-drop__preview" />
+                  <span class="registration-drop__filename">{{ photoFile?.name }}</span>
+                  <button
+                    type="button"
+                    class="registration-drop__clear"
+                    (click)="clearPhoto(); $event.stopPropagation()"
+                  >
+                    Remove
+                  </button>
+                </ng-template>
+              </div>
+              <span class="registration-field__error" *ngIf="photoError">{{ photoError }}</span>
+            </div>
+          </div>
+
+          <label class="registration-terms">
+            <input type="checkbox" formControlName="agreedToTerms" />
+            <span>
+              I confirm that the information provided is accurate and I agree to the college's
+              admissions policies.
+            </span>
+          </label>
+          <span class="registration-field__error" *ngIf="controlInvalid('agreedToTerms')">
+            You must accept the declaration before submitting.
+          </span>
+
+          <div class="registration-messages" *ngIf="submitError">
+            <p class="registration-alert registration-alert--error">
+              {{ submitError }}
+            </p>
+          </div>
+
+          <div class="registration-messages" *ngIf="success">
+            <div class="registration-alert registration-alert--success">
+              <h3>Registration successful</h3>
+              <p>Please note your credentials. They will also be sent via email and SMS.</p>
+              <dl>
+                <div>
+                  <dt>Application number</dt>
+                  <dd>{{ success.uniqueId }}</dd>
+                </div>
+                <div>
+                  <dt>Temporary password</dt>
+                  <dd>{{ success.temporaryPassword }}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <div class="registration-actions">
+            <button type="submit" class="registration-actions__primary" [disabled]="isSubmitting">
+              <span *ngIf="!isSubmitting">Submit registration</span>
+              <span *ngIf="isSubmitting" class="registration-actions__busy" aria-live="polite">
+                Submitting…
+              </span>
+            </button>
+          </div>
+        </form>
+      </article>
+
+      <aside class="registration-aside" aria-label="Admission instructions">
+        <div class="registration-aside__card">
+          <h3 class="registration-aside__title">Welcome to Admission {{ admissionCycleLabel }} Portal</h3>
+          <p class="registration-aside__lead">Important steps to follow before registration</p>
+
+          <ol class="registration-steps">
+            <li class="registration-steps__item">
+              <span class="registration-steps__num" aria-hidden="true">1</span>
+              <span>Register using a valid email ID and mobile number.</span>
+            </li>
+            <li class="registration-steps__item">
+              <span class="registration-steps__num" aria-hidden="true">2</span>
+              <span>After successful registration, login credentials will be sent to your registered email.</span>
+            </li>
+            <li class="registration-steps__item">
+              <span class="registration-steps__num" aria-hidden="true">3</span>
+              <span>Log in and complete your personal details. Click &quot;Save details&quot; after filling.</span>
+            </li>
+            <li class="registration-steps__item">
+              <span class="registration-steps__num" aria-hidden="true">4</span>
+              <span>Enter Class X and XII marks, then click &quot;Next&quot; or &quot;Update&quot;.</span>
+            </li>
+            <li class="registration-steps__item">
+              <span class="registration-steps__num" aria-hidden="true">5</span>
+              <span>
+                Upload required documents: passport photo (max 100 KB where specified), other documents (max 2 MB
+                each).
+              </span>
+            </li>
+          </ol>
+
+          <div class="registration-warning" role="note">
+            <strong>Note:</strong> Registration to the portal does
+            <em>not</em> guarantee admission.
+          </div>
+
+          <div class="registration-important">
+            <h4 class="registration-important__title">Important</h4>
+            <ul>
+              <li>Admission is merit-based; the Admission Committee’s decision is final.</li>
+              <li>Check your email and this portal regularly for updates.</li>
+            </ul>
+          </div>
+
+          <button type="button" class="registration-aside__pdf" disabled title="Instructions PDF will be linked here">
+            Download instructions PDF
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>

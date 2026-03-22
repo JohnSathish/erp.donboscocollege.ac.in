@@ -1,0 +1,118 @@
+.offline-adm {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem 2rem;
+}
+
+.offline-adm__header h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+}
+
+.offline-adm__header p {
+  margin: 0 0 1rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.offline-adm__busy {
+  color: #64748b;
+}
+
+.offline-adm__metrics {
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #f6f8fc;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+}
+
+.offline-adm__metrics ul {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.25rem;
+}
+
+.offline-adm__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .offline-adm__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.offline-adm__card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  background: #fff;
+}
+
+.offline-adm__card h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+}
+
+.offline-adm__card label {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.offline-adm__card input,
+.offline-adm__card select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+}
+
+.offline-adm__btn {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.offline-adm__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.offline-adm__btn--ghost {
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #93c5fd;
+}
+
+.offline-adm__hint {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 0.5rem;
+}
+
+.offline-adm__preview {
+  margin: 0.75rem 0;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+}
+
+.offline-adm__warn {
+  color: #b45309;
+  font-weight: 600;
+  margin: 0;
+}

@@ -1,0 +1,16 @@
+{
+  "name": "erp",
+  "private": true,
+  "description": "Root meta-package. Frontend (Nx/Angular) is in src/client — npm install here installs that workspace.",
+  "workspaces": [
+    "src/client"
+  ],
+  "scripts": {
+    "start:client": "npm exec -w @client/source -- nx serve applicant-portal",
+    "build:client": "npm exec -w @client/source -- nx build applicant-portal",
+    "test:client": "npm exec -w @client/source -- nx test applicant-portal"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

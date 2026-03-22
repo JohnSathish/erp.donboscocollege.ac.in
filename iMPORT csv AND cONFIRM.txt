@@ -1,0 +1,34 @@
+cd e:\Projects\ERP\scripts
+.\import-subjects-master-from-csv.ps1 `
+  -CsvPath "..\docs\subjects_master_import_template.csv" `
+  -BaseUrl "http://localhost:5227" `
+  -AdminToken "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJmNTZjN2Y5MS1jNWQwLTQyNDYtYjlkYi1lZTM0NzRmY2Q4M2IiLCJqdGkiOiIwZDFmZmU1My05YzUzLTRiYzctYjczMy1kMzE5ODI5MDhmOTAiLCJlbWFpbCI6ImFkbWluQGRvbmJvc2NvY29sbGVnZS5hYy5pbiIsInVzZXJuYW1lIjoiYWRtaW4iLCJuYW1lIjoiU3lzdGVtIEFkbWluaXN0cmF0b3IiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3NDE5MjA0MCwiaXNzIjoiRG9uQm9zY29Db2xsZWdlRVJQIiwiYXVkIjoiRG9uQm9zY29BcHBsaWNhbnRzIn0._U3IVMDRMIdjw6XCSyS7YbLQGH5TQfpUkNXJ6af3se4"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. Run the API
+From src/server\Api (typical URL: http://localhost:5227).
+2. Get an admin JWT
+POST http://localhost:5227/api/auth/admin/login
+Body:
+{ "username": "YOUR_ADMIN_USERNAME", "password": "YOUR_ADMIN_PASSWORD" }
+Copy the token value from the response.
+3. Import the CSV (recommended)
+From the repo root:
+cd e:\Projects\ERP\scripts.\import-subjects-master-from-csv.ps1 `  -CsvPath "..\docs\subjects_master_import_template.csv" `  -BaseUrl "http://localhost:5227" `  -AdminToken "PASTE_TOKEN_HERE"
+That calls POST /api/admissions/admin/class-xii-subjects, which replaces the whole catalog with the rows from your file. Success output includes importedRowCount.
+4. Confirm
+Open:
+http://localhost:5227/api/admissions/class-xii-subjects?board=MBOSE&stream=ARTS
+You should see items with id, subjectName, sortOrder.

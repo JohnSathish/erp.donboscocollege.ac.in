@@ -1,0 +1,40 @@
+# Visual Studio / Rider
+.vs/
+*.suo
+*.user
+*.userosscache
+
+# MSBuild / .NET
+**/[Bb]in/
+**/[Oo]bj/
+**/out/
+*.dll
+*.exe
+*.pdb
+*.cache
+
+# Node / JS
+node_modules/
+npm-debug.log*
+yarn-error.log
+pnpm-debug.log*
+
+# Angular / Nx (under src/client)
+src/client/dist/
+src/client/tmp/
+src/client/.nx/cache/
+src/client/.nx/workspace-data/
+src/client/.angular/
+src/client/coverage/
+
+# Environment / local secrets (keep *.example tracked)
+.env
+.env.local
+*.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.log

@@ -1,0 +1,255 @@
+<div class="exam-registrations">
+  <div class="exam-registrations__header">
+    <div>
+      <h1>Exam Registrations</h1>
+      @if (exam()) {
+        <p class="exam-info">
+          <strong>{{ exam()!.examCode }}</strong> - {{ exam()!.examName }}
+        </p>
+      }
+    </div>
+    <div class="header-actions">
+      <button
+        (click)="openRegisterModal()"
+        class="btn btn-primary"
+        [disabled]="!exam() || (exam()!.currentRegistrations >= exam()!.maxCapacity)"
+        [title]="exam() && exam()!.currentRegistrations >= exam()!.maxCapacity ? 'Exam is full' : 'Register new applicant'"
+      >
+        Register Applicant
+      </button>
+      <a [routerLink]="['/admin/admissions/exams']" class="btn btn-secondary">Back to Exams</a>
+    </div>
+  </div>
+
+  @if (exam()) {
+    <div class="exam-registrations__stats">
+      <div class="stat-card">
+        <span class="stat-label">Total Registrations</span>
+        <span class="stat-value">{{ exam()!.currentRegistrations }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Max Capacity</span>
+        <span class="stat-value">{{ exam()!.maxCapacity }}</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Available Slots</span>
+        <span class="stat-value">{{ exam()!.maxCapacity - exam()!.currentRegistrations }}</span>
+      </div>
+    </div>
+  }
+
+  <div class="exam-registrations__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search by name, ID, or hall ticket..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="form-control"
+      />
+      <button (click)="onSearch()" class="btn btn-secondary">Search</button>
+    </div>
+    <div class="filter-group">
+      <select
+        [(ngModel)]="isPresentFilter"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option [ngValue]="null">All Attendance</option>
+        <option [ngValue]="true">Present</option>
+        <option [ngValue]="false">Absent</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading registrations...</div>
+  } @else {
+    <div class="exam-registrations__table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Hall Ticket</th>
+            <th>Applicant Name</th>
+            <th>Unique ID</th>
+            <th>Registered On</th>
+            <th>Attendance</th>
+            <th>Score</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (registration of registrations(); track registration.id) {
+            <tr>
+              <td>
+                <strong>{{ registration.hallTicketNumber || 'N/A' }}</strong>
+              </td>
+              <td>{{ registration.applicantName }}</td>
+              <td>{{ registration.applicantUniqueId }}</td>
+              <td>{{ formatDate(registration.registeredOnUtc) }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="registration.isPresent"
+                  [class.badge-secondary]="!registration.isPresent"
+                >
+                  {{ registration.isPresent ? 'Present' : 'Absent' }}
+                </span>
+              </td>
+              <td>
+                {{ registration.score !== null ? registration.score : 'N/A' }}
+              </td>
+              <td>
+                <a
+                  [routerLink]="['/admin/admissions/online', registration.applicantAccountId]"
+                  class="btn btn-sm btn-primary"
+                  >View Applicant</a
+                >
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center">No registrations found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <button
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="btn btn-sm"
+        >
+          Previous
+        </button>
+        <span
+          >Page {{ currentPage() }} of {{ getTotalPages() }} ({{ totalCount() }}
+          total)</span
+        >
+        <button
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() >= getTotalPages()"
+          class="btn btn-sm"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+
+  <!-- Register Applicant Modal -->
+  @if (showRegisterModal()) {
+    <div class="modal-backdrop" (click)="closeRegisterModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Register Applicant for Exam</h2>
+          <button type="button" class="close-button" (click)="closeRegisterModal()">
+            &times;
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="search-section">
+            <div class="search-input-group">
+              <input
+                type="text"
+                [(ngModel)]="applicantSearchTerm"
+                (keyup.enter)="onApplicantSearch()"
+                placeholder="Search by name, email, or application number..."
+                class="form-control"
+              />
+              <button
+                (click)="onApplicantSearch()"
+                class="btn btn-primary"
+                [disabled]="applicantSearchLoading()"
+              >
+                Search
+              </button>
+            </div>
+          </div>
+
+          @if (applicantSearchLoading()) {
+            <div class="loading">Searching applicants...</div>
+          } @else if (availableApplicants().length === 0) {
+            <div class="no-results">
+              @if (applicantSearchTerm()) {
+                <p>No applicants found matching "{{ applicantSearchTerm() }}"</p>
+              } @else {
+                <p>Enter a search term to find applicants</p>
+              }
+            </div>
+          } @else {
+            <div class="applicants-list">
+              <div class="applicants-header">
+                <span>Found {{ applicantSearchTotal() }} applicant(s)</span>
+              </div>
+              <div class="applicants-table">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Application #</th>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (applicant of availableApplicants(); track applicant.id) {
+                      <tr>
+                        <td>
+                          <strong>{{ applicant.uniqueId }}</strong>
+                        </td>
+                        <td>{{ applicant.fullName }}</td>
+                        <td>{{ applicant.email }}</td>
+                        <td>
+                          <span
+                            class="badge"
+                            [class.badge-success]="applicant.status === 'Approved'"
+                            [class.badge-secondary]="applicant.status === 'Submitted'"
+                            [class.badge-warning]="applicant.status === 'WaitingList'"
+                          >
+                            {{ applicant.status }}
+                          </span>
+                        </td>
+                        <td>
+                          @if (isApplicantAlreadyRegistered(applicant.id)) {
+                            <span class="already-registered">Already Registered</span>
+                          } @else {
+                            <button
+                              (click)="registerApplicant(applicant.id)"
+                              class="btn btn-sm btn-primary"
+                              [disabled]="registeringApplicantId() === applicant.id"
+                            >
+                              @if (registeringApplicantId() === applicant.id) {
+                                Registering...
+                              } @else {
+                                Register
+                              }
+                            </button>
+                          }
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            (click)="closeRegisterModal()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,365 @@
+:host {
+  display: block;
+  width: 100%;
+  font-family: 'Inter', 'Roboto', system-ui, sans-serif;
+}
+
+.offer {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
+  box-sizing: border-box;
+}
+
+.offer__header {
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  text-align: center;
+}
+
+.offer__header h1 {
+  margin: 0 0 0.5rem;
+  color: #1e3a8a;
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.offer__subtitle {
+  color: #64748b;
+  font-size: clamp(0.95rem, 2vw, 1.05rem);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.offer__error {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  border: 1px solid #fecaca;
+}
+
+.offer__card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  box-shadow:
+    0 4px 6px -1px rgba(15, 23, 42, 0.06),
+    0 16px 40px -12px rgba(30, 58, 138, 0.12);
+  border: 1px solid #e2e8f0;
+  border-top: 4px solid #e2e8f0;
+}
+
+.offer__card--accepted {
+  border-color: #e2e8f0;
+  border-top-color: #16a34a;
+  background: #ffffff;
+}
+
+.offer__card--rejected {
+  border-top-color: #dc2626;
+  background: #fffefe;
+}
+
+.offer__card--expired {
+  border-top-color: #eab308;
+  background: #fffbeb;
+}
+
+.offer__status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8125rem;
+  margin-bottom: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+.badge--pending {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+}
+
+.badge--accepted {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+
+.badge--rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.badge--expired {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.offer__details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 1.5rem;
+}
+
+.offer__detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.offer__detail-row:last-child {
+  border-bottom: none;
+}
+
+.offer__detail-row .label {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.offer__detail-row .value {
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+  font-size: 0.95rem;
+}
+
+.expired {
+  color: #dc2626;
+}
+
+.expiry-warning {
+  display: block;
+  font-size: 0.8125rem;
+  color: #ca8a04;
+  font-weight: 500;
+  margin-top: 0.25rem;
+}
+
+.offer__actions {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.offer__warning {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 1rem;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #fde68a;
+}
+
+.offer__actions-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.btn--success {
+  background: #16a34a;
+  color: white;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35);
+}
+
+.btn--success:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.4);
+}
+
+.btn--danger {
+  background: #dc2626;
+  color: white;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.offer__reject-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.offer__reject-reason {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+
+.offer__reject-reason:focus {
+  outline: none;
+  border-color: #1b5e9d;
+  box-shadow: 0 0 0 3px rgba(27, 94, 157, 0.15);
+}
+
+.offer__message {
+  margin-top: 1.25rem;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+}
+
+.success-message {
+  background: #ecfdf5;
+  color: #166534;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 0;
+  border: 1px solid #a7f3d0;
+}
+
+.info-message {
+  background: #eef2ff;
+  color: #3730a3;
+  padding: 1rem;
+  border-radius: 10px;
+  margin: 0;
+  border: 1px solid #c7d2fe;
+}
+
+.offer__cta {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.offer__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.9rem 1.25rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.offer__cta-btn--primary {
+  background: linear-gradient(135deg, #1b5e9d 0%, #1e3a8a 100%);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(30, 58, 138, 0.35);
+}
+
+.offer__cta-btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(30, 58, 138, 0.4);
+}
+
+.offer__cta-btn--secondary {
+  background: #fff;
+  color: #1e3a8a;
+  border: 2px solid #cbd5e1;
+}
+
+.offer__cta-btn--secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  transform: translateY(-1px);
+}
+
+.offer__cta-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: #64748b;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.offer__empty {
+  text-align: center;
+  padding: clamp(2rem, 5vw, 3rem);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.offer__empty h2 {
+  color: #1e3a8a;
+  margin-bottom: 1rem;
+}
+
+.offer__empty p {
+  color: #64748b;
+  margin: 0.5rem 0;
+}
+
+@media (min-width: 600px) {
+  .offer__cta {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+  }
+
+  .offer__cta-btn {
+    width: auto;
+    flex: 1 1 calc(50% - 0.5rem);
+    min-width: 200px;
+  }
+
+  .offer__cta-hint {
+    flex: 1 1 100%;
+  }
+}
+
+@media print {
+  .offer__cta,
+  .offer__actions,
+  .btn {
+    display: none !important;
+  }
+
+  .offer__card {
+    box-shadow: none;
+    border: 1px solid #cbd5e1;
+  }
+}

@@ -1,0 +1,142 @@
+<div class="offer" *ngIf="loading()">
+  <p>Loading admission offer...</p>
+</div>
+
+<div class="offer" *ngIf="!loading() && offer() as offerData">
+  <div class="offer__header">
+    <h1>Admission Offer</h1>
+    <p class="offer__subtitle">Congratulations! You have received an admission offer.</p>
+  </div>
+
+  <div class="offer__error" *ngIf="error()">
+    <p>{{ error() }}</p>
+  </div>
+
+  <div class="offer__card" [class.offer__card--accepted]="offerData.status === 'Accepted'"
+       [class.offer__card--rejected]="offerData.status === 'Rejected'"
+       [class.offer__card--expired]="offerData.status === 'Expired'">
+    <div class="offer__status-badge" [class.badge--pending]="offerData.status === 'Pending'"
+         [class.badge--accepted]="offerData.status === 'Accepted'"
+         [class.badge--rejected]="offerData.status === 'Rejected'"
+         [class.badge--expired]="offerData.status === 'Expired'">
+      {{ offerData.status }}
+    </div>
+
+    <div class="offer__details">
+      <div class="offer__detail-row">
+        <span class="label">Application Number:</span>
+        <span class="value">{{ offerData.applicationNumber }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Name:</span>
+        <span class="value">{{ offerData.fullName }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Merit Rank:</span>
+        <span class="value">#{{ offerData.meritRank }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Shift:</span>
+        <span class="value">{{ offerData.shift }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Major Subject:</span>
+        <span class="value">{{ offerData.majorSubject }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Offer Date:</span>
+        <span class="value">{{ offerData.offerDate | date: 'medium' }}</span>
+      </div>
+      <div class="offer__detail-row">
+        <span class="label">Expiry Date:</span>
+        <span class="value" [class.expired]="isExpired(offerData.expiryDate)">
+          {{ offerData.expiryDate | date: 'medium' }}
+          <span *ngIf="offerData.status === 'Pending' && !isExpired(offerData.expiryDate)" class="expiry-warning">
+            ({{ daysUntilExpiry(offerData.expiryDate) }} days remaining)
+          </span>
+        </span>
+      </div>
+      <div class="offer__detail-row" *ngIf="offerData.acceptedOnUtc">
+        <span class="label">Accepted On:</span>
+        <span class="value">{{ offerData.acceptedOnUtc | date: 'medium' }}</span>
+      </div>
+      <div class="offer__detail-row" *ngIf="offerData.rejectedOnUtc">
+        <span class="label">Rejected On:</span>
+        <span class="value">{{ offerData.rejectedOnUtc | date: 'medium' }}</span>
+      </div>
+      <div class="offer__detail-row" *ngIf="offerData.remarks">
+        <span class="label">Remarks:</span>
+        <span class="value">{{ offerData.remarks }}</span>
+      </div>
+    </div>
+
+    <div class="offer__actions" *ngIf="offerData.status === 'Pending'">
+      <div class="offer__warning" *ngIf="isExpired(offerData.expiryDate)">
+        <p>⚠️ This offer has expired. Please contact the admissions office.</p>
+      </div>
+      <div class="offer__actions-buttons" *ngIf="!isExpired(offerData.expiryDate)">
+        <button
+          type="button"
+          class="btn btn--success"
+          (click)="acceptOffer()"
+          [disabled]="processing()"
+        >
+          {{ processing() ? 'Processing...' : 'Accept Offer' }}
+        </button>
+        <div class="offer__reject-section">
+          <textarea
+            [(ngModel)]="rejectReason"
+            placeholder="Reason for rejection (optional)"
+            class="offer__reject-reason"
+            rows="3"
+          ></textarea>
+          <button
+            type="button"
+            class="btn btn--danger"
+            (click)="rejectOffer()"
+            [disabled]="processing()"
+          >
+            {{ processing() ? 'Processing...' : 'Reject Offer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="offer__message" *ngIf="offerData.status === 'Accepted'">
+      <p class="success-message">
+        ✓ You have accepted this admission offer. Please check your email for further instructions.
+      </p>
+    </div>
+
+    <div class="offer__message" *ngIf="offerData.status === 'Rejected'">
+      <p class="info-message">
+        You have rejected this admission offer.
+      </p>
+    </div>
+
+    <footer class="offer__cta" *ngIf="offerData.status === 'Accepted'">
+      <button
+        type="button"
+        class="offer__cta-btn offer__cta-btn--primary"
+        (click)="goToAdmissionFeePayment()"
+      >
+        Pay admission fee
+      </button>
+      <button type="button" class="offer__cta-btn offer__cta-btn--secondary" (click)="printOfferLetter()">
+        Download offer letter
+      </button>
+      <p class="offer__cta-hint">
+        Payment uses the secure gateway on your dashboard. For the letter, use Print → Save as PDF if your browser supports it.
+      </p>
+    </footer>
+  </div>
+</div>
+
+<div class="offer" *ngIf="!loading() && !offer()">
+  <div class="offer__empty">
+    <h2>No Admission Offer</h2>
+    <p>You do not have an active admission offer at this time.</p>
+    <p>Please check back later or contact the admissions office for more information.</p>
+  </div>
+</div>
+

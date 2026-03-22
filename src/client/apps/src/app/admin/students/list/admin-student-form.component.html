@@ -1,0 +1,159 @@
+<div class="student-form">
+  <div class="student-form__header">
+    <h1>Edit Student Profile</h1>
+    <p>Update student information</p>
+  </div>
+
+  @if (loading() && isEditMode()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading student details...
+    </div>
+  } @else {
+    <form [formGroup]="studentForm" (ngSubmit)="onSubmit()" class="student-form__form">
+      <div class="form-section">
+        <h2 class="section-title">Basic Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="fullName">Full Name *</label>
+            <input
+              id="fullName"
+              type="text"
+              formControlName="fullName"
+              [class.is-invalid]="getFieldError('fullName')"
+            />
+            @if (getFieldError('fullName')) {
+              <div class="invalid-feedback">{{ getFieldError('fullName') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [class.is-invalid]="getFieldError('email')"
+            />
+            @if (getFieldError('email')) {
+              <div class="invalid-feedback">{{ getFieldError('email') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number *</label>
+            <input
+              id="mobileNumber"
+              type="tel"
+              formControlName="mobileNumber"
+              [class.is-invalid]="getFieldError('mobileNumber')"
+            />
+            @if (getFieldError('mobileNumber')) {
+              <div class="invalid-feedback">{{ getFieldError('mobileNumber') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="shift">Shift *</label>
+            <select
+              id="shift"
+              formControlName="shift"
+              [class.is-invalid]="getFieldError('shift')"
+            >
+              <option value="">Select Shift</option>
+              <option value="MORNING">Morning</option>
+              <option value="AFTERNOON">Afternoon</option>
+              <option value="EVENING">Evening</option>
+            </select>
+            @if (getFieldError('shift')) {
+              <div class="invalid-feedback">{{ getFieldError('shift') }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">Academic Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="programCode">Program Code</label>
+            <input
+              id="programCode"
+              type="text"
+              formControlName="programCode"
+              [class.is-invalid]="getFieldError('programCode')"
+            />
+            @if (getFieldError('programCode')) {
+              <div class="invalid-feedback">{{ getFieldError('programCode') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="majorSubject">Major Subject</label>
+            <input
+              id="majorSubject"
+              type="text"
+              formControlName="majorSubject"
+              [class.is-invalid]="getFieldError('majorSubject')"
+            />
+            @if (getFieldError('majorSubject')) {
+              <div class="invalid-feedback">{{ getFieldError('majorSubject') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="minorSubject">Minor Subject</label>
+            <input
+              id="minorSubject"
+              type="text"
+              formControlName="minorSubject"
+              [class.is-invalid]="getFieldError('minorSubject')"
+            />
+            @if (getFieldError('minorSubject')) {
+              <div class="invalid-feedback">{{ getFieldError('minorSubject') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="photoUrl">Photo URL</label>
+            <input
+              id="photoUrl"
+              type="url"
+              formControlName="photoUrl"
+              [class.is-invalid]="getFieldError('photoUrl')"
+              placeholder="https://example.com/photo.jpg"
+            />
+            @if (getFieldError('photoUrl')) {
+              <div class="invalid-feedback">{{ getFieldError('photoUrl') }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="onCancel()"
+          [disabled]="loading()"
+        >
+          <iconify-icon icon="solar:close-circle-bold" class="btn-icon"></iconify-icon>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="loading() || studentForm.invalid"
+        >
+          <iconify-icon icon="solar:check-circle-bold" class="btn-icon" *ngIf="!loading()"></iconify-icon>
+          <span *ngIf="loading()">Saving...</span>
+          <span *ngIf="!loading()">Save Changes</span>
+        </button>
+      </div>
+    </form>
+  }
+</div>
+
+
+
+

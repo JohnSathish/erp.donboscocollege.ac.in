@@ -1,0 +1,208 @@
+<div class="staff-detail">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading staff member details...
+    </div>
+  } @else if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+      <button
+        type="button"
+        class="btn btn--secondary btn--sm"
+        (click)="router.navigate(['/admin/staff/list'])"
+      >
+        Back to List
+      </button>
+    </div>
+  } @else if (staff()) {
+    <div class="staff-detail__header">
+      <div>
+        <h1>{{ staff()!.fullName }}</h1>
+        <p class="staff-meta">
+          <span class="meta-item">
+            <iconify-icon icon="solar:user-id-bold"></iconify-icon>
+            {{ staff()!.employeeNumber }}
+          </span>
+          <span class="meta-item">
+            <iconify-icon icon="solar:letter-bold"></iconify-icon>
+            {{ staff()!.email }}
+          </span>
+          <span class="meta-item">
+            <iconify-icon icon="solar:phone-bold"></iconify-icon>
+            {{ staff()!.mobileNumber }}
+          </span>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn btn--primary"
+          (click)="editStaff()"
+        >
+          <iconify-icon icon="solar:pen-bold" class="btn-icon"></iconify-icon>
+          Edit
+        </button>
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="router.navigate(['/admin/staff/list'])"
+        >
+          <iconify-icon icon="solar:arrow-left-bold" class="btn-icon"></iconify-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+
+    <div class="staff-detail__content">
+      <div class="detail-section">
+        <h2 class="section-title">Basic Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Employee Number:</span>
+            <span class="detail-value">{{ staff()!.employeeNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ staff()!.fullName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ staff()!.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Mobile Number:</span>
+            <span class="detail-value">{{ staff()!.mobileNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date of Birth:</span>
+            <span class="detail-value">{{ staff()!.dateOfBirth | date: 'longDate' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Gender:</span>
+            <span class="detail-value">{{ staff()!.gender }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="section-title">Employment Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Department:</span>
+            <span class="detail-value">{{ staff()!.department || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Designation:</span>
+            <span class="detail-value">{{ staff()!.designation || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Employee Type:</span>
+            <span class="detail-value">
+              <span class="badge" [ngClass]="getEmployeeTypeBadgeClass(staff()!.employeeType)">
+                {{ staff()!.employeeType || 'N/A' }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+              <span class="badge" [ngClass]="getStatusBadgeClass(staff()!.status)">
+                {{ staff()!.status }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Join Date:</span>
+            <span class="detail-value">{{ staff()!.joinDate | date: 'longDate' }}</span>
+          </div>
+          @if (staff()!.exitDate) {
+            <div class="detail-item">
+              <span class="detail-label">Exit Date:</span>
+              <span class="detail-value">{{ staff()!.exitDate | date: 'longDate' }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      @if (staff()!.address || staff()!.emergencyContactName || staff()!.emergencyContactNumber) {
+        <div class="detail-section">
+          <h2 class="section-title">Contact Information</h2>
+          <div class="detail-grid">
+            @if (staff()!.address) {
+              <div class="detail-item detail-item--full">
+                <span class="detail-label">Address:</span>
+                <span class="detail-value">{{ staff()!.address }}</span>
+              </div>
+            }
+            @if (staff()!.emergencyContactName) {
+              <div class="detail-item">
+                <span class="detail-label">Emergency Contact Name:</span>
+                <span class="detail-value">{{ staff()!.emergencyContactName }}</span>
+              </div>
+            }
+            @if (staff()!.emergencyContactNumber) {
+              <div class="detail-item">
+                <span class="detail-label">Emergency Contact Number:</span>
+                <span class="detail-value">{{ staff()!.emergencyContactNumber }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (staff()!.qualifications || staff()!.specialization) {
+        <div class="detail-section">
+          <h2 class="section-title">Qualifications & Specialization</h2>
+          <div class="detail-grid">
+            @if (staff()!.qualifications) {
+              <div class="detail-item detail-item--full">
+                <span class="detail-label">Qualifications:</span>
+                <span class="detail-value">{{ staff()!.qualifications }}</span>
+              </div>
+            }
+            @if (staff()!.specialization) {
+              <div class="detail-item detail-item--full">
+                <span class="detail-label">Specialization:</span>
+                <span class="detail-value">{{ staff()!.specialization }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <div class="detail-section">
+        <h2 class="section-title">Audit Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Created On:</span>
+            <span class="detail-value">{{ staff()!.createdOnUtc | date: 'medium' }}</span>
+          </div>
+          @if (staff()!.createdBy) {
+            <div class="detail-item">
+              <span class="detail-label">Created By:</span>
+              <span class="detail-value">{{ staff()!.createdBy }}</span>
+            </div>
+          }
+          @if (staff()!.updatedOnUtc) {
+            <div class="detail-item">
+              <span class="detail-label">Last Updated:</span>
+              <span class="detail-value">{{ staff()!.updatedOnUtc | date: 'medium' }}</span>
+            </div>
+          }
+          @if (staff()!.updatedBy) {
+            <div class="detail-item">
+              <span class="detail-label">Updated By:</span>
+              <span class="detail-value">{{ staff()!.updatedBy }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

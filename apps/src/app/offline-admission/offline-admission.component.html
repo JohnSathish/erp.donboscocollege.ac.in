@@ -1,0 +1,77 @@
+<section class="offline-page" aria-labelledby="offline-heading">
+  <div class="offline-page__inner">
+    <h1 id="offline-heading" class="offline-page__title">Offline admission (office)</h1>
+    <p class="offline-page__intro">
+      Paste an admin JWT (from <code>POST /api/auth/admin/login</code>). Data is stored only in this browser session.
+    </p>
+
+    <label class="offline-field">
+      <span class="offline-field__label">Admin JWT</span>
+      <input type="password" [(ngModel)]="adminToken" autocomplete="off" />
+      <button type="button" class="offline-btn" (click)="saveToken()">Save &amp; load metrics</button>
+    </label>
+
+    <p *ngIf="error" class="offline-page__error" role="alert">{{ error }}</p>
+    <p *ngIf="busy" class="offline-page__busy">Working…</p>
+
+    <div *ngIf="dashboard" class="offline-metrics">
+      <h2>Offline metrics</h2>
+      <ul>
+        <li>Forms issued: {{ dashboard.offlineFormsIssued }}</li>
+        <li>Forms received (physical): {{ dashboard.offlineFormsReceived }}</li>
+        <li>Offline applications submitted: {{ dashboard.offlineApplicationsSubmitted }}</li>
+      </ul>
+      <button type="button" class="offline-btn offline-btn--ghost" (click)="refreshDashboard()">Refresh</button>
+    </div>
+
+    <div class="offline-grid">
+      <article class="offline-card">
+        <h2>Issue form</h2>
+        <label>6-digit form number <input [(ngModel)]="issue.formNumber" maxlength="6" /></label>
+        <label>Student name <input [(ngModel)]="issue.studentName" /></label>
+        <label>Mobile (used as password after receive) <input [(ngModel)]="issue.mobileNumber" /></label>
+        <label>Application fee (₹) <input type="number" [(ngModel)]="issue.applicationFeeAmount" /></label>
+        <button type="button" class="offline-btn" (click)="issueForm()">Issue &amp; download receipt PDF</button>
+        <p *ngIf="receiptLink()" class="offline-hint">
+          Reprint: <code>{{ receiptLink() }}</code> (GET with Authorization header)
+        </p>
+      </article>
+
+      <article class="offline-card">
+        <h2>Receive form &amp; create account</h2>
+        <label>Form number <input [(ngModel)]="receiveFormNumber" maxlength="6" /></label>
+        <label>Final major / course <input [(ngModel)]="receiveMajorSubject" /></label>
+        <button type="button" class="offline-btn" (click)="receiveForm()">Receive &amp; create account</button>
+      </article>
+
+      <article class="offline-card">
+        <h2>Assign selection list (per application)</h2>
+        <p class="offline-hint">Use the application account GUID from the admin applications grid.</p>
+        <label>Application ID <input [(ngModel)]="assignApplicationId" /></label>
+        <label>
+          Round
+          <select [(ngModel)]="assignRound">
+            <option value="First">First</option>
+            <option value="Second">Second</option>
+            <option value="Third">Third</option>
+          </select>
+        </label>
+        <button type="button" class="offline-btn" (click)="assignRoundAction()">Save round</button>
+      </article>
+
+      <article class="offline-card">
+        <h2>Publish selection list</h2>
+        <label>
+          Round
+          <select [(ngModel)]="publishRound">
+            <option value="First">First</option>
+            <option value="Second">Second</option>
+            <option value="Third">Third</option>
+          </select>
+        </label>
+        <label><input type="checkbox" [(ngModel)]="publishSendSms" /> Send SMS to listed applicants</label>
+        <button type="button" class="offline-btn" (click)="publishList()">Publish</button>
+      </article>
+    </div>
+  </div>
+</section>

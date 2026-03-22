@@ -1,0 +1,30 @@
+<div class="payment-modal" *ngIf="isOpen()" (click)="close()">
+  <div class="payment-modal__content" (click)="$event.stopPropagation()">
+    <div class="payment-modal__header">
+      <h2>Payment Gateway</h2>
+      <button class="payment-modal__close" (click)="close()" type="button" aria-label="Close">
+        ×
+      </button>
+    </div>
+    <div class="payment-modal__body">
+      <div *ngIf="isProcessing()" class="payment-modal__processing">
+        <div class="spinner"></div>
+        <p>Processing payment...</p>
+        <p class="payment-modal__hint">Please complete the payment in the popup window.</p>
+      </div>
+      <div *ngIf="!isProcessing()" class="payment-modal__info">
+        <p>Click the button below to open secure Razorpay checkout.</p>
+        <p class="payment-modal__device-hint">{{ paymentCheckoutHint() }}</p>
+        <p class="payment-modal__amount">Amount: ₹{{ amount() | number : '1.0-0' }}</p>
+        <button
+          type="button"
+          class="payment-modal__button"
+          (click)="initiatePayment()"
+        >
+          Proceed to Payment
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

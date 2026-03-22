@@ -1,0 +1,132 @@
+<section class="admin-applicant-detail" *ngIf="applicant(); else loadingState">
+  <button type="button" class="back-button" (click)="goBack()">
+    ← Back to list
+  </button>
+
+  <header class="admin-applicant-detail__header">
+    <div>
+      <h1>{{ applicant()!.fullName }}</h1>
+      <p class="muted">
+        Application #{{ applicant()!.applicationNumber }} ·
+        {{ applicant()!.programCode }}
+      </p>
+    </div>
+    <span class="status-chip" [attr.data-status]="applicant()!.status">
+      {{ applicant()!.status }}
+    </span>
+  </header>
+
+  <section class="admin-applicant-detail__grid">
+    <article>
+      <h2>Contact</h2>
+      <dl>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ applicant()!.email }}</dd>
+        </div>
+        <div>
+          <dt>Mobile</dt>
+          <dd>{{ applicant()!.mobileNumber }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article>
+      <h2>Timeline</h2>
+      <dl>
+        <div>
+          <dt>Submitted</dt>
+          <dd>{{ applicant()!.createdOnUtc | date: 'medium' }}</dd>
+        </div>
+        <div>
+          <dt>Last Status Update</dt>
+          <dd>{{ applicant()!.statusUpdatedOnUtc | date: 'medium' }}</dd>
+        </div>
+        <div *ngIf="applicant()!.statusUpdatedBy">
+          <dt>Updated By</dt>
+          <dd>{{ applicant()!.statusUpdatedBy }}</dd>
+        </div>
+      </dl>
+    </article>
+
+    <article *ngIf="applicant()!.entranceExamScheduledOnUtc">
+      <h2>Entrance Exam</h2>
+      <dl>
+        <div>
+          <dt>Schedule</dt>
+          <dd>
+            {{ applicant()!.entranceExamScheduledOnUtc | date: 'medium' }}
+          </dd>
+        </div>
+        <div *ngIf="applicant()!.entranceExamVenue">
+          <dt>Venue</dt>
+          <dd>{{ applicant()!.entranceExamVenue }}</dd>
+        </div>
+        <div *ngIf="applicant()!.entranceExamInstructions">
+          <dt>Instructions</dt>
+          <dd>{{ applicant()!.entranceExamInstructions }}</dd>
+        </div>
+      </dl>
+    </article>
+  </section>
+
+  <section class="admin-applicant-detail__status">
+    <h2>Update Status</h2>
+    <form [formGroup]="statusForm" (ngSubmit)="submitStatusForm()">
+      <div class="form-grid">
+        <label>
+          Status
+          <select formControlName="status">
+            <option *ngFor="let status of statuses; trackBy: trackByStatus" [value]="status">
+              {{ status }}
+            </option>
+          </select>
+        </label>
+        <label>
+          Notify Applicant
+          <input type="checkbox" formControlName="notifyApplicant" />
+        </label>
+        <label class="remarks">
+          Remarks
+          <textarea formControlName="remarks" rows="3"></textarea>
+        </label>
+      </div>
+
+      <div
+        class="form-grid entrance-exam"
+        *ngIf="statusForm.value.status === 'EntranceExam'"
+        formGroupName="entranceExam"
+      >
+        <label>
+          Scheduled (UTC)
+          <input type="datetime-local" formControlName="scheduledOnUtc" />
+        </label>
+        <label>
+          Venue
+          <input type="text" formControlName="venue" />
+        </label>
+        <label class="remarks">
+          Instructions
+          <textarea rows="3" formControlName="instructions"></textarea>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="statusUpdating()">
+          Update Status
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <p *ngIf="error()" class="error">
+    {{ error() }}
+  </p>
+</section>
+
+<ng-template #loadingState>
+  <div class="loading">
+    Loading applicant&hellip;
+  </div>
+</ng-template>
+

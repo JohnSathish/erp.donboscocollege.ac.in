@@ -1,0 +1,161 @@
+<div class="exam-form">
+  <div class="exam-form__header">
+    <h1>{{ isEditMode() ? 'Edit Exam' : 'Create New Exam' }}</h1>
+    <button (click)="onCancel()" class="btn btn-secondary">Cancel</button>
+  </div>
+
+  @if (isLoading() && isEditMode()) {
+    <div class="loading">Loading exam details...</div>
+  } @else {
+    <form [formGroup]="examForm" (ngSubmit)="onSubmit()" class="exam-form__form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="examName">Exam Name *</label>
+          <input
+            id="examName"
+            type="text"
+            formControlName="examName"
+            class="form-control"
+            [class.invalid]="examForm.get('examName')?.invalid && examForm.get('examName')?.touched"
+          />
+          @if (examForm.get('examName')?.invalid && examForm.get('examName')?.touched) {
+            <span class="error-message">Exam name is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="examCode">Exam Code *</label>
+          <input
+            id="examCode"
+            type="text"
+            formControlName="examCode"
+            class="form-control"
+            [class.invalid]="examForm.get('examCode')?.invalid && examForm.get('examCode')?.touched"
+            placeholder="e.g., BSC2025"
+          />
+          @if (examForm.get('examCode')?.invalid && examForm.get('examCode')?.touched) {
+            <span class="error-message">Exam code is required</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="examDate">Exam Date *</label>
+          <input
+            id="examDate"
+            type="date"
+            formControlName="examDate"
+            class="form-control"
+            [class.invalid]="examForm.get('examDate')?.invalid && examForm.get('examDate')?.touched"
+          />
+          @if (examForm.get('examDate')?.invalid && examForm.get('examDate')?.touched) {
+            <span class="error-message">Exam date is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="examStartTime">Start Time *</label>
+          <input
+            id="examStartTime"
+            type="time"
+            formControlName="examStartTime"
+            class="form-control"
+            [class.invalid]="examForm.get('examStartTime')?.invalid && examForm.get('examStartTime')?.touched"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="examEndTime">End Time *</label>
+          <input
+            id="examEndTime"
+            type="time"
+            formControlName="examEndTime"
+            class="form-control"
+            [class.invalid]="examForm.get('examEndTime')?.invalid && examForm.get('examEndTime')?.touched"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="venue">Venue *</label>
+          <input
+            id="venue"
+            type="text"
+            formControlName="venue"
+            class="form-control"
+            [class.invalid]="examForm.get('venue')?.invalid && examForm.get('venue')?.touched"
+          />
+          @if (examForm.get('venue')?.invalid && examForm.get('venue')?.touched) {
+            <span class="error-message">Venue is required</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="maxCapacity">Max Capacity *</label>
+          <input
+            id="maxCapacity"
+            type="number"
+            formControlName="maxCapacity"
+            class="form-control"
+            [class.invalid]="examForm.get('maxCapacity')?.invalid && examForm.get('maxCapacity')?.touched"
+            min="1"
+          />
+          @if (examForm.get('maxCapacity')?.invalid && examForm.get('maxCapacity')?.touched) {
+            <span class="error-message">Max capacity must be at least 1</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="venueAddress">Venue Address</label>
+        <textarea
+          id="venueAddress"
+          formControlName="venueAddress"
+          class="form-control"
+          rows="2"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          class="form-control"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="instructions">Instructions</label>
+        <textarea
+          id="instructions"
+          formControlName="instructions"
+          class="form-control"
+          rows="4"
+        ></textarea>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="btn btn-secondary"
+          [disabled]="isLoading()"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="examForm.invalid || isLoading()"
+        >
+          {{ isEditMode() ? 'Update Exam' : 'Create Exam' }}
+        </button>
+      </div>
+    </form>
+  }
+</div>
+

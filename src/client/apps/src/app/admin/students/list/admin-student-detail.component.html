@@ -1,0 +1,170 @@
+<div class="student-detail">
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading student details...
+    </div>
+  } @else if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+      <button
+        type="button"
+        class="btn btn--secondary btn--sm"
+        (click)="router.navigate(['/admin/students/list'])"
+      >
+        Back to List
+      </button>
+    </div>
+  } @else if (student()) {
+    <div class="student-detail__header">
+      <div>
+        <h1>{{ student()!.fullName }}</h1>
+        <p class="student-meta">
+          <span class="meta-item">
+            <iconify-icon icon="solar:user-id-bold"></iconify-icon>
+            {{ student()!.studentNumber }}
+          </span>
+          <span class="meta-item">
+            <iconify-icon icon="solar:letter-bold"></iconify-icon>
+            {{ student()!.email }}
+          </span>
+          <span class="meta-item">
+            <iconify-icon icon="solar:phone-bold"></iconify-icon>
+            {{ student()!.mobileNumber }}
+          </span>
+        </p>
+      </div>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="btn btn--primary"
+          (click)="editStudent()"
+        >
+          <iconify-icon icon="solar:pen-bold" class="btn-icon"></iconify-icon>
+          Edit
+        </button>
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="router.navigate(['/admin/students/list'])"
+        >
+          <iconify-icon icon="solar:arrow-left-bold" class="btn-icon"></iconify-icon>
+          Back to List
+        </button>
+      </div>
+    </div>
+
+    <div class="student-detail__content">
+      <div class="detail-section">
+        <h2 class="section-title">Basic Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Student Number:</span>
+            <span class="detail-value">{{ student()!.studentNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Full Name:</span>
+            <span class="detail-value">{{ student()!.fullName }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Email:</span>
+            <span class="detail-value">{{ student()!.email }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Mobile Number:</span>
+            <span class="detail-value">{{ student()!.mobileNumber }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Date of Birth:</span>
+            <span class="detail-value">{{ student()!.dateOfBirth | date: 'longDate' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Gender:</span>
+            <span class="detail-value">{{ student()!.gender }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="section-title">Academic Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Program Code:</span>
+            <span class="detail-value">{{ student()!.programCode || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Major Subject:</span>
+            <span class="detail-value">{{ student()!.majorSubject || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Minor Subject:</span>
+            <span class="detail-value">{{ student()!.minorSubject || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Shift:</span>
+            <span class="detail-value">{{ student()!.shift }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Academic Year:</span>
+            <span class="detail-value">{{ student()!.academicYear }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Admission Number:</span>
+            <span class="detail-value">{{ student()!.admissionNumber || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="section-title">Enrollment Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value">
+              <span class="badge" [ngClass]="getStatusBadgeClass(student()!.status)">
+                {{ student()!.status }}
+              </span>
+            </span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Enrollment Date:</span>
+            <span class="detail-value">{{ student()!.enrollmentDate | date: 'longDate' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-section">
+        <h2 class="section-title">Audit Information</h2>
+        <div class="detail-grid">
+          <div class="detail-item">
+            <span class="detail-label">Created On:</span>
+            <span class="detail-value">{{ student()!.createdOnUtc | date: 'medium' }}</span>
+          </div>
+          @if (student()!.createdBy) {
+            <div class="detail-item">
+              <span class="detail-label">Created By:</span>
+              <span class="detail-value">{{ student()!.createdBy }}</span>
+            </div>
+          }
+          @if (student()!.updatedOnUtc) {
+            <div class="detail-item">
+              <span class="detail-label">Last Updated:</span>
+              <span class="detail-value">{{ student()!.updatedOnUtc | date: 'medium' }}</span>
+            </div>
+          }
+          @if (student()!.updatedBy) {
+            <div class="detail-item">
+              <span class="detail-label">Updated By:</span>
+              <span class="detail-value">{{ student()!.updatedBy }}</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

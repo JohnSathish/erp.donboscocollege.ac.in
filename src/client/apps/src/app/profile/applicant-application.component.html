@@ -1,0 +1,1089 @@
+<section class="application" *ngIf="!loading(); else loadingState">
+  <div class="application__progress-wrap">
+    <p class="application__progress-label">
+      Step {{ currentStepIndex() + 1 }} of {{ totalSteps() }} — {{ currentStepTitle() }}
+    </p>
+    <div class="application__progress-bar">
+      <div class="application__progress-fill" [style.width.%]="progressPercent()"></div>
+    </div>
+    <p class="application__progress-percent">{{ progressPercent() }}%</p>
+  </div>
+
+  <header class="application__header">
+    <h1>Admission Application</h1>
+    <p class="application__header-desc">
+      Review and complete each section. Your progress is saved as a draft so you can resume later.
+    </p>
+    <p class="application__save-status" *ngIf="showJustSaved()">
+      <span class="application__save-status-icon">✔</span> Auto-saved just now
+    </p>
+    <ng-container *ngIf="lastSavedDisplay() as savedAt">
+      <p class="application__save-status application__save-status--muted">
+        Last saved: {{ savedAt | date: 'medium' }}
+      </p>
+    </ng-container>
+  </header>
+
+  <div class="application__body" (submit)="preventFormSubmit($event)">
+    <section class="application__form application__form-card" (submit)="preventFormSubmit($event)">
+      <form [formGroup]="getCurrentFormGroup()" (ngSubmit)="preventFormSubmit($event)" (submit)="preventFormSubmit($event)" (keydown.enter)="preventFormSubmit($event)" onsubmit="return false;" novalidate>
+        <ng-container [ngSwitch]="currentStepIndex()">
+          <ng-container *ngSwitchCase="0">
+            <div class="form-section">
+              <h3 class="form-section__title">👤 Personal Details</h3>
+              <div class="form-grid">
+                <label class="form-group">
+                  <span class="form-group__label">Name on Class X Admit Card</span>
+                  <input formControlName="nameAsPerAdmitCard" type="text" class="form-group__input" />
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Date of Birth (mm/dd/yyyy)</span>
+                  <input formControlName="dateOfBirth" type="text" placeholder="mm/dd/yyyy" class="form-group__input" />
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Gender</span>
+                  <select formControlName="gender" class="form-group__input">
+                    <option value="">Select</option>
+                    <option *ngFor="let option of genderOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="form-section">
+              <h3 class="form-section__title">🧬 Additional Information</h3>
+              <div class="form-grid">
+                <label class="form-group">
+                  <span class="form-group__label">Marital Status</span>
+                  <select formControlName="maritalStatus" class="form-group__input">
+                    <option value="" disabled>Select marital status</option>
+                    <option value="Unmarried">Unmarried</option>
+                    <option value="Married">Married</option>
+                  </select>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Blood Group</span>
+                  <select formControlName="bloodGroup" class="form-group__input">
+                    <option value="">Select</option>
+                    <option *ngFor="let option of bloodGroupOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Category</span>
+                  <select formControlName="category" class="form-group__input">
+                    <option value="">Select</option>
+                    <option *ngFor="let option of categoryOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Race / Tribe</span>
+                  <input formControlName="raceOrTribe" type="text" class="form-group__input" />
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Religion</span>
+                  <input formControlName="religion" type="text" class="form-group__input" />
+                </label>
+                <label class="form-group form-group--full">
+                  <span class="form-group__label">Differently Abled</span>
+                  <div class="inline-options">
+                    <label>
+                      <input type="radio" formControlName="isDifferentlyAbled" [value]="true" />
+                      Yes
+                    </label>
+                    <label>
+                      <input type="radio" formControlName="isDifferentlyAbled" [value]="false" />
+                      No
+                    </label>
+                  </div>
+                  <span class="application__hint">
+                    Selecting <em>Yes</em> will ask you to upload the disability certificate in the
+                    Uploads step.
+                  </span>
+                </label>
+                <label class="form-group form-group--full">
+                  <span class="form-group__label">Economically Weaker</span>
+                  <div class="inline-options">
+                    <label>
+                      <input type="radio" formControlName="isEconomicallyWeaker" [value]="true" />
+                      Yes
+                    </label>
+                    <label>
+                      <input type="radio" formControlName="isEconomicallyWeaker" [value]="false" />
+                      No
+                    </label>
+                  </div>
+                  <span class="application__hint">
+                    Selecting <em>Yes</em> enables the Economically Weaker Section proof upload later
+                    in the application.
+                  </span>
+                </label>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="1">
+            <div class="form-section">
+              <h3 class="form-section__title">📍 Address Details</h3>
+              <div class="form-grid form-grid--address">
+                <label class="form-group form-group--textarea">
+                  <span class="form-group__label">Address in Tura</span>
+                  <textarea
+                    formControlName="addressInTura"
+                    class="form-group__input"
+                    rows="4"
+                    placeholder="Enter full address within Tura"
+                  ></textarea>
+                </label>
+                <label class="form-group form-group--textarea">
+                  <span class="form-group__label">Home Address</span>
+                  <textarea
+                    formControlName="homeAddress"
+                    class="form-group__input"
+                    rows="4"
+                    placeholder="Enter permanent home address"
+                    [readonly]="addressForm.get('sameAsTura')?.value"
+                  ></textarea>
+                </label>
+                <label class="form-group form-group--aadhaar">
+                  <span class="form-group__label">🆔 Aadhaar Number</span>
+                  <input
+                    formControlName="aadhaarNumber"
+                    class="form-group__input"
+                    type="text"
+                    maxlength="12"
+                    inputmode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="12 digits, no spaces"
+                    (input)="onAadhaarInput($event)"
+                  />
+                  <span
+                    class="form-error"
+                    *ngIf="addressForm.get('aadhaarNumber')?.invalid && (addressForm.get('aadhaarNumber')?.touched || addressForm.get('aadhaarNumber')?.dirty)"
+                  >
+                    <span *ngIf="addressForm.get('aadhaarNumber')?.errors?.['required']">
+                      Aadhaar number is required.
+                    </span>
+                    <span *ngIf="addressForm.get('aadhaarNumber')?.errors?.['aadhaarInvalid']">
+                      {{ addressForm.get('aadhaarNumber')?.errors?.['aadhaarInvalid']?.message || 'Aadhaar number is not valid or less than 12 digits.' }}
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <label class="form-group form-group--checkbox-inline">
+                <input type="checkbox" formControlName="sameAsTura" />
+                <span>Same as Tura Address</span>
+              </label>
+              <p class="application__hint application__hint--checkbox">When checked, Home Address is auto-filled from Tura address.</p>
+            </div>
+            <div class="form-section">
+              <h3 class="form-section__title">📧 Contact Information</h3>
+              <div class="form-grid">
+                <label class="form-group">
+                  <span class="form-group__label">State</span>
+                  <select formControlName="state" class="form-group__input">
+                    <option value="" disabled>Select state</option>
+                    <option *ngFor="let option of stateOptions" [value]="option">
+                      {{ option }}
+                    </option>
+                  </select>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Email</span>
+                  <input formControlName="email" type="email" class="form-group__input" readonly />
+                  <span class="application__hint">This email is linked to your account.</span>
+                </label>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="2">
+            <div class="form-section">
+              <h3 class="form-section__title">👨‍👩‍👧 Family & Guardian Details</h3>
+              <p class="form-section__intro">Provide details of your parents and local guardian.</p>
+            </div>
+            <div class="family-cards">
+              <div class="family-card family-card--primary" formGroupName="father">
+                <div class="family-card__header">👨 Father</div>
+                <div class="family-card__grid">
+                  <label class="form-group">
+                    <span class="form-group__label">Name</span>
+                    <input formControlName="name" type="text" class="form-group__input" (input)="onNameInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('father.name')?.invalid && (contactsForm.get('father.name')?.touched || contactsForm.get('father.name')?.dirty)">
+                      <span *ngIf="contactsForm.get('father.name')?.errors?.['required']">Name is required.</span>
+                      <span *ngIf="contactsForm.get('father.name')?.errors?.['nameInvalid']">{{ contactsForm.get('father.name')?.errors?.['nameInvalid']?.message || 'Name must contain only letters.' }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Age</span>
+                    <input formControlName="age" type="text" class="form-group__input" maxlength="2" inputmode="numeric" pattern="[0-9]*" (input)="onAgeInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('father.age')?.invalid && (contactsForm.get('father.age')?.touched || contactsForm.get('father.age')?.dirty)">
+                      <span *ngIf="contactsForm.get('father.age')?.errors?.['required']">Age is required.</span>
+                      <span *ngIf="contactsForm.get('father.age')?.errors?.['ageInvalid']">{{ contactsForm.get('father.age')?.errors?.['ageInvalid']?.message || 'Age must be 2 digits or less.' }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Occupation</span>
+                    <input formControlName="occupation" type="text" class="form-group__input" (input)="onOccupationInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('father.occupation')?.invalid && (contactsForm.get('father.occupation')?.touched || contactsForm.get('father.occupation')?.dirty)">
+                      <span *ngIf="contactsForm.get('father.occupation')?.errors?.['required']">Occupation is required.</span>
+                      <span *ngIf="contactsForm.get('father.occupation')?.errors?.['occupationInvalid']">{{ contactsForm.get('father.occupation')?.errors?.['occupationInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Contact Number</span>
+                    <input formControlName="contactNumber1" type="text" class="form-group__input" maxlength="10" inputmode="numeric" pattern="[0-9]*" (input)="onContactNumberInput($event)" placeholder="10 digits" />
+                    <span class="form-error" *ngIf="contactsForm.get('father.contactNumber1')?.invalid && (contactsForm.get('father.contactNumber1')?.touched || contactsForm.get('father.contactNumber1')?.dirty)">
+                      <span *ngIf="contactsForm.get('father.contactNumber1')?.errors?.['required']">Contact number is required.</span>
+                      <span *ngIf="contactsForm.get('father.contactNumber1')?.errors?.['contactInvalid']">{{ contactsForm.get('father.contactNumber1')?.errors?.['contactInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="family-card" formGroupName="mother">
+                <div class="family-card__header">👩 Mother</div>
+                <div class="family-card__grid">
+                  <label class="form-group">
+                    <span class="form-group__label">Name</span>
+                    <input formControlName="name" type="text" class="form-group__input" (input)="onNameInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('mother.name')?.invalid && (contactsForm.get('mother.name')?.touched || contactsForm.get('mother.name')?.dirty)">
+                      <span *ngIf="contactsForm.get('mother.name')?.errors?.['required']">Name is required.</span>
+                      <span *ngIf="contactsForm.get('mother.name')?.errors?.['nameInvalid']">{{ contactsForm.get('mother.name')?.errors?.['nameInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Age</span>
+                    <input formControlName="age" type="text" class="form-group__input" maxlength="2" inputmode="numeric" pattern="[0-9]*" (input)="onAgeInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('mother.age')?.invalid && (contactsForm.get('mother.age')?.touched || contactsForm.get('mother.age')?.dirty)">
+                      <span *ngIf="contactsForm.get('mother.age')?.errors?.['required']">Age is required.</span>
+                      <span *ngIf="contactsForm.get('mother.age')?.errors?.['ageInvalid']">{{ contactsForm.get('mother.age')?.errors?.['ageInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Occupation</span>
+                    <input formControlName="occupation" type="text" class="form-group__input" (input)="onOccupationInput($event)" />
+                    <span class="form-error" *ngIf="contactsForm.get('mother.occupation')?.invalid && (contactsForm.get('mother.occupation')?.touched || contactsForm.get('mother.occupation')?.dirty)">
+                      <span *ngIf="contactsForm.get('mother.occupation')?.errors?.['required']">Occupation is required.</span>
+                      <span *ngIf="contactsForm.get('mother.occupation')?.errors?.['occupationInvalid']">{{ contactsForm.get('mother.occupation')?.errors?.['occupationInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Contact Number</span>
+                    <input formControlName="contactNumber1" type="text" class="form-group__input" maxlength="10" inputmode="numeric" pattern="[0-9]*" (input)="onContactNumberInput($event)" placeholder="10 digits" />
+                    <span class="form-error" *ngIf="contactsForm.get('mother.contactNumber1')?.invalid && (contactsForm.get('mother.contactNumber1')?.touched || contactsForm.get('mother.contactNumber1')?.dirty)">
+                      <span *ngIf="contactsForm.get('mother.contactNumber1')?.errors?.['required']">Contact number is required.</span>
+                      <span *ngIf="contactsForm.get('mother.contactNumber1')?.errors?.['contactInvalid']">{{ contactsForm.get('mother.contactNumber1')?.errors?.['contactInvalid']?.message }}</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <label class="form-group form-group--checkbox-inline" style="margin-top: 1rem;">
+              <input type="checkbox" [checked]="hasLocalGuardian()" (change)="setHasLocalGuardian($any($event.target).checked)" />
+              <span>I have a Local Guardian</span>
+            </label>
+            <div class="family-card" *ngIf="hasLocalGuardian()" formGroupName="localGuardian">
+              <div class="family-card__header">🧑 Local Guardian</div>
+              <div class="family-card__grid">
+                <label class="form-group">
+                  <span class="form-group__label">Name</span>
+                  <input formControlName="name" type="text" class="form-group__input" (input)="onNameInput($event)" />
+                  <span class="form-error" *ngIf="contactsForm.get('localGuardian.name')?.invalid && (contactsForm.get('localGuardian.name')?.touched || contactsForm.get('localGuardian.name')?.dirty)">
+                    <span *ngIf="contactsForm.get('localGuardian.name')?.errors?.['required']">Name is required.</span>
+                    <span *ngIf="contactsForm.get('localGuardian.name')?.errors?.['nameInvalid']">{{ contactsForm.get('localGuardian.name')?.errors?.['nameInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Age</span>
+                  <input formControlName="age" type="text" class="form-group__input" maxlength="2" inputmode="numeric" pattern="[0-9]*" (input)="onAgeInput($event)" />
+                  <span class="form-error" *ngIf="contactsForm.get('localGuardian.age')?.invalid && (contactsForm.get('localGuardian.age')?.touched || contactsForm.get('localGuardian.age')?.dirty)">
+                    <span *ngIf="contactsForm.get('localGuardian.age')?.errors?.['required']">Age is required.</span>
+                    <span *ngIf="contactsForm.get('localGuardian.age')?.errors?.['ageInvalid']">{{ contactsForm.get('localGuardian.age')?.errors?.['ageInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Occupation</span>
+                  <input formControlName="occupation" type="text" class="form-group__input" (input)="onOccupationInput($event)" />
+                  <span class="form-error" *ngIf="contactsForm.get('localGuardian.occupation')?.invalid && (contactsForm.get('localGuardian.occupation')?.touched || contactsForm.get('localGuardian.occupation')?.dirty)">
+                    <span *ngIf="contactsForm.get('localGuardian.occupation')?.errors?.['required']">Occupation is required.</span>
+                    <span *ngIf="contactsForm.get('localGuardian.occupation')?.errors?.['occupationInvalid']">{{ contactsForm.get('localGuardian.occupation')?.errors?.['occupationInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Contact Number</span>
+                  <input formControlName="contactNumber1" type="text" class="form-group__input" maxlength="10" inputmode="numeric" pattern="[0-9]*" (input)="onContactNumberInput($event)" placeholder="10 digits" />
+                  <span class="form-error" *ngIf="contactsForm.get('localGuardian.contactNumber1')?.invalid && (contactsForm.get('localGuardian.contactNumber1')?.touched || contactsForm.get('localGuardian.contactNumber1')?.dirty)">
+                    <span *ngIf="contactsForm.get('localGuardian.contactNumber1')?.errors?.['required']">Contact number is required.</span>
+                    <span *ngIf="contactsForm.get('localGuardian.contactNumber1')?.errors?.['contactInvalid']">{{ contactsForm.get('localGuardian.contactNumber1')?.errors?.['contactInvalid']?.message }}</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div class="form-section household-section">
+              <h3 class="form-section__title">🏠 Household Information</h3>
+              <div class="household-toggle">
+                <span class="form-group__label" style="display:block; margin-bottom: 8px;">Location Type</span>
+                <label class="household-toggle__option">
+                  <input type="radio" formControlName="householdAreaType" value="Urban" />
+                  <span>Urban</span>
+                </label>
+                <label class="household-toggle__option">
+                  <input type="radio" formControlName="householdAreaType" value="Rural" />
+                  <span>Rural</span>
+                </label>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="3">
+            <div class="form-section">
+              <h3 class="form-section__title">📚 Academic Records</h3>
+              <p class="form-section__intro">Enter your Class XII subjects, board examination details, and CUET information if applicable.</p>
+            </div>
+
+            <div class="academic-card academic-card--class-xii-board">
+              <h3 class="academic-card__title">Class XII — Board &amp; stream</h3>
+              <p class="application__hint">
+                Choose your Class XII board and stream. Subjects load from the official list (except for &quot;Other&quot; board).
+              </p>
+              <div class="form-grid">
+                <label class="form-group">
+                  <span class="form-group__label">Board *</span>
+                  <select formControlName="classXiiBoardCode" class="form-group__input">
+                    <option value="" disabled>Select board</option>
+                    <option value="MBOSE">MBOSE</option>
+                    <option value="CBSE">CBSE</option>
+                    <option value="ISC">ISC</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                  <span class="form-error" *ngIf="academicsForm.get('classXiiBoardCode')?.invalid && academicsForm.get('classXiiBoardCode')?.touched">
+                    Board is required.
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Stream {{ isClassXiiOtherBoard() ? '' : '*' }}</span>
+                  <select formControlName="classXiiStreamCode" class="form-group__input">
+                    <option value="">{{ isClassXiiOtherBoard() ? '—' : 'Select stream' }}</option>
+                    <option value="ARTS">Arts</option>
+                    <option value="SCIENCE">Science</option>
+                    <option value="COMMERCE">Commerce</option>
+                  </select>
+                  <span class="form-error" *ngIf="academicsForm.get('classXiiStreamCode')?.invalid && academicsForm.get('classXiiStreamCode')?.touched && !isClassXiiOtherBoard()">
+                    Stream is required for this board.
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="academic-card">
+              <h3 class="academic-card__title">Class XII Subjects &amp; Marks</h3>
+              <p class="application__hint" *ngIf="!isClassXiiOtherBoard() && boardAndStreamReadyForCatalog()">
+                Pick each subject once. You need at least five subjects with marks (0–100).
+              </p>
+              <p class="application__hint" *ngIf="isClassXiiOtherBoard()">
+                Enter subject names and marks manually. At least five subjects are required.
+              </p>
+
+              <div class="class-xii-catalog-status" *ngIf="subjectsLoading()">
+                <span class="class-xii-catalog-status__spinner" aria-hidden="true"></span>
+                Loading subjects…
+              </div>
+              <p class="form-error class-xii-catalog-status__msg" *ngIf="!subjectsLoading() && subjectsLoadError()">
+                {{ subjectsLoadError() }}
+              </p>
+
+              <p class="form-error" *ngIf="classXiiSubjectsArray.errors?.['classXiiMinSubjects']">
+                {{ classXiiSubjectsArray.errors?.['classXiiMinSubjects']?.message }}
+              </p>
+
+              <div class="class-xii-table" formArrayName="classXiiSubjects">
+                <div class="class-xii-table__head class-xii-table__head--desktop" aria-hidden="true">
+                  <span>Subject</span>
+                  <span>Marks</span>
+                  <span class="class-xii-table__action-head">Action</span>
+                </div>
+
+                <div
+                  *ngFor="let group of classXiiSubjectsArray.controls; let i = index"
+                  class="class-xii-row subject-row"
+                  [formGroupName]="i"
+                >
+                  <label class="form-group class-xii-row__subject" *ngIf="isClassXiiOtherBoard()">
+                    <span class="form-group__label">Subject {{ i + 1 }}</span>
+                    <input
+                      type="text"
+                      formControlName="subject"
+                      class="form-group__input"
+                      placeholder="Subject name"
+                      (input)="onClassXiiManualSubjectInput($event, i)"
+                      autocomplete="off"
+                    />
+                  </label>
+
+                  <label class="form-group class-xii-row__subject" *ngIf="!isClassXiiOtherBoard()">
+                    <span class="form-group__label">Subject {{ i + 1 }}</span>
+                    <select
+                      class="form-group__input"
+                      formControlName="subjectMasterId"
+                      (change)="onClassXiiSubjectSelected(i, $any($event.target).value)"
+                    >
+                      <option value="">Select subject</option>
+                      <option *ngFor="let opt of availableOptionsForRow(i)" [value]="opt.id">
+                        {{ opt.subjectName }}
+                      </option>
+                    </select>
+                  </label>
+
+                  <label class="form-group subject-row__marks class-xii-row__marks">
+                    <span class="form-group__label">Marks (0–100)</span>
+                    <input
+                      [id]="'class-xii-marks-' + i"
+                      type="number"
+                      min="0"
+                      max="100"
+                      step="1"
+                      formControlName="marks"
+                      class="form-group__input"
+                      inputmode="numeric"
+                      placeholder="0–100"
+                      (blur)="onClassXiiMarksBlurFocusNext(i)"
+                    />
+                    <span class="form-error" *ngIf="group.get('marks')?.invalid && (group.get('marks')?.touched || group.get('marks')?.dirty)">
+                      <span *ngIf="group.get('marks')?.errors?.['required']">Marks required.</span>
+                      <span *ngIf="group.get('marks')?.errors?.['classXiiMarksInvalid']">{{ group.get('marks')?.errors?.['classXiiMarksInvalid']?.message }}</span>
+                    </span>
+                  </label>
+
+                  <div class="class-xii-row__actions">
+                    <button type="button" class="class-xii-row__remove" (click)="removeClassXiiSubjectRow(i)" [attr.aria-label]="'Remove subject row ' + (i + 1)">
+                      ×
+                    </button>
+                  </div>
+
+                  <span class="form-error class-xii-row__group-error" *ngIf="group.errors?.['masterPickRequired']">
+                    {{ group.errors?.['masterPickRequired']?.message }}
+                  </span>
+                  <span class="form-error" *ngIf="group.get('subject')?.invalid && (group.get('subject')?.touched || group.get('subject')?.dirty) && isClassXiiOtherBoard()">
+                    <span *ngIf="group.get('subject')?.errors?.['required']">Subject is required.</span>
+                  </span>
+                </div>
+              </div>
+
+              <button type="button" class="application__btn application__btn--secondary class-xii-add-subject" (click)="addClassXiiSubjectRow()">
+                + Add subject
+              </button>
+            </div>
+
+            <div class="academic-card" formGroupName="boardExamination">
+              <h3 class="academic-card__title">Board Examination Details</h3>
+              <div class="form-grid">
+                <label class="form-group">
+                  <span class="form-group__label">Roll Number</span>
+                  <input formControlName="rollNumber" type="text" class="form-group__input" inputmode="numeric" pattern="[0-9]*" (input)="onNumericInput($event, boardExaminationForm, 'rollNumber')" />
+                  <span class="form-error" *ngIf="academicsForm.get('boardExamination.rollNumber')?.invalid && (academicsForm.get('boardExamination.rollNumber')?.touched || academicsForm.get('boardExamination.rollNumber')?.dirty)">
+                    <span *ngIf="academicsForm.get('boardExamination.rollNumber')?.errors?.['required']">Required.</span>
+                    <span *ngIf="academicsForm.get('boardExamination.rollNumber')?.errors?.['numericInvalid']">{{ academicsForm.get('boardExamination.rollNumber')?.errors?.['numericInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Year</span>
+                  <input formControlName="year" type="text" class="form-group__input" inputmode="numeric" pattern="[0-9]*" (input)="onNumericInput($event, boardExaminationForm, 'year')" />
+                  <span class="form-error" *ngIf="academicsForm.get('boardExamination.year')?.invalid && (academicsForm.get('boardExamination.year')?.touched || academicsForm.get('boardExamination.year')?.dirty)">
+                    <span *ngIf="academicsForm.get('boardExamination.year')?.errors?.['required']">Required.</span>
+                    <span *ngIf="academicsForm.get('boardExamination.year')?.errors?.['numericInvalid']">{{ academicsForm.get('boardExamination.year')?.errors?.['numericInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Total Marks</span>
+                  <input formControlName="totalMarks" type="text" class="form-group__input" inputmode="numeric" pattern="[0-9]*" (input)="onNumericInput($event, boardExaminationForm, 'totalMarks')" (blur)="onNumericInput($event, boardExaminationForm, 'totalMarks')" />
+                  <span class="form-error" *ngIf="academicsForm.get('boardExamination.totalMarks')?.invalid && (academicsForm.get('boardExamination.totalMarks')?.touched || academicsForm.get('boardExamination.totalMarks')?.dirty)">
+                    <span *ngIf="academicsForm.get('boardExamination.totalMarks')?.errors?.['required']">Required.</span>
+                    <span *ngIf="academicsForm.get('boardExamination.totalMarks')?.errors?.['numericInvalid']">{{ academicsForm.get('boardExamination.totalMarks')?.errors?.['numericInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Percentage</span>
+                  <input formControlName="percentage" type="text" class="form-group__input" (input)="onPercentageInput($event)" placeholder="e.g. 85.5" />
+                  <span class="form-error" *ngIf="academicsForm.get('boardExamination.percentage')?.invalid && (academicsForm.get('boardExamination.percentage')?.touched || academicsForm.get('boardExamination.percentage')?.dirty)">
+                    <span *ngIf="academicsForm.get('boardExamination.percentage')?.errors?.['required']">Required.</span>
+                    <span *ngIf="academicsForm.get('boardExamination.percentage')?.errors?.['percentageInvalid']">{{ academicsForm.get('boardExamination.percentage')?.errors?.['percentageInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Division</span>
+                  <input formControlName="division" type="text" class="form-group__input" placeholder="e.g. First" />
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Board Name</span>
+                  <input formControlName="boardName" type="text" class="form-group__input" placeholder="e.g. MBOSE" />
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Mode of Study</span>
+                  <select formControlName="registrationType" class="form-group__input">
+                    <option value="" disabled>Select mode of study</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Private">Private</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="academic-card" formGroupName="cuet">
+              <h3 class="academic-card__title">CUET Details</h3>
+              <label class="form-group__label" style="display:block; margin-bottom: 8px;">CUET Application Status</label>
+              <div class="cuet-radio-wrap">
+                <label class="household-toggle__option">
+                  <input type="radio" formControlName="applied" [value]="'Applied'" />
+                  <span>Applied</span>
+                </label>
+                <label class="household-toggle__option">
+                  <input type="radio" formControlName="applied" [value]="'Not Applied'" />
+                  <span>Not Applied</span>
+                </label>
+              </div>
+              <div class="form-grid cuet-fields" *ngIf="isCuetApplied">
+                <label class="form-group">
+                  <span class="form-group__label">CUET Marks</span>
+                  <input formControlName="marks" type="text" class="form-group__input" inputmode="numeric" pattern="[0-9]*" (input)="onNumericInput($event, cuetForm, 'marks')" />
+                  <span class="form-error" *ngIf="academicsForm.get('cuet.marks')?.invalid && (academicsForm.get('cuet.marks')?.touched || academicsForm.get('cuet.marks')?.dirty)">
+                    <span *ngIf="academicsForm.get('cuet.marks')?.errors?.['numericInvalid']">{{ academicsForm.get('cuet.marks')?.errors?.['numericInvalid']?.message }}</span>
+                  </span>
+                </label>
+                <label class="form-group">
+                  <span class="form-group__label">Roll Number</span>
+                  <input formControlName="rollNumber" type="text" class="form-group__input" (input)="onAlphanumericInput($event, cuetForm, 'rollNumber')" />
+                  <span class="form-error" *ngIf="academicsForm.get('cuet.rollNumber')?.invalid && (academicsForm.get('cuet.rollNumber')?.touched || academicsForm.get('cuet.rollNumber')?.dirty)">
+                    <span *ngIf="academicsForm.get('cuet.rollNumber')?.errors?.['alphanumericInvalid']">{{ academicsForm.get('cuet.rollNumber')?.errors?.['alphanumericInvalid']?.message }}</span>
+                  </span>
+                </label>
+              </div>
+            </div>
+
+            <div class="academic-card academic-card--last">
+              <label class="form-group">
+                <span class="form-group__label">Last Institution Attended & Place</span>
+                <input formControlName="lastInstitutionAttended" type="text" class="form-group__input" placeholder="School/College name and place" />
+              </label>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="4">
+            <div class="course-preferences">
+              <h2 class="course-preferences__heading">Course Selection</h2>
+
+              <div
+                class="course-preferences__alert"
+                [class.course-preferences__alert--locked]="coursesLocked"
+                role="alert"
+              >
+                <span class="course-preferences__alert-icon" aria-hidden="true">⚠️</span>
+                <span>
+                  {{
+                    coursesLocked
+                      ? 'These selections are locked after submission. Contact the admissions office if you need to request changes.'
+                      : 'Once submitted, you cannot change your course selections.'
+                  }}
+                </span>
+              </div>
+
+              <!-- Step 1: Preferred Shift -->
+              <section class="course-step">
+                <h3 class="course-step__title">
+                  <span class="course-step__num" aria-hidden="true">1</span>
+                  Preferred Shift
+                </h3>
+                <label class="form-group">
+                  <span class="form-group__label">Preferred Shift *</span>
+                  <select formControlName="shift" class="course-preferences__select">
+                    <option value="">Select</option>
+                    <option *ngFor="let option of shiftOptions" [value]="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
+                  <p class="form-hint" *ngIf="currentShiftOption() as shiftOpt">
+                    {{ shiftOpt.description }}
+                  </p>
+                  <p class="form-hint" *ngIf="!currentShiftOption()">
+                    Select a shift to view the majors, minors, and elective options available for that schedule.
+                  </p>
+                </label>
+              </section>
+
+              <!-- Step 2: Major & Minor (revealed after shift) -->
+              <section class="course-step" *ngIf="shiftSelected">
+                <h3 class="course-step__title">
+                  <span class="course-step__num" aria-hidden="true">2</span>
+                  Major &amp; Minor
+                </h3>
+                <p class="course-step__hint">
+                  <span aria-hidden="true">ℹ️</span> Minor subjects depend on your selected Major.
+                </p>
+                <div class="course-preferences__grid-2">
+                  <label class="form-group">
+                    <span class="form-group__label">Major Subject *</span>
+                    <select formControlName="majorSubject" class="course-preferences__select">
+                      <option value="">Select</option>
+                      <option *ngFor="let option of availableMajors()" [value]="option">
+                        {{ option }}
+                      </option>
+                    </select>
+                    <span
+                      class="form-error"
+                      *ngIf="coursesForm.get('majorSubject')?.invalid && (coursesForm.get('majorSubject')?.touched || coursesForm.get('majorSubject')?.dirty)"
+                    >
+                      Please select a major subject offered in the chosen shift.
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">Minor Subject *</span>
+                    <select formControlName="minorSubject" class="course-preferences__select">
+                      <option value="">Select</option>
+                      <option *ngFor="let option of availableMinors()" [value]="option">
+                        {{ option }}
+                      </option>
+                    </select>
+                    <span class="form-hint" *ngIf="availableMinors().length === 0">
+                      Select a major subject to view eligible minor combinations.
+                    </span>
+                    <span
+                      class="form-error"
+                      *ngIf="coursesForm.get('minorSubject')?.invalid && (coursesForm.get('minorSubject')?.touched || coursesForm.get('minorSubject')?.dirty)"
+                    >
+                      Please choose a companion minor subject.
+                    </span>
+                  </label>
+                </div>
+              </section>
+
+              <!-- Step 3: Electives (revealed after major & minor) -->
+              <section class="course-step" *ngIf="majorMinorSelected">
+                <h3 class="course-step__title">
+                  <span class="course-step__num" aria-hidden="true">3</span>
+                  Electives (MDC, AEC, SEC)
+                </h3>
+                <p class="course-step__hint">
+                  <span aria-hidden="true">ℹ️</span> Select Shift and Major to see available options.
+                </p>
+                <div class="course-preferences__grid-2">
+                  <label class="form-group">
+                    <span class="form-group__label">MDC (Choose any one)</span>
+                    <select formControlName="multidisciplinaryChoice" class="course-preferences__select">
+                      <option value="">Select</option>
+                      <option *ngFor="let option of availableMdc()" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <span class="form-hint" *ngIf="availableMdc().length === 0">
+                      MDC options will appear after selecting an eligible shift.
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">AEC (Choose any one)</span>
+                    <select formControlName="abilityEnhancementChoice" class="course-preferences__select">
+                      <option value="">Select</option>
+                      <option *ngFor="let option of availableAec()" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <span class="form-hint" *ngIf="availableAec().length === 0">
+                      AEC options will appear after selecting an eligible shift.
+                    </span>
+                  </label>
+                  <label class="form-group">
+                    <span class="form-group__label">SEC (Choose any one)</span>
+                    <select formControlName="skillEnhancementChoice" class="course-preferences__select">
+                      <option value="">Select</option>
+                      <option *ngFor="let option of availableSec()" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <span class="form-hint" *ngIf="availableSec().length === 0">
+                      SEC options will appear after selecting an eligible shift.
+                    </span>
+                  </label>
+                  <div class="vac-card" aria-label="Value Added Course (pre-assigned)">
+                    <input type="hidden" formControlName="valueAddedChoice" />
+                    <span class="vac-card__label">Value Added Course</span>
+                    <span class="vac-card__value">{{ defaultVac.label }} (Auto Assigned)</span>
+                  </div>
+                </div>
+              </section>
+
+              <!-- Selection summary -->
+              <div class="course-selection-summary" *ngIf="courseSelectionSummary">
+                <span class="course-selection-summary__label">Your selection:</span>
+                <span class="course-selection-summary__text">{{ courseSelectionSummary }}</span>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchCase="5">
+            <div
+              class="upload-validation-summary"
+              *ngIf="uploadStepErrorSummary().length"
+              role="alert"
+            >
+              <strong>Please fix the following:</strong>
+              <ul>
+                <li *ngFor="let line of uploadStepErrorSummary()">{{ line }}</li>
+              </ul>
+            </div>
+            <div class="upload-grid" (click)="$event.stopPropagation()">
+              <div
+                class="upload-field"
+                data-validation-anchor="stdXMarksheet"
+                [class.upload-field--invalid]="uploadControlInvalid('stdXMarksheet')"
+              >
+                <label for="stdXMarksheet">STD X Marksheet (jpeg/jpg/png) *</label>
+                <input
+                  id="stdXMarksheet"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  (change)="onFileSelected('stdXMarksheet', $event)"
+                />
+                <div class="upload-file-info" *ngIf="getAttachment('stdXMarksheet') as attachment">
+                  <span>{{ attachment.fileName }}</span>
+                  <button type="button" class="link" (click)="downloadAttachment('stdXMarksheet')">
+                    Download
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="link"
+                  *ngIf="uploadsForm.value.stdXMarksheet"
+                  (click)="removeAttachment('stdXMarksheet')"
+                >
+                  Remove file
+                </button>
+                <p class="form-error" *ngIf="uploadControlErrorText('stdXMarksheet') as err">
+                  {{ err }}
+                </p>
+              </div>
+              <div
+                class="upload-field"
+                data-validation-anchor="stdXIIMarksheet"
+                [class.upload-field--invalid]="uploadControlInvalid('stdXIIMarksheet')"
+              >
+                <label for="stdXIIMarksheet">STD XII Marksheet (jpeg/jpg/png) *</label>
+                <input
+                  id="stdXIIMarksheet"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  (change)="onFileSelected('stdXIIMarksheet', $event)"
+                />
+                <div class="upload-file-info" *ngIf="getAttachment('stdXIIMarksheet') as attachment">
+                  <span>{{ attachment.fileName }}</span>
+                  <button type="button" class="link" (click)="downloadAttachment('stdXIIMarksheet')">
+                    Download
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="link"
+                  *ngIf="uploadsForm.value.stdXIIMarksheet"
+                  (click)="removeAttachment('stdXIIMarksheet')"
+                >
+                  Remove file
+                </button>
+                <p class="form-error" *ngIf="uploadControlErrorText('stdXIIMarksheet') as err">
+                  {{ err }}
+                </p>
+              </div>
+              <div
+                class="upload-field"
+                data-validation-anchor="cuetMarksheet"
+                [class.upload-disabled]="!isCuetApplied"
+                [class.upload-field--invalid]="uploadControlInvalid('cuetMarksheet')"
+              >
+                <label for="cuetMarksheet">
+                  CUET Marksheet<span *ngIf="isCuetApplied"> *</span>
+                </label>
+                <input
+                  id="cuetMarksheet"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  [disabled]="!isCuetApplied"
+                  (change)="onFileSelected('cuetMarksheet', $event)"
+                />
+                <div class="upload-file-info" *ngIf="getAttachment('cuetMarksheet') as attachment">
+                  <span>{{ attachment.fileName }}</span>
+                  <button type="button" class="link" (click)="downloadAttachment('cuetMarksheet')">
+                    Download
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="link"
+                  *ngIf="uploadsForm.value.cuetMarksheet"
+                  [disabled]="!isCuetApplied"
+                  (click)="removeAttachment('cuetMarksheet')"
+                >
+                  Remove file
+                </button>
+                <p class="form-error" *ngIf="uploadControlErrorText('cuetMarksheet') as err">
+                  {{ err }}
+                </p>
+              </div>
+              <div
+                class="upload-field"
+                data-validation-anchor="differentlyAbledProof"
+                [class.upload-disabled]="!personalForm.get('isDifferentlyAbled')?.value"
+                [class.upload-field--invalid]="uploadControlInvalid('differentlyAbledProof')"
+              >
+                <label for="differentlyAbledProof">
+                  Disability Certificate<span *ngIf="personalForm.get('isDifferentlyAbled')?.value"> *</span>
+                </label>
+                <input
+                  id="differentlyAbledProof"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  [disabled]="
+                    !personalForm.get('isDifferentlyAbled')?.value
+                  "
+                  (change)="onFileSelected('differentlyAbledProof', $event)"
+                />
+                <div
+                  class="upload-file-info"
+                  *ngIf="getAttachment('differentlyAbledProof') as attachment"
+                >
+                  <span>{{ attachment.fileName }}</span>
+                  <button
+                    type="button"
+                    class="link"
+                    (click)="downloadAttachment('differentlyAbledProof')"
+                  >
+                    Download
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="link"
+                  [disabled]="
+                    !personalForm.get('isDifferentlyAbled')?.value ||
+                    !uploadsForm.get('differentlyAbledProof')?.value
+                  "
+                  (click)="removeAttachment('differentlyAbledProof')"
+                >
+                  Remove file
+                </button>
+                <p class="application__hint">
+                  Upload a clear scan or photo (JPEG/PNG/PDF) issued by the competent authority.
+                </p>
+                <p class="form-error" *ngIf="uploadControlErrorText('differentlyAbledProof') as err">
+                  {{ err }}
+                </p>
+              </div>
+              <div
+                class="upload-field"
+                data-validation-anchor="economicallyWeakerProof"
+                [class.upload-disabled]="!personalForm.get('isEconomicallyWeaker')?.value"
+                [class.upload-field--invalid]="uploadControlInvalid('economicallyWeakerProof')"
+              >
+                <label for="economicallyWeakerProof">
+                  Economically Weaker Section Proof<span *ngIf="personalForm.get('isEconomicallyWeaker')?.value"> *</span>
+                </label>
+                <input
+                  id="economicallyWeakerProof"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,application/pdf"
+                  [disabled]="
+                    !personalForm.get('isEconomicallyWeaker')?.value
+                  "
+                  (change)="onFileSelected('economicallyWeakerProof', $event)"
+                  (click)="preventFormSubmit($event)"
+                  (click)="$event.stopPropagation()"
+                />
+                <div
+                  class="upload-file-info"
+                  *ngIf="getAttachment('economicallyWeakerProof') as attachment"
+                >
+                  <span>{{ attachment.fileName }}</span>
+                  <button
+                    type="button"
+                    class="link"
+                    (click)="downloadAttachment('economicallyWeakerProof')"
+                  >
+                    Download
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="link"
+                  [disabled]="
+                    !personalForm.get('isEconomicallyWeaker')?.value ||
+                    !uploadsForm.get('economicallyWeakerProof')?.value
+                  "
+                  (click)="removeAttachment('economicallyWeakerProof')"
+                >
+                  Remove file
+                </button>
+                <p class="application__hint">
+                  Accepts JPEG/PNG/PDF proof such as income certificate or supporting document.
+                </p>
+                <p class="form-error" *ngIf="uploadControlErrorText('economicallyWeakerProof') as err">
+                  {{ err }}
+                </p>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngSwitchDefault>
+            <div class="payment-success-card" *ngIf="applicationFullyComplete()">
+              <div class="payment-success-card__icon" aria-hidden="true">✓</div>
+              <h2 class="payment-success-card__title">Payment Successful!</h2>
+              <p class="payment-success-card__lead">
+                Your admission application has been successfully submitted.
+              </p>
+              <p class="payment-success-card__body">
+                We will review your application and notify you about the admission status.
+              </p>
+              <p class="payment-success-card__email-hint">
+                <span aria-hidden="true">📩</span> Please check your registered email regularly for updates.
+              </p>
+              <dl class="payment-success-card__meta" *ngIf="paymentStatus() as ps">
+                <div *ngIf="ps.applicationReference">
+                  <dt>Application reference</dt>
+                  <dd>{{ ps.applicationReference }}</dd>
+                </div>
+                <div *ngIf="ps.paymentAmount != null">
+                  <dt>Amount paid</dt>
+                  <dd>₹{{ ps.paymentAmount }}</dd>
+                </div>
+                <div *ngIf="ps.paymentTransactionId">
+                  <dt>Transaction ID</dt>
+                  <dd>{{ ps.paymentTransactionId }}</dd>
+                </div>
+                <div *ngIf="ps.paymentCompletedOnUtc">
+                  <dt>Paid on</dt>
+                  <dd>{{ ps.paymentCompletedOnUtc | date: 'medium' }}</dd>
+                </div>
+              </dl>
+              <div class="payment-success-card__actions">
+                <button type="button" class="application__btn application__btn--outline" (click)="downloadPaymentReceipt()">
+                  Download receipt
+                </button>
+                <button
+                  type="button"
+                  class="application__btn application__btn--primary"
+                  (click)="downloadSubmittedPdf()"
+                  [disabled]="!submittedPdfUrl"
+                >
+                  Download application form
+                </button>
+                <a routerLink="/app/profile/summary" class="application__btn application__btn--outline">
+                  View application
+                </a>
+                <a routerLink="/app/dashboard" class="application__btn application__btn--primary">
+                  Go to dashboard
+                </a>
+              </div>
+              <div class="payment-success-card__signout">
+                <button type="button" class="application__btn application__btn--outline" (click)="signOut()">
+                  Sign out
+                </button>
+              </div>
+            </div>
+
+            <ng-container *ngIf="!applicationFullyComplete()">
+              <div class="declaration" [formGroup]="declarationForm">
+                <label>
+                  <input type="checkbox" formControlName="declarationAccepted" />
+                  <span>
+                    I declare that the information provided is true to the best of my knowledge and I agree to abide by the rules and regulations of Don Bosco College, Tura.
+                  </span>
+                </label>
+              </div>
+              <div class="submission-success" *ngIf="submissionSuccessful">
+                <p>Your application has been submitted successfully.</p>
+                <div class="payment-section">
+                  <div *ngIf="!paymentStatus() || !paymentStatus()!.isPaymentCompleted">
+                    <p class="payment-instruction">
+                      Click Pay Now to complete the admission process. If payment is not completed, your application will be rejected or not considered.
+                    </p>
+                    <p class="payment-device-hint">{{ paymentCheckoutHint() }}</p>
+                    <button 
+                      type="button" 
+                      class="primary" 
+                      (click)="payNow()"
+                      [disabled]="isPaymentProcessing()"
+                    >
+                      <span *ngIf="!isPaymentProcessing()">Pay Now — secure checkout</span>
+                      <span *ngIf="isPaymentProcessing()">Opening payment…</span>
+                    </button>
+                    <p class="payment-status-hint" *ngIf="isPaymentProcessing()">
+                      Complete or cancel payment in the Razorpay window. Status updates when payment finishes.
+                    </p>
+                  </div>
+                  <div *ngIf="paymentStatus()?.isPaymentCompleted" class="payment-completed">
+                    <p class="payment-success">✓ Payment successful — completed</p>
+                    <p class="payment-details" *ngIf="paymentStatus()!.paymentAmount">
+                      Amount Paid: ₹{{ paymentStatus()!.paymentAmount }}
+                    </p>
+                    <p class="payment-message">Your application form is now available for download.</p>
+                  </div>
+                </div>
+                <button 
+                  type="button" 
+                  class="primary" 
+                  (click)="downloadSubmittedPdf()"
+                  [disabled]="!paymentStatus()?.isPaymentCompleted || !submittedPdfUrl"
+                  [title]="!paymentStatus()?.isPaymentCompleted ? 'Please complete payment to download' : (!submittedPdfUrl ? 'Loading form...' : 'Download your application form')"
+                  *ngIf="paymentStatus()?.isPaymentCompleted"
+                >
+                  Download Application Form
+                </button>
+              </div>
+            </ng-container>
+          </ng-container>
+        </ng-container>
+      </form>
+
+      <footer class="application__footer application__footer--sticky">
+        <button type="button" class="application__btn application__btn--outline" (click)="previousStep($event)" [disabled]="currentStepIndex() === 0">
+          Previous
+        </button>
+        <div class="application__footer-spacer"></div>
+        <button type="button" class="application__btn application__btn--outline" (click)="saveDraft()" [disabled]="saving()">
+          Save Draft
+        </button>
+        <button
+          type="button"
+          class="application__btn application__btn--secondary"
+          *ngIf="submittedPdfUrl && paymentStatus()?.isPaymentCompleted"
+          (click)="downloadSubmittedPdf()"
+        >
+          Download Form
+        </button>
+        <button
+          type="button"
+          class="application__btn application__btn--primary"
+          *ngIf="currentStepIndex() < steps.length"
+          (click)="nextStep($event)"
+        >
+          Next →
+        </button>
+        <button
+          type="button"
+          class="application__btn application__btn--primary"
+          *ngIf="currentStepIndex() === declarationStepIndex && !applicationFullyComplete()"
+          (click)="submit()"
+        >
+          Submit Application
+        </button>
+      </footer>
+    </section>
+  </div>
+
+  <p *ngIf="error()" class="application__error">{{ error() }}</p>
+</section>
+
+<ng-template #loadingState>
+  <div class="loading">
+    Loading your application…
+  </div>
+</ng-template>
+

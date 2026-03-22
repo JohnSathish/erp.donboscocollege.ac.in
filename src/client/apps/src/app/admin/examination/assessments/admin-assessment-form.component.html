@@ -1,0 +1,391 @@
+<div class="assessment-form">
+  <div class="assessment-form__header">
+    <h1>{{ isEditMode() ? 'Edit Assessment' : 'Create Assessment' }}</h1>
+    <p>{{ isEditMode() ? 'Update assessment details and components' : 'Create a new assessment with components' }}</p>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading assessment...
+    </div>
+  } @else {
+    <form [formGroup]="assessmentForm" class="assessment-form__form">
+      <!-- Basic Information -->
+      <div class="form-section">
+        <h2>Basic Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="courseId">Course *</label>
+            <select
+              id="courseId"
+              class="select"
+              formControlName="courseId"
+              (change)="onProgramChange()"
+              [class.is-invalid]="assessmentForm.get('courseId')?.invalid && assessmentForm.get('courseId')?.touched"
+            >
+              <option value="">-- Select Course --</option>
+              @for (course of courses(); track course.id) {
+                <option [value]="course.id">
+                  {{ course.code }} - {{ course.name }}
+                </option>
+              }
+            </select>
+            <div
+              *ngIf="assessmentForm.get('courseId')?.invalid && assessmentForm.get('courseId')?.touched"
+              class="invalid-feedback"
+            >
+              Course is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="academicTermId">Academic Term *</label>
+            <input
+              id="academicTermId"
+              type="text"
+              class="input"
+              formControlName="academicTermId"
+              placeholder="Enter Academic Term ID (GUID)"
+              [class.is-invalid]="assessmentForm.get('academicTermId')?.invalid && assessmentForm.get('academicTermId')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('academicTermId')?.invalid && assessmentForm.get('academicTermId')?.touched"
+              class="invalid-feedback"
+            >
+              Academic Term ID is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Assessment Name *</label>
+            <input
+              id="name"
+              type="text"
+              class="input"
+              formControlName="name"
+              placeholder="e.g., Mid-Term Examination"
+              [class.is-invalid]="assessmentForm.get('name')?.invalid && assessmentForm.get('name')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('name')?.invalid && assessmentForm.get('name')?.touched"
+              class="invalid-feedback"
+            >
+              Assessment name is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="code">Assessment Code *</label>
+            <input
+              id="code"
+              type="text"
+              class="input"
+              formControlName="code"
+              placeholder="e.g., MT-2024-001"
+              [class.is-invalid]="assessmentForm.get('code')?.invalid && assessmentForm.get('code')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('code')?.invalid && assessmentForm.get('code')?.touched"
+              class="invalid-feedback"
+            >
+              Assessment code is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="type">Assessment Type *</label>
+            <select
+              id="type"
+              class="select"
+              formControlName="type"
+              [class.is-invalid]="assessmentForm.get('type')?.invalid && assessmentForm.get('type')?.touched"
+            >
+              <option value="">-- Select Type --</option>
+              @for (type of assessmentTypes; track type.value) {
+                <option [value]="type.value">{{ type.label }}</option>
+              }
+            </select>
+            <div
+              *ngIf="assessmentForm.get('type')?.invalid && assessmentForm.get('type')?.touched"
+              class="invalid-feedback"
+            >
+              Assessment type is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="classSectionId">Class Section ID (Optional)</label>
+            <input
+              id="classSectionId"
+              type="text"
+              class="input"
+              formControlName="classSectionId"
+              placeholder="Enter Class Section ID (GUID)"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Marks Configuration -->
+      <div class="form-section">
+        <h2>Marks Configuration</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="maxMarks">Maximum Marks *</label>
+            <input
+              id="maxMarks"
+              type="number"
+              class="input"
+              formControlName="maxMarks"
+              min="1"
+              max="1000"
+              [class.is-invalid]="assessmentForm.get('maxMarks')?.invalid && assessmentForm.get('maxMarks')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('maxMarks')?.invalid && assessmentForm.get('maxMarks')?.touched"
+              class="invalid-feedback"
+            >
+              Maximum marks must be between 1 and 1000.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="passingMarks">Passing Marks *</label>
+            <input
+              id="passingMarks"
+              type="number"
+              class="input"
+              formControlName="passingMarks"
+              min="0"
+              [class.is-invalid]="assessmentForm.get('passingMarks')?.invalid && assessmentForm.get('passingMarks')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('passingMarks')?.invalid && assessmentForm.get('passingMarks')?.touched"
+              class="invalid-feedback"
+            >
+              Passing marks is required.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="totalWeightage">Total Weightage (%) *</label>
+            <input
+              id="totalWeightage"
+              type="number"
+              class="input"
+              formControlName="totalWeightage"
+              min="0"
+              max="100"
+              step="0.01"
+              [class.is-invalid]="assessmentForm.get('totalWeightage')?.invalid && assessmentForm.get('totalWeightage')?.touched"
+            />
+            <div
+              *ngIf="assessmentForm.get('totalWeightage')?.invalid && assessmentForm.get('totalWeightage')?.touched"
+              class="invalid-feedback"
+            >
+              Total weightage must be between 0 and 100.
+            </div>
+            <div class="text-sm text-muted">
+              Component weightage total: <strong>{{ totalComponentWeightage() | number: '1.2-2' }}%</strong>
+              @if (abs(totalComponentWeightage() - (assessmentForm.get('totalWeightage')?.value || 0)) > 0.01) {
+                <span class="text-warning">⚠️ Does not match</span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule (Optional) -->
+      <div class="form-section">
+        <h2>Schedule (Optional)</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="scheduledDate">Scheduled Date</label>
+            <input
+              id="scheduledDate"
+              type="datetime-local"
+              class="input"
+              formControlName="scheduledDate"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="duration">Duration</label>
+            <input
+              id="duration"
+              type="time"
+              class="input"
+              formControlName="duration"
+              step="60"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="instructions">Instructions</label>
+          <textarea
+            id="instructions"
+            class="textarea"
+            formControlName="instructions"
+            rows="4"
+            placeholder="Enter assessment instructions..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Assessment Components -->
+      <div class="form-section">
+        <div class="section-header">
+          <h2>Assessment Components</h2>
+          <button
+            type="button"
+            class="btn btn--secondary btn--sm"
+            (click)="addComponent()"
+          >
+            <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+            Add Component
+          </button>
+        </div>
+
+        <div class="components-list">
+          @for (componentGroup of componentsArray.controls; track $index; let i = $index) {
+            <div class="component-card" [formGroup]="$any(componentGroup)">
+              <div class="component-card__header">
+                <h3>Component {{ i + 1 }}</h3>
+                <button
+                  type="button"
+                  class="btn btn--sm btn--danger"
+                  (click)="removeComponent(i)"
+                  [disabled]="componentsArray.length === 1"
+                >
+                  <iconify-icon icon="solar:trash-bin-bold"></iconify-icon>
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Component Name *</label>
+                  <input
+                    type="text"
+                    class="input"
+                    formControlName="name"
+                    placeholder="e.g., Theory, Practical"
+                    [class.is-invalid]="componentGroup.get('name')?.invalid && componentGroup.get('name')?.touched"
+                  />
+                  <div
+                    *ngIf="componentGroup.get('name')?.invalid && componentGroup.get('name')?.touched"
+                    class="invalid-feedback"
+                  >
+                    Component name is required.
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Component Code</label>
+                  <input
+                    type="text"
+                    class="input"
+                    formControlName="code"
+                    placeholder="e.g., TH, PR"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Max Marks *</label>
+                  <input
+                    type="number"
+                    class="input"
+                    formControlName="maxMarks"
+                    min="1"
+                    max="1000"
+                    [class.is-invalid]="componentGroup.get('maxMarks')?.invalid && componentGroup.get('maxMarks')?.touched"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Passing Marks *</label>
+                  <input
+                    type="number"
+                    class="input"
+                    formControlName="passingMarks"
+                    min="0"
+                    [class.is-invalid]="componentGroup.get('passingMarks')?.invalid && componentGroup.get('passingMarks')?.touched"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Weightage (%) *</label>
+                  <input
+                    type="number"
+                    class="input"
+                    formControlName="weightage"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    [class.is-invalid]="componentGroup.get('weightage')?.invalid && componentGroup.get('weightage')?.touched"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label>Display Order *</label>
+                  <input
+                    type="number"
+                    class="input"
+                    formControlName="displayOrder"
+                    min="1"
+                    readonly
+                  />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Instructions</label>
+                <textarea
+                  class="textarea"
+                  formControlName="instructions"
+                  rows="2"
+                  placeholder="Component-specific instructions..."
+                ></textarea>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="cancel()"
+          [disabled]="saving()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="btn btn--primary"
+          (click)="saveAssessment()"
+          [disabled]="saving() || assessmentForm.invalid"
+        >
+          @if (saving()) {
+            <iconify-icon icon="svg-spinners:3-dots-fade" class="btn-icon"></iconify-icon>
+            Saving...
+          } @else {
+            <iconify-icon icon="solar:diskette-bold" class="btn-icon"></iconify-icon>
+            {{ isEditMode() ? 'Update Assessment' : 'Create Assessment' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>
+

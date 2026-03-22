@@ -1,0 +1,327 @@
+<div *ngIf="dashboard(); else loadingOrError">
+  <!-- Breadcrumb -->
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+    <h6 class="font-semibold mb-0 dark:text-white text-xl">Dashboard</h6>
+    <ul class="flex items-center gap-[6px]">
+      <li class="font-medium">
+        <a routerLink="/admin/dashboard" class="flex items-center gap-2 hover:text-primary-600 dark:text-white">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="icon text-lg"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li class="dark:text-white">-</li>
+      <li class="font-medium dark:text-white">Admissions</li>
+    </ul>
+  </div>
+
+  <!-- KPI Cards Grid -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6">
+    <app-kpi-card
+      label="Total Applications"
+      [value]="dashboard()!.totalApplications"
+      icon="gridicons:multiple-users"
+      iconBgClass="bg-cyan-600"
+      gradientClass="from-cyan-600/10 to-bg-white"
+      [trend]="{
+        value: '+2.56%',
+        label: 'Last 30 days',
+        isPositive: true
+      }"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Submitted"
+      [value]="dashboard()!.submittedApplications"
+      icon="fa-solid:award"
+      iconBgClass="bg-purple-600"
+      gradientClass="from-purple-600/10 to-bg-white"
+      [trend]="{
+        value: '+0.34%',
+        label: 'Last 30 days',
+        isPositive: true
+      }"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Approved"
+      [value]="dashboard()!.approvedApplications"
+      icon="fluent:people-20-filled"
+      iconBgClass="bg-blue-600"
+      gradientClass="from-blue-600/10 to-bg-white"
+      [trend]="{
+        value: '-0.74%',
+        label: 'Last 30 days',
+        isPositive: false
+      }"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Total Revenue"
+      [value]="dashboard()!.totalRevenue"
+      icon="solar:wallet-bold"
+      iconBgClass="bg-success-600"
+      gradientClass="from-success-600/10 to-bg-white"
+      [trend]="{
+        value: '+7.66%',
+        label: 'Last 30 days',
+        isPositive: true
+      }"
+    ></app-kpi-card>
+
+    <app-kpi-card
+      label="Pending"
+      [value]="dashboard()!.unpaidApplications"
+      icon="fa6-solid:file-invoice-dollar"
+      iconBgClass="bg-red-600"
+      gradientClass="from-red-600/10 to-bg-white"
+      [trend]="{
+        value: '+5.00%',
+        label: 'Last 30 days',
+        isPositive: true
+      }"
+    ></app-kpi-card>
+  </div>
+
+  <!-- Charts Grid -->
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-6 mt-6">
+    <!-- Sales Statistic Chart -->
+    <div class="xl:col-span-12 2xl:col-span-6">
+      <div class="card h-full rounded-lg border-0">
+        <div class="card-body">
+          <div class="flex flex-wrap items-center justify-between">
+            <h6 class="text-lg mb-0 dark:text-white">Applications Overview</h6>
+            <select class="form-select bg-white dark:bg-neutral-700 form-select-sm w-auto border border-gray-200 dark:border-neutral-600 rounded-lg">
+              <option>Yearly</option>
+              <option>Monthly</option>
+              <option>Weekly</option>
+              <option>Today</option>
+            </select>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 mt-2">
+            <h6 class="mb-0 text-2xl font-semibold dark:text-white">{{ dashboard()!.totalApplications | number }}</h6>
+            <span class="text-sm font-semibold rounded-full bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 border border-success-200 dark:border-success-600/50 px-2 py-1.5 line-height-1 flex items-center gap-1">
+              10% <iconify-icon icon="bxs:up-arrow" class="text-xs"></iconify-icon>
+            </span>
+            <span class="text-xs font-medium text-neutral-600 dark:text-white">+ {{ ((dashboard()!.totalApplications / 30) | number: '1.0-0') }} Per Day</span>
+          </div>
+          <div id="chart" class="pt-[28px] apexcharts-tooltip-style-1" style="height: 300px;">
+            <!-- ApexChart will be rendered here -->
+            <ng-apexcharts
+              [chart]="chartOptions.chart"
+              [series]="chartOptions.series"
+              [xaxis]="chartOptions.xaxis"
+              [yaxis]="chartOptions.yaxis"
+              [colors]="chartOptions.colors"
+              [stroke]="chartOptions.stroke"
+              [tooltip]="chartOptions.tooltip"
+              [legend]="chartOptions.legend"
+            ></ng-apexcharts>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Subscriber Bar Chart -->
+    <div class="xl:col-span-6 2xl:col-span-3">
+      <div class="card h-full rounded-lg border-0">
+        <div class="card-body p-6">
+          <h6 class="mb-3 font-semibold text-lg dark:text-white">Status Breakdown</h6>
+          <div class="flex items-center gap-2 mb-5">
+            <h6 class="font-semibold mb-0 dark:text-white">{{ dashboard()!.totalApplications | number }}</h6>
+            <span class="text-sm font-semibold rounded-full bg-danger-100 dark:bg-danger-600/25 text-danger-600 dark:text-danger-400 border border-danger-200 dark:border-danger-600/50 px-2 py-1.5 line-height-1 flex items-center gap-1">
+              10% <iconify-icon icon="iconamoon:arrow-down-2-fill" class="icon"></iconify-icon>
+            </span>
+            <span class="text-xs text-neutral-600 dark:text-white">- 20 Per Day</span>
+          </div>
+          <div id="barChart" style="height: 200px;">
+            <!-- Bar chart will be rendered here -->
+            <ng-apexcharts
+              [chart]="barChartOptions.chart"
+              [series]="barChartOptions.series"
+              [xaxis]="barChartOptions.xaxis"
+              [colors]="barChartOptions.colors"
+            ></ng-apexcharts>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Overview Donut Chart -->
+    <div class="xl:col-span-6 2xl:col-span-3">
+      <div class="card h-full rounded-lg border-0 overflow-hidden">
+        <div class="card-body p-6">
+          <div class="flex items-center flex-wrap gap-2 justify-between">
+            <h6 class="mb-2 font-bold text-lg dark:text-white">Status Overview</h6>
+            <div>
+              <select class="form-select form-select-sm w-auto bg-white dark:bg-neutral-700 border border-gray-200 dark:border-neutral-600 rounded-lg text-secondary-light">
+                <option>Today</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+          <div id="userOverviewDonutChart" class="apexcharts-tooltip-z-none" style="height: 200px;">
+            <!-- Donut chart will be rendered here -->
+            <ng-apexcharts
+              [chart]="donutChartOptions.chart"
+              [series]="donutChartOptions.series"
+              [labels]="donutChartOptions.labels"
+              [colors]="donutChartOptions.colors"
+              [legend]="donutChartOptions.legend"
+            ></ng-apexcharts>
+          </div>
+          <ul class="flex flex-wrap items-center justify-between mt-4 gap-3">
+            <li class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm bg-primary-600"></span>
+              <span class="text-secondary-light text-sm font-normal">Submitted: 
+                <span class="text-neutral-600 dark:text-neutral-200 font-semibold">{{ dashboard()!.statisticsByStatus.submitted }}</span>
+              </span>
+            </li>
+            <li class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm bg-warning-600"></span>
+              <span class="text-secondary-light text-sm font-normal">Approved:  
+                <span class="text-neutral-600 dark:text-neutral-200 font-semibold">{{ dashboard()!.statisticsByStatus.approved }}</span>
+              </span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Latest Registered/Subscribe Table -->
+    <div class="xl:col-span-12 2xl:col-span-9">
+      <div class="card h-full border-0">
+        <div class="card-body p-6">
+          <div class="mb-4">
+            <ul class="tab-style-gradient flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+              <li role="presentation">
+                <button 
+                  class="py-2.5 px-4 border-t-2 font-semibold text-lg inline-flex items-center gap-3"
+                  [class.text-primary-600]="activeTab === 'registered'"
+                  [class.text-neutral-600]="activeTab !== 'registered'"
+                  [class.border-primary-600]="activeTab === 'registered'"
+                  [class.border-transparent]="activeTab !== 'registered'"
+                  (click)="activeTab = 'registered'; $event.preventDefault()"
+                  type="button"
+                >
+                  Latest Applications
+                  <span class="text-white px-2 py-0.5 bg-neutral-600 rounded-full text-sm">{{ dashboard()!.totalApplications }}</span>
+                </button>
+              </li>
+              <li role="presentation">
+                <button 
+                  class="py-2.5 px-4 border-t-2 font-semibold text-lg inline-flex items-center gap-3"
+                  [class.text-primary-600]="activeTab === 'subscribed'"
+                  [class.text-neutral-600]="activeTab !== 'subscribed'"
+                  [class.border-primary-600]="activeTab === 'subscribed'"
+                  [class.border-transparent]="activeTab !== 'subscribed'"
+                  (click)="activeTab = 'subscribed'; $event.preventDefault()"
+                  type="button"
+                >
+                  Approved Applications
+                  <span class="text-white px-2 py-0.5 bg-neutral-600 rounded-full text-sm">{{ dashboard()!.approvedApplications }}</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <div *ngIf="activeTab === 'registered'" class="overflow-x-auto">
+              <table class="table bordered-table sm-table mb-0 table-auto w-full">
+                <thead>
+                  <tr>
+                    <th scope="col" class="text-left">Applicant</th>
+                    <th scope="col" class="text-left">Submitted On</th>
+                    <th scope="col" class="text-left">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let app of recentApplications()">
+                    <td>
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-primary-100 dark:bg-primary-600/25 text-primary-600 rounded-full flex items-center justify-center shrink-0 me-2">
+                          <span class="text-sm font-semibold">{{ app.name.charAt(0) }}</span>
+                        </div>
+                        <div class="grow">
+                          <h6 class="text-base mb-0 font-medium dark:text-white">{{ app.name }}</h6>
+                          <span class="text-sm text-secondary-light font-medium">{{ app.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="dark:text-white">{{ app.submittedDate | date: 'dd MMM yyyy' }}</td>
+                    <td>
+                      <span class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 px-6 py-1.5 rounded-full font-medium text-sm">
+                        {{ app.status }}
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <a [routerLink]="['/admin/admissions/applications', app.id]" class="text-primary-600 hover:underline">View</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div *ngIf="activeTab === 'subscribed'" class="overflow-x-auto">
+              <table class="table bordered-table sm-table mb-0 table-auto w-full">
+                <thead>
+                  <tr>
+                    <th scope="col" class="text-left">Applicant</th>
+                    <th scope="col" class="text-left">Approved On</th>
+                    <th scope="col" class="text-left">Status</th>
+                    <th scope="col" class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let app of approvedApplications()">
+                    <td>
+                      <div class="flex items-center">
+                        <div class="w-10 h-10 bg-success-100 dark:bg-success-600/25 text-success-600 rounded-full flex items-center justify-center shrink-0 me-2">
+                          <span class="text-sm font-semibold">{{ app.name.charAt(0) }}</span>
+                        </div>
+                        <div class="grow">
+                          <h6 class="text-base mb-0 font-medium dark:text-white">{{ app.name }}</h6>
+                          <span class="text-sm text-secondary-light font-medium">{{ app.email }}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="dark:text-white">{{ app.approvedDate | date: 'dd MMM yyyy' }}</td>
+                    <td>
+                      <span class="bg-success-100 dark:bg-success-600/25 text-success-600 dark:text-success-400 px-6 py-1.5 rounded-full font-medium text-sm">
+                        Approved
+                      </span>
+                    </td>
+                    <td class="text-center">
+                      <a [routerLink]="['/admin/admissions/applications', app.id]" class="text-primary-600 hover:underline">View</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingOrError>
+  <div>
+    <div *ngIf="loading()" class="flex items-center justify-center min-h-[400px]">
+      <div class="text-center">
+        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
+        <p class="text-neutral-600 dark:text-white">Loading dashboard data…</p>
+      </div>
+    </div>
+    <div *ngIf="error()" class="flex items-center justify-center min-h-[400px]">
+      <div class="text-center">
+        <div class="w-16 h-16 bg-danger-100 dark:bg-danger-600/25 rounded-full flex items-center justify-center mx-auto mb-4">
+          <iconify-icon icon="solar:danger-triangle-bold" class="text-danger-600 text-3xl"></iconify-icon>
+        </div>
+        <p class="text-neutral-900 dark:text-white mb-4">{{ error() }}</p>
+        <button type="button" class="btn btn-primary px-4 py-2 rounded-lg" (click)="loadDashboard()">Retry</button>
+      </div>
+    </div>
+  </div>
+</ng-template>

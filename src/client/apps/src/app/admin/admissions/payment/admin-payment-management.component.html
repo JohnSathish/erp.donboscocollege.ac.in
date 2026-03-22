@@ -1,0 +1,362 @@
+<div class="payment-management-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <iconify-icon icon="solar:wallet-money-bold" class="title-icon"></iconify-icon>
+        Payment Management
+      </h1>
+      <div class="header-actions">
+        <button
+          class="btn-secondary"
+          (click)="toggleFilters()"
+          [class.active]="filtersOpen()">
+          <iconify-icon icon="solar:filter-bold"></iconify-icon>
+          Filters
+        </button>
+        <button class="btn-secondary" (click)="generateReport()" [disabled]="loading()">
+          <iconify-icon icon="solar:chart-bold"></iconify-icon>
+          Generate Report
+        </button>
+        <button class="btn-primary" (click)="loadPayments()" [disabled]="loading()">
+          <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card card-success">
+        <div class="card-icon">
+          <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+        </div>
+        <div class="card-content">
+          <div class="card-label">Paid</div>
+          <div class="card-value">{{ paidCount() }}</div>
+        </div>
+      </div>
+      <div class="summary-card card-warning">
+        <div class="card-icon">
+          <iconify-icon icon="solar:clock-circle-bold"></iconify-icon>
+        </div>
+        <div class="card-content">
+          <div class="card-label">Pending</div>
+          <div class="card-value">{{ unpaidCount() }}</div>
+        </div>
+      </div>
+      <div class="summary-card card-primary">
+        <div class="card-icon">
+          <iconify-icon icon="solar:wallet-money-bold"></iconify-icon>
+        </div>
+        <div class="card-content">
+          <div class="card-label">Total Revenue</div>
+          <div class="card-value">₹{{ totalRevenue() | number: '1.0-0' }}</div>
+        </div>
+      </div>
+      <div class="summary-card card-info">
+        <div class="card-icon">
+          <iconify-icon icon="solar:users-group-rounded-bold"></iconify-icon>
+        </div>
+        <div class="card-content">
+          <div class="card-label">Total Records</div>
+          <div class="card-value">{{ totalCount() }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters Panel -->
+  <div class="filters-panel" *ngIf="filtersOpen()">
+    <form [formGroup]="filterForm" (ngSubmit)="applyFilters()" class="filters-form">
+      <div class="filters-grid">
+        <div class="form-group">
+          <label for="isPaymentCompleted">Payment Status</label>
+          <select id="isPaymentCompleted" formControlName="isPaymentCompleted" class="form-control">
+            <option [value]="null">All</option>
+            <option [value]="true">Paid</option>
+            <option [value]="false">Pending</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="searchTerm">Search</label>
+          <input
+            id="searchTerm"
+            type="text"
+            formControlName="searchTerm"
+            placeholder="Application Number, Name, Email..."
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="paymentDateFrom">Payment Date From</label>
+          <input
+            id="paymentDateFrom"
+            type="date"
+            formControlName="paymentDateFrom"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="paymentDateTo">Payment Date To</label>
+          <input
+            id="paymentDateTo"
+            type="date"
+            formControlName="paymentDateTo"
+            class="form-control"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="minAmount">Min Amount (₹)</label>
+          <input
+            id="minAmount"
+            type="number"
+            formControlName="minAmount"
+            placeholder="0"
+            class="form-control"
+            min="0"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="maxAmount">Max Amount (₹)</label>
+          <input
+            id="maxAmount"
+            type="number"
+            formControlName="maxAmount"
+            placeholder="100000"
+            class="form-control"
+            min="0"
+          />
+        </div>
+      </div>
+
+      <div class="filters-actions">
+        <button type="button" class="btn-secondary" (click)="clearFilters()">
+          Clear Filters
+        </button>
+        <button type="submit" class="btn-primary">
+          Apply Filters
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="error()">
+    <iconify-icon icon="solar:danger-circle-bold"></iconify-icon>
+    {{ error() }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading payments...</p>
+  </div>
+
+  <!-- Payments Table -->
+  <div class="table-container" *ngIf="!loading() && !error()">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Application Number</th>
+          <th>Applicant Name</th>
+          <th>Email</th>
+          <th>Mobile</th>
+          <th>Status</th>
+          <th>Amount</th>
+          <th>Transaction ID</th>
+          <th>Payment Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of payments()" [class.row-paid]="payment.isPaymentCompleted" [class.row-pending]="!payment.isPaymentCompleted">
+          <td>
+            <a [routerLink]="['/admin/admissions/applications', payment.accountId]" class="link-primary">
+              {{ payment.applicationNumber }}
+            </a>
+          </td>
+          <td>{{ payment.fullName }}</td>
+          <td>{{ payment.email }}</td>
+          <td>{{ payment.mobileNumber }}</td>
+          <td>
+            <span class="badge" [ngClass]="getStatusBadgeClass(payment)">
+              {{ getStatusText(payment) }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="payment.paymentAmount" class="amount">
+              ₹{{ payment.paymentAmount | number: '1.0-2' }}
+            </span>
+            <span *ngIf="!payment.paymentAmount" class="text-muted">—</span>
+          </td>
+          <td>
+            <span *ngIf="payment.paymentTransactionId" class="transaction-id">
+              {{ payment.paymentTransactionId }}
+            </span>
+            <span *ngIf="!payment.paymentTransactionId" class="text-muted">—</span>
+          </td>
+          <td>
+            <span *ngIf="payment.paymentCompletedOnUtc">
+              {{ payment.paymentCompletedOnUtc | date: 'dd MMM yyyy HH:mm' }}
+            </span>
+            <span *ngIf="!payment.paymentCompletedOnUtc" class="text-muted">—</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <a
+                [routerLink]="['/admin/admissions/applications', payment.accountId]"
+                class="btn-link"
+                title="View Application">
+                <iconify-icon icon="solar:eye-bold"></iconify-icon>
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr *ngIf="payments().length === 0">
+          <td colspan="9" class="empty-state">
+            <iconify-icon icon="solar:wallet-money-bold" class="empty-icon"></iconify-icon>
+            <p>No payments found</p>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalCount() > pageSize()">
+      <button
+        class="btn-pagination"
+        [disabled]="currentPage() === 1"
+        (click)="onPageChange(currentPage() - 1)">
+        <iconify-icon icon="solar:alt-arrow-left-bold"></iconify-icon>
+        Previous
+      </button>
+      <span class="pagination-info">
+        Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}
+        ({{ totalCount() }} total)
+      </span>
+      <button
+        class="btn-pagination"
+        [disabled]="currentPage() >= Math.ceil(totalCount() / pageSize())"
+        (click)="onPageChange(currentPage() + 1)">
+        Next
+        <iconify-icon icon="solar:alt-arrow-right-bold"></iconify-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Payment Report Modal -->
+  <div class="modal-overlay" *ngIf="reportOpen()" (click)="closeReport()">
+    <div class="modal-content report-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>
+          <iconify-icon icon="solar:chart-bold"></iconify-icon>
+          Payment Report
+        </h2>
+        <div class="modal-header-actions">
+          <button class="btn-secondary" (click)="exportReportToExcel()" [disabled]="!report()">
+            <iconify-icon icon="solar:download-bold"></iconify-icon>
+            Export Excel
+          </button>
+          <button class="btn-close" (click)="closeReport()">
+            <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-body" *ngIf="reportLoading()">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Generating report...</p>
+        </div>
+      </div>
+
+      <div class="modal-body" *ngIf="!reportLoading() && report()">
+        <div class="report-summary">
+          <h3>Summary</h3>
+          <div class="summary-grid">
+            <div class="summary-item">
+              <label>Total Payments</label>
+              <div class="summary-value">{{ report()!.summary.totalPayments }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Paid</label>
+              <div class="summary-value value-success">{{ report()!.summary.paidCount }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Pending</label>
+              <div class="summary-value value-warning">{{ report()!.summary.pendingCount }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Total Revenue</label>
+              <div class="summary-value value-primary">₹{{ report()!.summary.totalRevenue | number: '1.0-2' }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Average Amount</label>
+              <div class="summary-value">₹{{ report()!.summary.averagePaymentAmount | number: '1.0-2' }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Min Amount</label>
+              <div class="summary-value">₹{{ report()!.summary.minPaymentAmount | number: '1.0-2' }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Max Amount</label>
+              <div class="summary-value">₹{{ report()!.summary.maxPaymentAmount | number: '1.0-2' }}</div>
+            </div>
+            <div class="summary-item">
+              <label>Generated On</label>
+              <div class="summary-value">{{ report()!.generatedOnUtc | date: 'dd MMM yyyy HH:mm' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="report-items">
+          <h3>Payment Details ({{ report()!.items.length }} records)</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Application #</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                  <th>Transaction ID</th>
+                  <th>Payment Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of report()!.items">
+                  <td>{{ item.applicationNumber }}</td>
+                  <td>{{ item.fullName }}</td>
+                  <td>
+                    <span class="badge" [class.badge-success]="item.isPaymentCompleted" [class.badge-warning]="!item.isPaymentCompleted">
+                      {{ item.isPaymentCompleted ? 'Paid' : 'Pending' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span *ngIf="item.paymentAmount">₹{{ item.paymentAmount | number: '1.0-2' }}</span>
+                    <span *ngIf="!item.paymentAmount" class="text-muted">—</span>
+                  </td>
+                  <td>
+                    <span *ngIf="item.paymentTransactionId" class="transaction-id">{{ item.paymentTransactionId }}</span>
+                    <span *ngIf="!item.paymentTransactionId" class="text-muted">—</span>
+                  </td>
+                  <td>
+                    <span *ngIf="item.paymentCompletedOnUtc">{{ item.paymentCompletedOnUtc | date: 'dd MMM yyyy' }}</span>
+                    <span *ngIf="!item.paymentCompletedOnUtc" class="text-muted">—</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

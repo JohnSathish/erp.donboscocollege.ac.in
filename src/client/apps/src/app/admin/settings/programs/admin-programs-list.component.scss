@@ -1,0 +1,7 @@
+@use '../courses/admin-courses-list.component.scss' as *;
+
+.programs-list {
+  @extend .courses-list;
+}
+
+

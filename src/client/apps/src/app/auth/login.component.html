@@ -1,0 +1,94 @@
+<section class="login">
+  <div class="login__card">
+    <header class="login__brand">
+      <img
+        src="/vision-mission-1.png"
+        alt="Don Bosco College, Tura"
+        class="login__logo"
+        width="72"
+        height="72"
+      />
+      <h1 class="login__college-name">Don Bosco College, Tura</h1>
+      <p class="login__portal-subtitle">Admission Portal 2026–2027</p>
+    </header>
+
+    <div class="login__form-head">
+      <h2 class="login__title">Applicant Login</h2>
+      <p class="login__subtitle">
+        Use the application number and temporary password received after registration.
+      </p>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label class="login__field" [class.login__field--invalid]="controlInvalid('username')">
+        <span class="login__label">Application Number / Email</span>
+        <div class="login__input-wrap">
+          <span class="login__icon login__icon--user" aria-hidden="true"></span>
+          <input
+            type="text"
+            formControlName="username"
+            autocomplete="username"
+            placeholder="DBCT25-0001 or applicant@example.com"
+            class="login__input"
+          />
+        </div>
+        <span class="login__error" *ngIf="controlInvalid('username')">
+          Enter your application number or registered email.
+        </span>
+      </label>
+
+      <label class="login__field" [class.login__field--invalid]="controlInvalid('password')">
+        <span class="login__label">Password</span>
+        <div class="login__input-wrap">
+          <span class="login__icon login__icon--lock" aria-hidden="true"></span>
+          <input
+            [attr.type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            [attr.autocomplete]="showPassword ? 'off' : 'current-password'"
+            placeholder="Temporary or updated password"
+            class="login__input"
+          />
+          <button
+            type="button"
+            class="login__toggle-pwd"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <span *ngIf="!showPassword" aria-hidden="true">Show</span>
+            <span *ngIf="showPassword" aria-hidden="true">Hide</span>
+          </button>
+        </div>
+        <span class="login__error" *ngIf="controlInvalid('password')">
+          Password must be at least 5 characters.
+        </span>
+        <a class="login__forgot" href="#">Forgot password?</a>
+      </label>
+
+      <label class="login__remember">
+        <input type="checkbox" formControlName="rememberMe" />
+        <span>Remember me on this device</span>
+      </label>
+
+      <div class="login__messages" *ngIf="serverError">
+        <p class="login__alert login__alert--error">{{ serverError }}</p>
+      </div>
+
+      <div class="login__actions">
+        <button type="submit" class="login__btn" [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Sign In</span>
+          <span *ngIf="isSubmitting" class="login__spinner" aria-live="polite">
+            Signing in…
+          </span>
+        </button>
+        <a class="login__help" href="mailto:admissions@donboscocollege.ac.in">
+          Need help?
+        </a>
+      </div>
+
+      <p class="login__register-prompt">
+        Don't have an account?
+        <a routerLink="/register" class="login__register-link">Register here</a>
+      </p>
+    </form>
+  </div>
+</section>

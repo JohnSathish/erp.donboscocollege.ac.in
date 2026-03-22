@@ -1,0 +1,35 @@
+<section class="profile">
+  <h2>Applicant Details</h2>
+  <div class="profile__grid" *ngIf="profile(); else missing">
+    <div>
+      <span class="profile__label">Full Name</span>
+      <span class="profile__value">{{ profile()?.fullName }}</span>
+    </div>
+    <div>
+      <span class="profile__label">Application Number</span>
+      <span class="profile__value">{{ profile()?.uniqueId }}</span>
+    </div>
+    <div>
+      <span class="profile__label">Email</span>
+      <span class="profile__value">{{ profile()?.email }}</span>
+    </div>
+    <div>
+      <span class="profile__label">Mobile</span>
+      <span class="profile__value">{{ profile()?.mobileNumber }}</span>
+    </div>
+    <div>
+      <span class="profile__label">Date of Birth</span>
+      <span class="profile__value">
+        {{ profile()?.dateOfBirth | date : 'longDate' }}
+      </span>
+    </div>
+    <div>
+      <span class="profile__label">Gender</span>
+      <span class="profile__value">{{ profile()?.gender }}</span>
+    </div>
+  </div>
+
+  <ng-template #missing>
+    <p class="profile__empty">Profile details will appear once registration is complete.</p>
+  </ng-template>
+</section>

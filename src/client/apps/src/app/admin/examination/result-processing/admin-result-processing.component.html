@@ -1,0 +1,224 @@
+<div class="result-processing">
+  <div class="result-processing__header">
+    <h1>Result Processing</h1>
+    <p>Process and view student results for academic terms</p>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  <form [formGroup]="searchForm" class="result-processing__search">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="studentId">Student ID *</label>
+        <input
+          id="studentId"
+          type="text"
+          class="input"
+          formControlName="studentId"
+          placeholder="Enter Student ID or GUID"
+          [class.is-invalid]="searchForm.get('studentId')?.invalid && searchForm.get('studentId')?.touched"
+        />
+        <div
+          *ngIf="searchForm.get('studentId')?.invalid && searchForm.get('studentId')?.touched"
+          class="invalid-feedback"
+        >
+          Student ID is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="academicTermId">Academic Term ID *</label>
+        <input
+          id="academicTermId"
+          type="text"
+          class="input"
+          formControlName="academicTermId"
+          placeholder="Enter Academic Term ID or GUID"
+          [class.is-invalid]="searchForm.get('academicTermId')?.invalid && searchForm.get('academicTermId')?.touched"
+        />
+        <div
+          *ngIf="searchForm.get('academicTermId')?.invalid && searchForm.get('academicTermId')?.touched"
+          class="invalid-feedback"
+        >
+          Academic Term ID is required.
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="processResults()"
+        [disabled]="processing() || searchForm.invalid"
+      >
+        @if (processing()) {
+          <iconify-icon icon="svg-spinners:3-dots-fade" class="btn-icon"></iconify-icon>
+          Processing...
+        } @else {
+          <iconify-icon icon="solar:calculator-bold" class="btn-icon"></iconify-icon>
+          Process Results
+        }
+      </button>
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+        [disabled]="loading() || searchForm.invalid"
+      >
+        @if (loading()) {
+          <iconify-icon icon="svg-spinners:3-dots-fade" class="btn-icon"></iconify-icon>
+          Loading...
+        } @else {
+          <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+          View Results
+        }
+      </button>
+    </div>
+  </form>
+
+  @if (loading() && !result()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading results...
+    </div>
+  }
+
+  @if (result()) {
+    <div class="result-card">
+      <div class="result-card__header">
+        <div>
+          <h2>Result Summary</h2>
+          <p class="text-muted">{{ result()!.academicTermName || 'Academic Term' }}</p>
+        </div>
+        <div class="result-badges">
+          <span class="badge" [ngClass]="getResultStatusClass(result()!.status)">
+            {{ result()!.status }}
+          </span>
+          @if (result()!.isPublished) {
+            <span class="badge badge--success">Published</span>
+          }
+        </div>
+      </div>
+
+      <div class="result-card__student-info">
+        <div class="info-item">
+          <span class="info-label">Student:</span>
+          <span class="info-value">{{ result()!.studentName || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Student Number:</span>
+          <span class="info-value">{{ result()!.studentNumber || 'N/A' }}</span>
+        </div>
+        @if (result()!.publishedOnUtc) {
+          <div class="info-item">
+            <span class="info-label">Published On:</span>
+            <span class="info-value">{{ result()!.publishedOnUtc | date: 'short' }}</span>
+          </div>
+        }
+        @if (result()!.publishedBy) {
+          <div class="info-item">
+            <span class="info-label">Published By:</span>
+            <span class="info-value">{{ result()!.publishedBy }}</span>
+          </div>
+        }
+        <div class="info-item">
+          <span class="info-label">Credits:</span>
+          <span class="info-value">{{ result()!.earnedCredits }} / {{ result()!.totalCredits }}</span>
+        </div>
+      </div>
+
+      <div class="result-card__summary">
+        <div class="summary-grid">
+          <div class="summary-item">
+            <div class="summary-label">GPA</div>
+            <div class="summary-value summary-value--large">
+              {{ gpa() !== null ? (gpa()! | number: '1.2-2') : 'N/A' }}
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Percentage</div>
+            <div class="summary-value summary-value--large">
+              {{ percentage() !== null ? (percentage()! | number: '1.2-2') + '%' : 'N/A' }}
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Total Marks</div>
+            <div class="summary-value">
+              {{ totalMarks() }} / {{ maxMarks() }}
+            </div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Credits Earned</div>
+            <div class="summary-value">
+              {{ result()!.earnedCredits }} / {{ result()!.totalCredits }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-card__courses">
+        <h3>Course Results</h3>
+        <div class="courses-table-wrapper">
+          <table class="courses-table">
+            <thead>
+              <tr>
+                <th>Course Code</th>
+                <th>Course Name</th>
+                <th>Marks</th>
+                <th>Percentage</th>
+                <th>Grade</th>
+                <th>Grade Points</th>
+                <th>Credits</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (courseResult of result()!.courseResults; track courseResult.id) {
+                <tr>
+                  <td>
+                    <strong>{{ courseResult.courseId.substring(0, 8) }}</strong>
+                  </td>
+                  <td>{{ courseResult.courseName }}</td>
+                  <td>
+                    {{ courseResult.totalMarks }} / {{ courseResult.maxMarks }}
+                  </td>
+                  <td>
+                    <span [class.text-success]="courseResult.percentage >= 50"
+                          [class.text-danger]="courseResult.percentage < 50">
+                      {{ courseResult.percentage | number: '1.2-2' }}%
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge" [ngClass]="getGradeClass(courseResult.grade)">
+                      {{ courseResult.grade || 'N/A' }}
+                    </span>
+                  </td>
+                  <td>{{ courseResult.gradePoints || 'N/A' }}</td>
+                  <td>{{ courseResult.credits || 'N/A' }}</td>
+                  <td>
+                    <span class="badge" [ngClass]="courseResult.isPassed ? 'badge--success' : 'badge--danger'">
+                      {{ courseResult.isPassed ? 'Pass' : 'Fail' }}
+                    </span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  } @else if (!loading() && searchForm.get('studentId')?.value && searchForm.get('academicTermId')?.value) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:document-text-bold" class="empty-icon"></iconify-icon>
+      <h3>No results found</h3>
+      <p>Process results first to generate the result summary.</p>
+    </div>
+  }
+</div>
+

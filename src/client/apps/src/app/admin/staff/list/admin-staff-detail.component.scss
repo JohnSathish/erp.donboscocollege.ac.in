@@ -1,0 +1,220 @@
+.staff-detail {
+  padding: 2rem;
+  background-color: var(--color-white);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 2px solid var(--color-neutral-200);
+
+    h1 {
+      font-size: 2rem;
+      color: var(--color-primary-700);
+      margin-bottom: 1rem;
+    }
+
+    .staff-meta {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      color: var(--color-neutral-600);
+      font-size: 0.95rem;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        iconify-icon {
+          font-size: 1.2rem;
+          color: var(--color-primary-500);
+        }
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+  }
+
+  &__content {
+    .detail-section {
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--color-neutral-200);
+
+      &:last-of-type {
+        border-bottom: none;
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        color: var(--color-neutral-800);
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+      }
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+
+        &--full {
+          grid-column: 1 / -1;
+        }
+
+        .detail-label {
+          font-weight: 600;
+          color: var(--color-neutral-700);
+          font-size: 0.9rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+          color: var(--color-neutral-800);
+          font-size: 1rem;
+          word-break: break-word;
+        }
+      }
+    }
+  }
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 3rem;
+  color: var(--color-neutral-600);
+
+  .spinner-icon {
+    font-size: 2rem;
+    color: var(--color-primary-500);
+  }
+}
+
+.alert {
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+
+  &--error {
+    background-color: var(--color-danger-100);
+    color: var(--color-danger-800);
+    border: 1px solid var(--color-danger-300);
+  }
+
+  .alert-icon {
+    font-size: 1.5rem;
+  }
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+
+  &--success {
+    background-color: var(--color-success-100);
+    color: var(--color-success-700);
+  }
+
+  &--warning {
+    background-color: var(--color-warning-100);
+    color: var(--color-warning-700);
+  }
+
+  &--danger {
+    background-color: var(--color-danger-100);
+    color: var(--color-danger-700);
+  }
+
+  &--info {
+    background-color: var(--color-info-100);
+    color: var(--color-info-700);
+  }
+
+  &--primary {
+    background-color: var(--color-primary-100);
+    color: var(--color-primary-700);
+  }
+
+  &--secondary {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+  }
+
+  &--neutral {
+    background-color: var(--color-neutral-100);
+    color: var(--color-neutral-700);
+  }
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid transparent;
+  font-size: 1rem;
+
+  &--primary {
+    background-color: var(--color-primary-600);
+    color: var(--color-white);
+    border-color: var(--color-primary-600);
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-primary-700);
+      border-color: var(--color-primary-700);
+    }
+  }
+
+  &--secondary {
+    background-color: var(--color-neutral-200);
+    color: var(--color-neutral-800);
+    border-color: var(--color-neutral-300);
+
+    &:hover:not(:disabled) {
+      background-color: var(--color-neutral-300);
+      border-color: var(--color-neutral-400);
+    }
+  }
+
+  &--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .btn-icon {
+    font-size: 1.1rem;
+  }
+}
+
+
+
+

@@ -1,0 +1,171 @@
+// Dashboard styles - Custom CSS (Tailwind removed)
+// This file is kept for any custom overrides if needed
+
+// Card styles
+.card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+// Table styles
+.table {
+  width: 100%;
+  min-width: max-content;
+  border-radius: 8px;
+  border-spacing: 0;
+  border-collapse: separate;
+  border: 1px solid #e5e7eb;
+  
+  th {
+    padding: 0.75rem 1rem;
+    background: #f3f4f6;
+    font-weight: 500;
+    text-align: center;
+    
+    &:first-child {
+      border-top-left-radius: 8px;
+      text-align: left;
+    }
+    
+    &:last-child {
+      border-top-right-radius: 8px;
+    }
+  }
+  
+  td {
+    padding: 0.75rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+    
+    &:first-child {
+      text-align: left;
+    }
+  }
+  
+  tr {
+    &:last-child {
+      td {
+        border-bottom: none;
+        
+        &:first-child {
+          border-bottom-left-radius: 8px;
+        }
+        
+        &:last-child {
+          border-bottom-right-radius: 8px;
+        }
+      }
+    }
+  }
+  
+  &.bordered-table {
+    border: 1px solid #e5e7eb;
+  }
+  
+  &.sm-table {
+    th, td {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// Tab styles
+.tab-style-gradient {
+  button {
+    transition: all 0.2s ease;
+    
+    &.text-primary-600 {
+      background: linear-gradient(180deg, rgba(72, 127, 255, 0.12) 0%, rgba(72, 127, 255, 0.03) 100%);
+    }
+  }
+}
+
+// Ensure cards have proper spacing
+.card {
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+// Form controls
+.form-control {
+  outline: none;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(72, 127, 255, 0.2);
+    border-color: #487FFF;
+  }
+}
+
+.form-select {
+  outline: none;
+  transition: all 0.2s ease;
+  
+  &:focus {
+    box-shadow: 0 0 0 2px rgba(72, 127, 255, 0.2);
+    border-color: #487FFF;
+  }
+}
+
+// Button styles
+.btn {
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  &.btn-primary {
+    background-color: #487FFF;
+    color: white;
+    
+    &:hover {
+      background-color: #486CEA;
+    }
+    
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+  
+  &.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+// Chart container
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+// Loading spinner animation
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+// Responsive adjustments
+// Note: dashboard-main-body padding is handled by admin-shell.component.scss

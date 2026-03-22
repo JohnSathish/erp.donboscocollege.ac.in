@@ -1,0 +1,122 @@
+<div class="offline-adm">
+  <div class="offline-adm__header">
+    <h1>Offline admission</h1>
+    <p>
+      <strong>Issue:</strong> record a 6-digit form number, student name, mobile, and cash fee — a receipt PDF is
+      printed; <strong>no applicant portal account</strong> is created yet. <strong>Receive:</strong> when the filled form
+      is submitted, enter the form number (lookup details), the student’s <strong>final major / course</strong>, then
+      confirm — this <strong>creates</strong> the portal account (login = form number, first password = mobile).
+    </p>
+  </div>
+
+  <p *ngIf="loading()" class="offline-adm__busy">Loading…</p>
+
+  <section *ngIf="dashboard() as d" class="offline-adm__metrics">
+    <h2>Offline metrics</h2>
+    <ul>
+      <li>Forms issued (slips): {{ d.offlineFormsIssued ?? '—' }}</li>
+      <li>Forms received (physical / account opened): {{ d.offlineFormsReceived ?? '—' }}</li>
+      <li>Offline applications submitted: {{ d.offlineApplicationsSubmitted ?? '—' }}</li>
+    </ul>
+    <button type="button" class="offline-adm__btn offline-adm__btn--ghost" (click)="loadDashboard()">
+      Refresh metrics
+    </button>
+  </section>
+
+  <div class="offline-adm__grid">
+    <section class="offline-adm__card">
+      <h2>Issue form &amp; fee receipt</h2>
+      <p class="offline-adm__hint">Major / course is chosen later when the form is received — not at issuance.</p>
+      <label>6-digit form number</label>
+      <input [(ngModel)]="issue.formNumber" maxlength="6" name="issueFormNumber" />
+      <label>Student name</label>
+      <input [(ngModel)]="issue.studentName" name="issueName" />
+      <label>Mobile (used as first login password after receive)</label>
+      <input [(ngModel)]="issue.mobileNumber" name="issueMobile" />
+      <label>Application fee (₹)</label>
+      <input type="number" [(ngModel)]="issue.applicationFeeAmount" name="issueFee" />
+      <button type="button" class="offline-adm__btn" (click)="issueForm()" [disabled]="loading()">
+        Issue &amp; download PDF receipt
+      </button>
+    </section>
+
+    <section class="offline-adm__card">
+      <h2>Receive physical form &amp; open account</h2>
+      <p class="offline-adm__hint">
+        Look up the issued slip, enter the student’s <strong>final</strong> major/course, then confirm. This creates the
+        applicant account and marks the physical form received.
+      </p>
+      <label>Form number</label>
+      <input
+        [(ngModel)]="receiveFormNumber"
+        maxlength="6"
+        name="recvForm"
+        (blur)="lookupReceivePreview()"
+      />
+      <button type="button" class="offline-adm__btn offline-adm__btn--ghost" (click)="lookupReceivePreview()">
+        Look up
+      </button>
+
+      <div *ngIf="receivePreview() as prev" class="offline-adm__preview">
+        <p *ngIf="prev.applicantAccountCreated" class="offline-adm__warn">
+          Applicant account already exists for this form.
+        </p>
+        <ng-container *ngIf="!prev.applicantAccountCreated">
+          <p><strong>{{ prev.studentName }}</strong> · Mobile {{ prev.mobileNumber }} · Fee ₹{{ prev.applicationFeeAmount }}</p>
+          <p class="offline-adm__hint">Issued {{ prev.issuedOnUtc | date : 'medium' }}</p>
+        </ng-container>
+      </div>
+      <p *ngIf="receivePreview() === null" class="offline-adm__hint">No issued form found for this number.</p>
+
+      <label>Major / course (final choice)</label>
+      <input [(ngModel)]="receiveMajorSubject" name="recvMajor" placeholder="e.g. ENGLISH" />
+      <button
+        type="button"
+        class="offline-adm__btn"
+        (click)="receiveForm()"
+        [disabled]="loading() || receivePreview()?.applicantAccountCreated"
+      >
+        Receive &amp; create account
+      </button>
+    </section>
+
+    <section class="offline-adm__card">
+      <h2>Reprint receipt</h2>
+      <label>Form number</label>
+      <input [(ngModel)]="reprintFormNumber" maxlength="6" name="reprintForm" />
+      <button type="button" class="offline-adm__btn" (click)="reprintReceipt()" [disabled]="loading()">
+        Download PDF
+      </button>
+    </section>
+
+    <section class="offline-adm__card">
+      <h2>Assign selection list (per application)</h2>
+      <p class="offline-adm__hint">Use the account ID from the applicant grid (Applications → detail).</p>
+      <label>Application ID (GUID)</label>
+      <input [(ngModel)]="assignApplicationId" name="assignId" />
+      <label>Round</label>
+      <select [(ngModel)]="assignRound" name="assignRound">
+        <option value="First">First</option>
+        <option value="Second">Second</option>
+        <option value="Third">Third</option>
+      </select>
+      <button type="button" class="offline-adm__btn" (click)="assignRoundSave()" [disabled]="loading()">
+        Save
+      </button>
+    </section>
+
+    <section class="offline-adm__card">
+      <h2>Publish selection list</h2>
+      <label>Round</label>
+      <select [(ngModel)]="publishRound" name="publishRound">
+        <option value="First">First</option>
+        <option value="Second">Second</option>
+        <option value="Third">Third</option>
+      </select>
+      <label> <input type="checkbox" [(ngModel)]="publishSendSms" name="publishSms" /> Send SMS </label>
+      <button type="button" class="offline-adm__btn" (click)="publishList()" [disabled]="loading()">
+        Publish
+      </button>
+    </section>
+  </div>
+</div>

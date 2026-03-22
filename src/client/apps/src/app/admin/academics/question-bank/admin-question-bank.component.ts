@@ -1,0 +1,11 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { PlaceholderComponent } from '../../shared/placeholder.component';
+
+@Component({
+  selector: 'app-admin-question-bank',
+  standalone: true,
+  imports: [CommonModule, PlaceholderComponent],
+  template: `<app-placeholder icon="❓" title="Question Bank" description="This feature is under development and will be available soon."></app-placeholder>`,
+})
+export class AdminQuestionBankComponent {}

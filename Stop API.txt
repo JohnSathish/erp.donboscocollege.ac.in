@@ -1,0 +1,6 @@
+Next time (without a visible terminal):
+PowerShell / Command Prompt as you like:
+   Get-NetTCPConnection -State Listen | Where-Object { $_.LocalPort -eq 5227 } | Select-Object OwningProcess   Stop-Process -Id <PID> -Force
+Or stop every dotnet process (only if you’re sure nothing else important uses dotnet):
+   Get-Process dotnet -ErrorAction SilentlyContinue | Stop-Process -Force
+You can run dotnet ef database update or build the solution again without the DLL lock from the old API.

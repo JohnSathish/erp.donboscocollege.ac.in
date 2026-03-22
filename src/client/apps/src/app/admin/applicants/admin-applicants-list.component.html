@@ -1,0 +1,112 @@
+<section class="admin-applicants">
+  <header class="admin-applicants__header">
+    <h1>Applicants</h1>
+    <div class="admin-applicants__actions">
+      <button type="button" (click)="refresh()" [disabled]="loading()">
+        Refresh
+      </button>
+      <button type="button" (click)="toggleCreateForm()" [disabled]="creating()">
+        {{ showCreateForm() ? 'Cancel' : 'New Applicant' }}
+      </button>
+    </div>
+  </header>
+
+  <section class="admin-applicants__filters">
+    <label>
+      Status filter
+      <select [formControl]="filterControl">
+        <option value="">All</option>
+        <option *ngFor="let status of statusFilters" [value]="status">
+          {{ status }}
+        </option>
+      </select>
+    </label>
+  </section>
+
+  <section *ngIf="showCreateForm()" class="admin-applicants__create">
+    <h2>Create Applicant</h2>
+    <form [formGroup]="createForm" (ngSubmit)="submitCreateForm()">
+      <div class="form-grid">
+        <label>
+          Application Number
+          <input formControlName="applicationNumber" type="text" />
+        </label>
+        <label>
+          First Name
+          <input formControlName="firstName" type="text" />
+        </label>
+        <label>
+          Last Name
+          <input formControlName="lastName" type="text" />
+        </label>
+        <label>
+          Email
+          <input formControlName="email" type="email" />
+        </label>
+        <label>
+          Mobile Number
+          <input formControlName="mobileNumber" type="text" />
+        </label>
+        <label>
+          Date of Birth
+          <input formControlName="dateOfBirth" type="date" />
+        </label>
+        <label>
+          Program Code
+          <input formControlName="programCode" type="text" />
+        </label>
+      </div>
+      <div class="form-actions">
+        <button type="submit" [disabled]="createForm.invalid || creating()">
+          Create
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="admin-applicants__table" *ngIf="!loading(); else loadingState">
+    <table>
+      <thead>
+        <tr>
+          <th>Application #</th>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Program</th>
+          <th>Email</th>
+          <th>Mobile</th>
+          <th>Submitted</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let applicant of filteredApplicants(); trackBy: trackByApplicantId"
+          (click)="viewApplicant(applicant.id)"
+        >
+          <td>{{ applicant.applicationNumber }}</td>
+          <td>{{ applicant.fullName }}</td>
+          <td>
+            <span class="status-chip" [attr.data-status]="applicant.status">
+              {{ applicant.status }}
+            </span>
+          </td>
+          <td>{{ applicant.programCode }}</td>
+          <td>{{ applicant.email }}</td>
+          <td>{{ applicant.mobileNumber }}</td>
+          <td>{{ applicant.createdOnUtc | date: 'yyyy-MM-dd HH:mm' }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <p *ngIf="!filteredApplicants().length" class="empty-state">
+      No applicants match the current filter.
+    </p>
+  </section>
+
+  <ng-template #loadingState>
+    <div class="loading">Loading applicants…</div>
+  </ng-template>
+
+  <p *ngIf="error()" class="error">
+    {{ error() }}
+  </p>
+</section>
+

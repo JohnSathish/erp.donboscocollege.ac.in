@@ -1,0 +1,38 @@
+.profile {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 12px 28px rgba(27, 94, 157, 0.12);
+}
+
+.profile h2 {
+  margin-top: 0;
+  color: #1b5e9d;
+}
+
+.profile__grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-top: 1.25rem;
+}
+
+.profile__label {
+  display: block;
+  font-size: 0.85rem;
+  color: #697586;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.profile__value {
+  display: block;
+  font-size: 1.05rem;
+  color: #102a43;
+  font-weight: 600;
+}
+
+.profile__empty {
+  margin: 1.5rem 0 0;
+  color: #475569;
+}

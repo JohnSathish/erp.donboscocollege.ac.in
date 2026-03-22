@@ -1,0 +1,313 @@
+<div class="application-detail">
+  <!-- Header Section -->
+  <div class="detail-header">
+    <div class="header-left">
+      <button type="button" class="btn-back" (click)="goBack()">
+        <iconify-icon icon="solar:arrow-left-bold" class="back-icon"></iconify-icon>
+        Back to Applications
+      </button>
+      <h1 class="page-title">Application Details</h1>
+    </div>
+    <div class="header-right">
+      <div class="application-number">
+        <span class="label">Application #</span>
+        <span class="value" *ngIf="application()">{{ application()!.uniqueId }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Loading application details…</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error() && !loading()" class="error-container">
+    <div class="error-content">
+      <iconify-icon icon="solar:danger-triangle-bold" class="error-icon"></iconify-icon>
+      <p class="error-text">{{ error() }}</p>
+      <button type="button" class="btn-primary" (click)="goBack()">Back to Applications</button>
+    </div>
+  </div>
+
+  <!-- Application Content -->
+  <div *ngIf="application() && !loading()" class="detail-content">
+    <!-- Status Banner -->
+    <div class="status-banner" [attr.data-status]="application()!.status">
+      <div class="status-banner-content">
+        <div class="status-info">
+          <iconify-icon [icon]="getStatusIcon(application()!.status)" class="status-icon"></iconify-icon>
+          <div>
+            <div class="status-label">Current Status</div>
+            <div class="status-value">{{ application()!.status }}</div>
+          </div>
+        </div>
+        <div class="status-badges">
+          <span class="badge" [class.badge-success]="application()!.isApplicationSubmitted" [class.badge-warning]="!application()!.isApplicationSubmitted">
+            {{ application()!.isApplicationSubmitted ? 'Submitted' : 'Not Submitted' }}
+          </span>
+          <span class="badge" [class.badge-success]="application()!.isPaymentCompleted" [class.badge-danger]="!application()!.isPaymentCompleted">
+            {{ application()!.isPaymentCompleted ? 'Paid' : 'Payment Pending' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="workflow-strip">
+      <div class="workflow-strip__text">
+        <strong>Workflow stage:</strong> {{ workflowPipelineLabel() }}
+        <span class="workflow-strip__hint">
+          Stages 1–7 are described in the
+          <a routerLink="/admin/admissions/workflow">admission workflow guide</a>.
+        </span>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left Column -->
+      <div class="content-left">
+        <!-- Basic Information Card -->
+        <div class="detail-card">
+          <div class="card-header">
+            <iconify-icon icon="solar:user-bold" class="card-icon"></iconify-icon>
+            <h2 class="card-title">Basic Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Full Name</label>
+                <div class="info-value">{{ application()!.fullName }}</div>
+              </div>
+              <div class="info-item">
+                <label>Email</label>
+                <div class="info-value">
+                  <a [href]="'mailto:' + application()!.email" class="info-link">{{ application()!.email }}</a>
+                </div>
+              </div>
+              <div class="info-item">
+                <label>Mobile Number</label>
+                <div class="info-value">
+                  <a [href]="'tel:' + application()!.mobileNumber" class="info-link">{{ application()!.mobileNumber }}</a>
+                </div>
+              </div>
+              <div class="info-item">
+                <label>Date of Birth</label>
+                <div class="info-value">{{ application()!.dateOfBirth | date: 'dd MMM yyyy' }}</div>
+              </div>
+              <div class="info-item">
+                <label>Gender</label>
+                <div class="info-value">{{ application()!.gender }}</div>
+              </div>
+              <div class="info-item">
+                <label>Shift</label>
+                <div class="info-value">{{ application()!.shift }}</div>
+              </div>
+              <div class="info-item">
+                <label>Registered On</label>
+                <div class="info-value">{{ application()!.createdOnUtc | date: 'dd MMM yyyy HH:mm' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Information Card -->
+        <div class="detail-card" *ngIf="application()!.paymentAmount || application()!.paymentTransactionId">
+          <div class="card-header">
+            <iconify-icon icon="solar:wallet-bold" class="card-icon"></iconify-icon>
+            <h2 class="card-title">Payment Information</h2>
+          </div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item" *ngIf="application()!.paymentAmount">
+                <label>Payment Amount</label>
+                <div class="info-value amount">₹{{ application()!.paymentAmount | number }}</div>
+              </div>
+              <div class="info-item" *ngIf="application()!.paymentTransactionId">
+                <label>Transaction ID</label>
+                <div class="info-value transaction-id">{{ application()!.paymentTransactionId }}</div>
+              </div>
+              <div class="info-item" *ngIf="application()!.paymentCompletedOnUtc">
+                <label>Payment Date</label>
+                <div class="info-value">{{ application()!.paymentCompletedOnUtc | date: 'dd MMM yyyy HH:mm' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Photo Card -->
+        <div class="detail-card" *ngIf="application()!.photoUrl">
+          <div class="card-header">
+            <iconify-icon icon="solar:gallery-bold" class="card-icon"></iconify-icon>
+            <h2 class="card-title">Profile Photo</h2>
+          </div>
+          <div class="card-body">
+            <div class="photo-container">
+              <img [src]="application()!.photoUrl" alt="Profile Photo" class="profile-photo" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column -->
+      <div class="content-right">
+        <!-- Status Update Card -->
+        <div class="detail-card status-update-card">
+          <div class="card-header">
+            <iconify-icon icon="solar:check-circle-bold" class="card-icon"></iconify-icon>
+            <h2 class="card-title">Update Status</h2>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="statusForm" (ngSubmit)="submitStatusForm()" class="status-form">
+              <div class="form-group">
+                <label for="status">Status <span class="required">*</span></label>
+                <select id="status" formControlName="status" class="form-control" [class.error]="statusForm.get('status')?.invalid && statusForm.get('status')?.touched" [class.warning]="statusForm.get('status')?.value === application()?.status && application()?.status">
+                  <option value="">Select Status</option>
+                  <option *ngFor="let status of statuses" [value]="status" [disabled]="status === application()?.status && !hasOtherChanges()">
+                    {{ status }} {{ status === application()?.status ? '(Current)' : '' }}
+                  </option>
+                </select>
+                <span class="error-message" *ngIf="statusForm.get('status')?.invalid && statusForm.get('status')?.touched">
+                  Status is required
+                </span>
+                <span class="info-message" *ngIf="statusForm.get('status')?.value === application()?.status && application()?.status && !hasOtherChanges()">
+                  <iconify-icon icon="solar:info-circle-bold" class="info-icon-small"></iconify-icon>
+                  This is the current status. You can still update remarks or entrance exam details.
+                </span>
+              </div>
+
+              <!-- Payment Deadline (for Approved status) -->
+              <div class="form-group" *ngIf="statusForm.get('status')?.value === 'Approved'">
+                <label for="paymentDeadlineUtc">Payment Deadline</label>
+                <input
+                  id="paymentDeadlineUtc"
+                  type="datetime-local"
+                  formControlName="paymentDeadlineUtc"
+                  class="form-control"
+                  placeholder="Select payment deadline"
+                />
+                <span class="hint-message">
+                  <iconify-icon icon="solar:info-circle-bold" class="info-icon-small"></iconify-icon>
+                  Set the deadline by which the candidate must pay the admission fee.
+                </span>
+              </div>
+
+              <!-- Entrance Exam Details -->
+              <div class="entrance-exam-section" *ngIf="statusForm.get('status')?.value === 'EntranceExam'">
+                <h3 class="section-title">
+                  <iconify-icon icon="solar:document-text-bold" class="section-icon"></iconify-icon>
+                  Entrance Exam Details
+                </h3>
+                <div formGroupName="entranceExam" class="nested-form">
+                  <div class="form-group">
+                    <label for="scheduledOnUtc">Scheduled Date & Time</label>
+                    <input
+                      id="scheduledOnUtc"
+                      type="datetime-local"
+                      formControlName="scheduledOnUtc"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="venue">Venue</label>
+                    <input
+                      id="venue"
+                      type="text"
+                      formControlName="venue"
+                      placeholder="Enter exam venue"
+                      class="form-control"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="instructions">Instructions</label>
+                    <textarea
+                      id="instructions"
+                      formControlName="instructions"
+                      rows="4"
+                      placeholder="Enter exam instructions for the applicant"
+                      class="form-control"
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="remarks">Remarks</label>
+                <textarea
+                  id="remarks"
+                  formControlName="remarks"
+                  rows="3"
+                  placeholder="Add any remarks or notes about this status change"
+                  class="form-control"
+                ></textarea>
+              </div>
+
+              <div class="form-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" formControlName="notifyApplicant" class="checkbox-input" />
+                  <span class="checkbox-text">Notify applicant via email</span>
+                </label>
+              </div>
+
+              <div class="form-actions">
+                <button
+                  type="submit"
+                  [disabled]="statusForm.invalid || statusUpdating()"
+                  class="btn-primary"
+                >
+                  <iconify-icon icon="solar:check-circle-bold" class="btn-icon" *ngIf="!statusUpdating()"></iconify-icon>
+                  <span *ngIf="statusUpdating()" class="btn-spinner"></span>
+                  <span>{{ statusUpdating() ? 'Updating...' : 'Update Status' }}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Status History Card -->
+        <div class="detail-card" *ngIf="application()!.statusRemarks || application()!.statusUpdatedBy">
+          <div class="card-header">
+            <iconify-icon icon="solar:history-bold" class="card-icon"></iconify-icon>
+            <h2 class="card-title">Status History</h2>
+          </div>
+          <div class="card-body">
+            <div class="info-grid">
+              <div class="info-item" *ngIf="application()!.statusUpdatedBy">
+                <label>Last Updated By</label>
+                <div class="info-value">{{ application()!.statusUpdatedBy }}</div>
+              </div>
+              <div class="info-item" *ngIf="application()!.statusUpdatedOnUtc">
+                <label>Last Updated On</label>
+                <div class="info-value">{{ application()!.statusUpdatedOnUtc | date: 'dd MMM yyyy HH:mm' }}</div>
+              </div>
+              <div class="info-item full-width" *ngIf="application()!.statusRemarks">
+                <label>Status Remarks</label>
+                <div class="info-value remarks">{{ application()!.statusRemarks }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Form Data Card -->
+    <div class="detail-card full-width" *ngIf="application()!.applicationDraft">
+      <div class="card-header">
+        <iconify-icon icon="solar:document-bold" class="card-icon"></iconify-icon>
+        <h2 class="card-title">Application Form Data</h2>
+      </div>
+      <div class="card-body">
+        <div class="application-form-data">
+          <p class="info-message">
+            <iconify-icon icon="solar:info-circle-bold" class="info-icon"></iconify-icon>
+            Full application form data is available below. Expand to view all submitted information.
+          </p>
+          <div class="json-container">
+            <pre class="json-preview">{{ application()!.applicationDraft | json }}</pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

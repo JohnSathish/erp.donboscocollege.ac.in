@@ -1,0 +1,41 @@
+<section class="documents">
+  <h2>Document Checklist</h2>
+  <p class="documents__info">
+    Upload required documents for your application. Accepted formats: PDF, JPEG, PNG (max 5 MB per file).
+  </p>
+  <ul class="documents__list">
+    <li *ngFor="let doc of documents()" [class.is-complete]="doc.isComplete">
+      <div class="documents__item-content">
+        <div>
+          <strong>{{ doc.name }}</strong>
+          <p>{{ doc.description }}</p>
+          <div *ngIf="getUploadState(doc.name).error" class="documents__error">
+            {{ getUploadState(doc.name).error }}
+          </div>
+        </div>
+        <div class="documents__item-actions">
+          <span *ngIf="!getUploadState(doc.name).isUploading" [class.is-complete]="doc.isComplete">
+            {{ doc.status }}
+          </span>
+          <span *ngIf="getUploadState(doc.name).isUploading" class="documents__uploading">
+            Uploading...
+          </span>
+          <label *ngIf="!doc.isComplete" class="documents__upload-btn">
+            <input
+              type="file"
+              [accept]="allowedFileTypes.join(',')"
+              (change)="onFileSelected($event, doc.name)"
+              [disabled]="getUploadState(doc.name).isUploading"
+              hidden
+            />
+            <span *ngIf="!getUploadState(doc.name).isUploading">Upload</span>
+            <span *ngIf="getUploadState(doc.name).isUploading">Uploading...</span>
+          </label>
+        </div>
+      </div>
+    </li>
+    <li *ngIf="documents().length === 0">
+      No document requirements have been assigned yet. Please check back later.
+    </li>
+  </ul>
+</section>

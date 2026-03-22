@@ -1,0 +1,161 @@
+<div class="payment-verification-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <iconify-icon icon="solar:verified-check-bold" class="title-icon"></iconify-icon>
+        Payment Verification
+      </h1>
+      <div class="header-actions">
+        <button class="btn-primary" (click)="loadPendingPayments()" [disabled]="loading()">
+          <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+          Refresh
+        </button>
+      </div>
+    </div>
+    <p class="page-description">
+      Verify and mark payments as completed for applications with pending payment status.
+    </p>
+  </div>
+
+  <!-- Error Message -->
+  <div class="error-message" *ngIf="error()">
+    <iconify-icon icon="solar:danger-circle-bold"></iconify-icon>
+    {{ error() }}
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading()">
+    <div class="spinner"></div>
+    <p>Loading pending payments...</p>
+  </div>
+
+  <!-- Pending Payments List -->
+  <div class="payments-list" *ngIf="!loading() && !error()">
+    <div class="list-header">
+      <h2>Pending Payments ({{ pendingPayments().length }})</h2>
+    </div>
+
+    <div class="payments-grid" *ngIf="pendingPayments().length > 0">
+      <div class="payment-card" *ngFor="let payment of pendingPayments()">
+        <div class="card-header">
+          <div class="applicant-info">
+            <h3>{{ payment.fullName }}</h3>
+            <p class="application-number">{{ payment.applicationNumber }}</p>
+          </div>
+          <span class="badge badge-warning">Pending</span>
+        </div>
+
+        <div class="card-body">
+          <div class="info-row">
+            <iconify-icon icon="solar:letter-bold"></iconify-icon>
+            <span>{{ payment.email }}</span>
+          </div>
+          <div class="info-row">
+            <iconify-icon icon="solar:phone-bold"></iconify-icon>
+            <span>{{ payment.mobileNumber }}</span>
+          </div>
+          <div class="info-row">
+            <iconify-icon icon="solar:calendar-bold"></iconify-icon>
+            <span>Created: {{ payment.createdOnUtc | date: 'dd MMM yyyy' }}</span>
+          </div>
+          <div class="info-row" *ngIf="payment.paymentOrderId">
+            <iconify-icon icon="solar:receipt-bold"></iconify-icon>
+            <span>Order ID: {{ payment.paymentOrderId }}</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <a
+            [routerLink]="['/admin/admissions/applications', payment.accountId]"
+            class="btn-link">
+            <iconify-icon icon="solar:eye-bold"></iconify-icon>
+            View Application
+          </a>
+          <button class="btn-primary" (click)="openVerifyModal(payment)">
+            <iconify-icon icon="solar:verified-check-bold"></iconify-icon>
+            Verify Payment
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="empty-state" *ngIf="pendingPayments().length === 0">
+      <iconify-icon icon="solar:verified-check-bold" class="empty-icon"></iconify-icon>
+      <h3>No Pending Payments</h3>
+      <p>All payments have been verified.</p>
+    </div>
+  </div>
+
+  <!-- Verification Modal -->
+  <div class="modal-overlay" *ngIf="verifying()" (click)="closeVerifyModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Verify Payment</h2>
+        <button class="btn-close" (click)="closeVerifyModal()">
+          <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+        </button>
+      </div>
+
+      <form [formGroup]="verifyForm" (ngSubmit)="verifyPayment()" class="modal-body">
+        <div class="form-group">
+          <label for="transactionId">
+            Transaction ID <span class="required">*</span>
+          </label>
+          <input
+            id="transactionId"
+            type="text"
+            formControlName="transactionId"
+            placeholder="Enter transaction ID"
+            class="form-control"
+            [class.error]="verifyForm.get('transactionId')?.invalid && verifyForm.get('transactionId')?.touched"
+          />
+          <span class="error-message" *ngIf="verifyForm.get('transactionId')?.invalid && verifyForm.get('transactionId')?.touched">
+            Transaction ID is required (minimum 3 characters)
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="amount">
+            Amount (₹) <span class="required">*</span>
+          </label>
+          <input
+            id="amount"
+            type="number"
+            formControlName="amount"
+            placeholder="600"
+            class="form-control"
+            min="1"
+            step="0.01"
+            [class.error]="verifyForm.get('amount')?.invalid && verifyForm.get('amount')?.touched"
+          />
+          <span class="error-message" *ngIf="verifyForm.get('amount')?.invalid && verifyForm.get('amount')?.touched">
+            Amount must be greater than 0
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="remarks">Remarks (Optional)</label>
+          <textarea
+            id="remarks"
+            formControlName="remarks"
+            rows="3"
+            placeholder="Add any remarks about this payment verification"
+            class="form-control"
+          ></textarea>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeVerifyModal()">
+            Cancel
+          </button>
+          <button type="submit" class="btn-primary" [disabled]="verifyForm.invalid">
+            <iconify-icon icon="solar:verified-check-bold"></iconify-icon>
+            Verify Payment
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+

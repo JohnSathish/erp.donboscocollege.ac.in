@@ -1,0 +1,206 @@
+<div class="erp-admin" [class.erp-admin--mobile-open]="mobileSidebarOpen()">
+  @if (mobileSidebarOpen()) {
+    <button
+      type="button"
+      class="erp-admin__backdrop"
+      aria-label="Close menu"
+      (click)="closeMobileSidebar()"
+    ></button>
+  }
+
+  <aside class="erp-admin__sidebar">
+    <div class="erp-admin__sidebar-head">
+      <a routerLink="/admin/dashboard" class="erp-admin__brand" (click)="closeMobileSidebar()">
+        <span class="erp-admin__brand-mark" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="32" height="32" rx="9" fill="url(#erp-brand-grad)" />
+            <path d="M16 9L9 13v6l7 4 7-4v-6l-7-4z" fill="white" fill-opacity="0.95" />
+            <defs>
+              <linearGradient id="erp-brand-grad" x1="8" y1="4" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#22d3ee" />
+                <stop offset="1" stop-color="#2563eb" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="erp-admin__brand-text">
+          <span class="erp-admin__brand-title">Don Bosco ERP</span>
+          <span class="erp-admin__brand-sub">Administration</span>
+        </span>
+      </a>
+      <button type="button" class="erp-admin__sidebar-close" (click)="closeMobileSidebar()" aria-label="Close menu">
+        <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+      </button>
+    </div>
+
+    <nav class="erp-admin__nav" aria-label="Main">
+      <ul class="erp-admin__nav-list">
+        @for (item of navigationItems(); track $index) {
+          @if (item.label === 'FEATURES') {
+            <li class="erp-admin__nav-section">{{ item.label }}</li>
+          }
+
+          @if (item.children && item.children.length > 0) {
+            <li class="erp-admin__nav-item" [class.erp-admin__nav-item--open]="item.expanded">
+              <button
+                type="button"
+                class="erp-admin__nav-row"
+                [class.erp-admin__nav-row--active]="isParentRouteActive(item)"
+                (click)="toggleMenu($index)"
+                [attr.aria-expanded]="item.expanded"
+              >
+                <iconify-icon [icon]="getIcon(item.icon)" class="erp-admin__nav-ico"></iconify-icon>
+                <span class="erp-admin__nav-label">{{ item.label }}</span>
+                <iconify-icon icon="ri:arrow-right-s-line" class="erp-admin__nav-chevron"></iconify-icon>
+              </button>
+              @if (item.expanded) {
+                <ul class="erp-admin__subnav">
+                  @for (child of item.children; track $index) {
+                    <li>
+                      <a
+                        [routerLink]="child.route"
+                        routerLinkActive="erp-admin__sublink--active"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        class="erp-admin__sublink"
+                        (click)="closeMobileSidebar()"
+                      >
+                        {{ child.label }}
+                      </a>
+                    </li>
+                  }
+                </ul>
+              }
+            </li>
+          } @else if (item.route) {
+            <li class="erp-admin__nav-item">
+              <a
+                [routerLink]="item.route"
+                routerLinkActive="erp-admin__nav-row--current"
+                [routerLinkActiveOptions]="{ exact: item.route === '/admin' || item.route === '/admin/dashboard' }"
+                class="erp-admin__nav-row erp-admin__nav-row--link"
+                (click)="closeMobileSidebar()"
+              >
+                <iconify-icon [icon]="getIcon(item.icon)" class="erp-admin__nav-ico"></iconify-icon>
+                <span class="erp-admin__nav-label">{{ item.label }}</span>
+              </a>
+            </li>
+          }
+        }
+      </ul>
+    </nav>
+
+  </aside>
+
+  <div class="erp-admin__frame">
+    <header class="erp-admin__topbar">
+      <div class="erp-admin__topbar-left">
+        <button type="button" class="erp-admin__icon-btn erp-admin__icon-btn--menu" (click)="toggleMobileSidebar()" aria-label="Open menu">
+          <iconify-icon icon="heroicons:bars-3-solid"></iconify-icon>
+        </button>
+      </div>
+
+      <div class="erp-admin__search">
+        <iconify-icon icon="ion:search-outline" class="erp-admin__search-ico"></iconify-icon>
+        <input
+          type="search"
+          name="admin-search"
+          class="erp-admin__search-input"
+          placeholder="Search students, applicants, or modules…"
+          autocomplete="off"
+          [value]="searchTerm()"
+          (input)="onSearch($any($event.target).value)"
+        />
+      </div>
+
+      <div class="erp-admin__topbar-right">
+        <div class="erp-admin__notify-wrap">
+          <button
+            type="button"
+            class="erp-admin__icon-btn erp-admin__icon-btn--dot"
+            [class.erp-admin__icon-btn--active]="notificationsOpen()"
+            aria-label="Notifications"
+            [attr.aria-expanded]="notificationsOpen()"
+            (click)="toggleNotifications()"
+          >
+            <iconify-icon icon="iconoir:bell"></iconify-icon>
+          </button>
+          @if (notificationsOpen()) {
+            <div class="erp-admin__notify-panel" role="dialog" aria-label="Notifications">
+              <div class="erp-admin__notify-head">
+                <span>Notifications</span>
+                <button type="button" class="erp-admin__notify-close" (click)="closeNotifications()" aria-label="Close">
+                  <iconify-icon icon="radix-icons:cross-2"></iconify-icon>
+                </button>
+              </div>
+              <ul class="erp-admin__notify-list">
+                <li class="erp-admin__notify-item">
+                  <strong>Admissions</strong>
+                  <span>New application submitted — review queue</span>
+                  <time>Just now</time>
+                </li>
+                <li class="erp-admin__notify-item">
+                  <strong>Payments</strong>
+                  <span>Fee payment verified for an applicant</span>
+                  <time>Today</time>
+                </li>
+                <li class="erp-admin__notify-item erp-admin__notify-item--muted">
+                  Connect a real-time feed here (SignalR / polling).
+                </li>
+              </ul>
+            </div>
+          }
+        </div>
+        <div class="erp-admin__user">
+          <span class="erp-admin__user-name">{{ getUserDisplayName() }}</span>
+          <div class="erp-admin__menu-wrap">
+            <button
+              type="button"
+              class="erp-admin__avatar-btn"
+              (click)="toggleProfileDropdown()"
+              [class.erp-admin__avatar-btn--open]="profileDropdownOpen()"
+              aria-haspopup="true"
+            >
+              <span class="erp-admin__avatar-ring">
+                <iconify-icon icon="solar:user-bold" class="erp-admin__avatar-ico"></iconify-icon>
+              </span>
+            </button>
+            @if (profileDropdownOpen()) {
+              <div class="erp-admin__dropdown" role="menu">
+                <div class="erp-admin__dropdown-head">
+                  <div class="erp-admin__dropdown-name">{{ authService.profile?.fullName || 'Admin User' }}</div>
+                  <div class="erp-admin__dropdown-email">{{ authService.profile?.email || 'admin@example.com' }}</div>
+                </div>
+                <a routerLink="/admin/settings/users" class="erp-admin__dropdown-item" (click)="profileDropdownOpen.set(false)">
+                  <iconify-icon icon="solar:settings-bold"></iconify-icon>
+                  Settings
+                </a>
+                <button type="button" class="erp-admin__dropdown-item erp-admin__dropdown-item--danger" (click)="logout()">
+                  <iconify-icon icon="solar:logout-3-bold"></iconify-icon>
+                  Log out
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="erp-admin__main">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+<aside class="admin-shell__toast" aria-live="polite">
+  @for (toast of toastService.toasts(); track toast.id) {
+    <div
+      class="toast"
+      [class.toast--success]="toast.type === 'success'"
+      [class.toast--error]="toast.type === 'error'"
+      [class.toast--info]="toast.type === 'info'"
+    >
+      <span>{{ toast.message }}</span>
+      <button type="button" (click)="toastService.dismiss(toast.id)">✕</button>
+    </div>
+  }
+</aside>

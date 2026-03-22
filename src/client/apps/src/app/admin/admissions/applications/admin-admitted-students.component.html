@@ -1,0 +1,67 @@
+<div class="admitted-page">
+  <div class="admitted-head">
+    <div>
+      <h1 class="admitted-title">Admitted students</h1>
+      <p class="admitted-sub">Students who paid the admission fee (direct path) or completed enrollment.</p>
+    </div>
+    <a routerLink="/admin/admissions/applications" class="btn-link">← Back to applications</a>
+  </div>
+
+  <div class="card filters">
+    <label class="sr-only" for="adm-search">Search</label>
+    <div class="flex">
+      <input
+        id="adm-search"
+        class="input"
+        type="search"
+        [formControl]="searchControl"
+        placeholder="Search by name, application ID, email…"
+        (keyup.enter)="onSearch()"
+      />
+      <button type="button" class="btn btn-primary" (click)="onSearch()" [disabled]="loading()">Search</button>
+    </div>
+  </div>
+
+  <div class="card" *ngIf="!loading(); else loadingTpl">
+    <p class="summary">Total: {{ totalCount() }} · Page {{ page() }}</p>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Application ID</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Payment status</th>
+            <th>Admission status</th>
+            <th>Payment date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of rows()">
+            <td class="mono">{{ row.uniqueId }}</td>
+            <td>{{ row.fullName }}</td>
+            <td>{{ row.majorSubject || '—' }}</td>
+            <td>
+              <span class="badge" [ngClass]="paymentBadgeClass(row)">{{ paymentLabel(row) }}</span>
+            </td>
+            <td>
+              <span class="badge badge-status">{{ row.status }}</span>
+            </td>
+            <td>{{ row.paymentCompletedOnUtc ? (row.paymentCompletedOnUtc | date: 'dd MMM yyyy' ) : '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="pager" *ngIf="totalCount()">
+      <button type="button" class="btn btn-ghost" (click)="prevPage()" [disabled]="page() <= 1">Previous</button>
+      <button type="button" class="btn btn-ghost" (click)="nextPage()" [disabled]="page() * pageSize() >= totalCount()">
+        Next
+      </button>
+    </div>
+    <p *ngIf="!rows().length" class="empty">No records.</p>
+  </div>
+
+  <ng-template #loadingTpl>
+    <div class="card loading">Loading…</div>
+  </ng-template>
+</div>

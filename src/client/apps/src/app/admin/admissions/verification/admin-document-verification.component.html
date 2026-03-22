@@ -1,0 +1,450 @@
+<div class="dv-page">
+  <!-- List View -->
+  <div *ngIf="viewMode() === 'list'" class="dv-list">
+    <header class="dv-header">
+      <div class="dv-header__titles">
+        <h1 class="dv-title">
+          <iconify-icon icon="solar:folder-check-bold" class="dv-title__icon"></iconify-icon>
+          Document Verification
+        </h1>
+        <p class="dv-subtitle">View and verify documents uploaded by applicants.</p>
+      </div>
+      <div class="dv-header__actions">
+        <button
+          type="button"
+          class="dv-btn dv-btn--secondary"
+          (click)="exportPdfSample()"
+          [disabled]="exporting() || loading()"
+          title="Requires exactly one selected row"
+        >
+          <iconify-icon icon="solar:file-text-bold"></iconify-icon>
+          Export PDF
+        </button>
+        <button
+          type="button"
+          class="dv-btn dv-btn--secondary"
+          (click)="exportExcel()"
+          [disabled]="exporting() || loading()"
+        >
+          <iconify-icon icon="solar:document-text-bold"></iconify-icon>
+          Export Excel
+        </button>
+        <button type="button" class="dv-btn dv-btn--primary" (click)="refresh()" [disabled]="loading()">
+          <iconify-icon icon="solar:refresh-bold"></iconify-icon>
+          Refresh
+        </button>
+      </div>
+    </header>
+
+    <section class="dv-stats" *ngIf="dashboardStats() as ds">
+      <div class="dv-stat-card">
+        <span class="dv-stat-card__label">Total applications</span>
+        <span class="dv-stat-card__value">{{ ds.submittedApplications }}</span>
+        <span class="dv-stat-card__hint">Submitted</span>
+      </div>
+      <div class="dv-stat-card">
+        <span class="dv-stat-card__label">Pending verification</span>
+        <span class="dv-stat-card__value">{{ ds.pendingPipelineCount ?? '—' }}</span>
+        <span class="dv-stat-card__hint">Submitted, not decided</span>
+      </div>
+      <div class="dv-stat-card">
+        <span class="dv-stat-card__label">Approved</span>
+        <span class="dv-stat-card__value">{{ ds.approvedApplications }}</span>
+        <span class="dv-stat-card__hint">Admission status</span>
+      </div>
+      <div class="dv-stat-card">
+        <span class="dv-stat-card__label">Rejected</span>
+        <span class="dv-stat-card__value">{{ ds.rejectedApplications }}</span>
+        <span class="dv-stat-card__hint">Admission status</span>
+      </div>
+    </section>
+
+    <div class="dv-error" *ngIf="error()">
+      <iconify-icon icon="solar:danger-circle-bold"></iconify-icon>
+      {{ error() }}
+    </div>
+
+    <section class="dv-filters" [formGroup]="filterForm">
+      <div class="dv-filters__grid">
+        <label class="dv-field">
+          <span class="dv-field__label">Search</span>
+          <input
+            type="search"
+            class="dv-input"
+            formControlName="search"
+            placeholder="Name, application ID, email…"
+            (keyup.enter)="applyFilters()"
+          />
+        </label>
+        <label class="dv-field">
+          <span class="dv-field__label">Status</span>
+          <select class="dv-select" formControlName="status">
+            <option *ngFor="let o of statusFilterOptions" [value]="o.value">{{ o.label }}</option>
+          </select>
+        </label>
+        <label class="dv-field">
+          <span class="dv-field__label">From</span>
+          <input type="date" class="dv-input" formControlName="dateFrom" />
+        </label>
+        <label class="dv-field">
+          <span class="dv-field__label">To</span>
+          <input type="date" class="dv-input" formControlName="dateTo" />
+        </label>
+        <div class="dv-filters__actions">
+          <button type="button" class="dv-btn dv-btn--primary" (click)="applyFilters()" [disabled]="loading()">
+            Apply filters
+          </button>
+          <button type="button" class="dv-btn dv-btn--ghost" (click)="resetFilters()" [disabled]="loading()">
+            Reset
+          </button>
+        </div>
+      </div>
+      <p class="dv-filters__note">
+        Document verification column is loaded per row for the current page. Status filter uses admission
+        status (Pending = Submitted). Paid filters payment completed.
+      </p>
+    </section>
+
+    <section class="dv-bulk" *ngIf="selectedIds().length">
+      <span class="dv-bulk__count">{{ selectedIds().length }} selected</span>
+      <button
+        type="button"
+        class="dv-btn dv-btn--success"
+        (click)="bulkApprove()"
+        [disabled]="bulkWorking() || loading()"
+      >
+        <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+        Approve selected
+      </button>
+      <button
+        type="button"
+        class="dv-btn dv-btn--danger"
+        (click)="bulkReject()"
+        [disabled]="bulkWorking() || loading()"
+      >
+        <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+        Reject selected
+      </button>
+    </section>
+
+    <div class="dv-table-wrap">
+      <div class="dv-table-card">
+        <div class="dv-table-toolbar">
+          <p class="dv-table-summary">
+            <span>{{ totalCount() }}</span> total · Page {{ currentPage() }} of {{ totalPages() }}
+            <span *ngIf="enriching()" class="dv-table-summary__enrich"> · Loading verification…</span>
+          </p>
+          <div class="dv-page-size">
+            <label>
+              Rows
+              <select
+                class="dv-select dv-select--compact"
+                [value]="pageSize()"
+                (change)="setPageSize(+$any($event.target).value)"
+              >
+                <option *ngFor="let n of pageSizeOptions" [value]="n">{{ n }}</option>
+              </select>
+            </label>
+          </div>
+        </div>
+
+        <div class="dv-table-scroll" role="region" aria-label="Applications table" tabindex="0">
+          <table class="dv-table">
+            <thead>
+              <tr>
+                <th class="dv-th-checkbox">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllPageSelected()"
+                    (change)="toggleSelectAll($any($event.target).checked)"
+                    [disabled]="loading() || !applications().length"
+                  />
+                </th>
+                <th>Application ID</th>
+                <th>
+                  <button type="button" class="dv-sort" (click)="setSort('fullName')">
+                    Applicant name
+                    <iconify-icon [icon]="sortIcon('fullName')"></iconify-icon>
+                  </button>
+                </th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>
+                  <button type="button" class="dv-sort" (click)="setSort('createdOnUtc')">
+                    Submission date
+                    <iconify-icon [icon]="sortIcon('createdOnUtc')"></iconify-icon>
+                  </button>
+                </th>
+                <th>Payment status</th>
+                <th>
+                  <button type="button" class="dv-sort" (click)="setSort('status')">
+                    Admission status
+                    <iconify-icon [icon]="sortIcon('status')"></iconify-icon>
+                  </button>
+                </th>
+                <th>Verification status</th>
+                <th>Assigned verifier</th>
+                <th class="dv-th-actions">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <ng-container *ngIf="tableSkeleton()">
+                <tr *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8]" class="dv-skeleton-row">
+                  <td *ngFor="let __ of [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]">
+                    <span class="dv-skeleton"></span>
+                  </td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="!tableSkeleton() && !loading()">
+                <tr *ngFor="let app of applications()">
+                  <td>
+                    <input
+                      type="checkbox"
+                      [checked]="rowSelected(app.id)"
+                      (change)="toggleRow(app.id)"
+                    />
+                  </td>
+                  <td class="dv-cell-mono">{{ app.uniqueId }}</td>
+                  <td>{{ app.fullName }}</td>
+                  <td>{{ app.email }}</td>
+                  <td>{{ app.mobileNumber }}</td>
+                  <td>{{ app.createdOnUtc | date: 'dd MMM yyyy' }}</td>
+                  <td>
+                    <span
+                      class="badge-pill"
+                      [class.badge-pill--success]="app.isPaymentCompleted"
+                      [class.badge-pill--warning]="!app.isPaymentCompleted"
+                    >
+                      {{ app.isPaymentCompleted ? 'Paid' : 'Pending' }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge-pill badge-pill--muted">{{ app.status }}</span>
+                  </td>
+                  <td>
+                    <span [class]="verificationBadgeClass(verificationByApp().get(app.id))">
+                      {{ verificationSummaryText(verificationByApp().get(app.id)) }}
+                    </span>
+                  </td>
+                  <td class="dv-cell-muted">
+                    {{ verificationByApp().get(app.id)?.verifier || '—' }}
+                  </td>
+                  <td class="dv-actions">
+                    <a
+                      [routerLink]="['/admin/admissions/applications', app.id]"
+                      class="dv-action dv-action--primary"
+                    >
+                      <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                      View
+                    </a>
+                    <button
+                      type="button"
+                      class="dv-action dv-action--primary"
+                      (click)="viewDocuments(app)"
+                    >
+                      <iconify-icon icon="solar:folder-check-bold"></iconify-icon>
+                      Docs
+                    </button>
+                    <button
+                      type="button"
+                      class="dv-action dv-action--success"
+                      (click)="approveApplication(app)"
+                      [disabled]="!canApprove(app)"
+                      title="Approve application"
+                    >
+                      <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+                      Approve
+                    </button>
+                    <button
+                      type="button"
+                      class="dv-action dv-action--danger"
+                      (click)="rejectApplication(app)"
+                      [disabled]="!canReject(app)"
+                      title="Reject application"
+                    >
+                      <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+                      Reject
+                    </button>
+                  </td>
+                </tr>
+              </ng-container>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="dv-empty" *ngIf="!loading() && !tableSkeleton() && applications().length === 0">
+          <iconify-icon icon="solar:folder-check-bold" class="dv-empty__icon"></iconify-icon>
+          <h3>No applications</h3>
+          <p>Try adjusting filters or refresh.</p>
+        </div>
+
+        <footer class="dv-pagination" *ngIf="!loading() && !tableSkeleton() && applications().length">
+          <button
+            type="button"
+            class="dv-btn dv-btn--ghost"
+            (click)="goPage(-1)"
+            [disabled]="currentPage() <= 1"
+          >
+            Previous
+          </button>
+          <span class="dv-pagination__info">
+            {{ (currentPage() - 1) * pageSize() + 1 }}–{{
+              (currentPage() - 1) * pageSize() + applications().length
+            }}
+            of {{ totalCount() }}
+          </span>
+          <button
+            type="button"
+            class="dv-btn dv-btn--ghost"
+            (click)="goPage(1)"
+            [disabled]="currentPage() >= totalPages()"
+          >
+            Next
+          </button>
+        </footer>
+      </div>
+    </div>
+
+    <div class="dv-loading-overlay" *ngIf="loading() && !tableSkeleton()">
+      <div class="dv-spinner"></div>
+      <p>Loading…</p>
+    </div>
+  </div>
+
+  <!-- Detail View -->
+  <div *ngIf="viewMode() === 'detail' && selectedApplication()" class="dv-detail">
+    <div class="dv-detail__header">
+      <button type="button" class="dv-btn dv-btn--ghost" (click)="goBack()">
+        <iconify-icon icon="solar:alt-arrow-left-bold"></iconify-icon>
+        Back to list
+      </button>
+      <div>
+        <h2 class="dv-detail__title">
+          <iconify-icon icon="solar:folder-check-bold"></iconify-icon>
+          Documents — {{ selectedApplication()!.fullName }}
+        </h2>
+        <p class="dv-detail__meta">{{ selectedApplication()!.uniqueId }}</p>
+      </div>
+    </div>
+
+    <div class="dv-loading-inline" *ngIf="loadingDocuments()">
+      <div class="dv-spinner"></div>
+      <p>Loading documents…</p>
+    </div>
+
+    <div class="dv-doc-grid" *ngIf="!loadingDocuments()">
+      <div
+        class="dv-doc-card"
+        *ngFor="let doc of documents()"
+        [class.card-uploaded]="doc.isUploaded"
+        [class.card-missing]="!doc.isUploaded"
+      >
+        <div class="dv-doc-card__icon">
+          <iconify-icon [icon]="getDocumentIcon(doc.documentType)"></iconify-icon>
+        </div>
+        <div class="dv-doc-card__body">
+          <h3>{{ documentTypeLabels[doc.documentType] || doc.documentType }}</h3>
+          <div *ngIf="doc.isUploaded">
+            <p class="dv-doc-meta">{{ doc.fileName }}</p>
+            <p class="dv-doc-meta">{{ formatFileSize(doc.fileSizeBytes) }} · {{ doc.contentType }}</p>
+            <div *ngIf="doc.verificationStatus" class="dv-doc-verify">
+              <span class="badge-pill" [ngClass]="getVerificationStatusBadgeClass(doc)">
+                {{ getVerificationStatusText(doc) }}
+              </span>
+              <p *ngIf="doc.verificationStatus.verifiedBy" class="dv-doc-meta">
+                By {{ doc.verificationStatus.verifiedBy }} ·
+                {{ doc.verificationStatus.verifiedOnUtc | date: 'dd MMM yyyy' }}
+              </p>
+            </div>
+          </div>
+          <p *ngIf="!doc.isUploaded" class="dv-doc-missing">Document not uploaded</p>
+        </div>
+        <div class="dv-doc-card__actions">
+          <button
+            type="button"
+            class="dv-btn dv-btn--secondary dv-btn--sm"
+            (click)="openPreview(doc)"
+            [disabled]="!doc.isUploaded"
+          >
+            <iconify-icon icon="solar:eye-bold"></iconify-icon>
+            Preview
+          </button>
+          <button
+            type="button"
+            class="dv-btn dv-btn--secondary dv-btn--sm"
+            (click)="downloadDocument(doc)"
+            [disabled]="!doc.isUploaded"
+          >
+            <iconify-icon icon="solar:download-bold"></iconify-icon>
+            Download
+          </button>
+          <button
+            type="button"
+            class="dv-btn dv-btn--success dv-btn--sm"
+            (click)="openVerificationModal(doc.documentType)"
+            [disabled]="!doc.isUploaded"
+          >
+            <iconify-icon icon="solar:verified-check-bold"></iconify-icon>
+            Verify
+          </button>
+        </div>
+      </div>
+
+      <div class="dv-empty" *ngIf="documents().length === 0">
+        <p>No documents for this application.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verify modal -->
+  <div class="dv-modal" *ngIf="verifyingDocument()" (click)="closeVerificationModal()">
+    <div class="dv-modal__panel" (click)="$event.stopPropagation()">
+      <div class="dv-modal__head">
+        <h3>
+          <iconify-icon icon="solar:verified-check-bold"></iconify-icon>
+          Verify document
+        </h3>
+        <button type="button" class="dv-btn dv-btn--icon" (click)="closeVerificationModal()">
+          <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+        </button>
+      </div>
+      <form [formGroup]="verificationForm" (ngSubmit)="verifyDocument()" class="dv-modal__body">
+        <div class="dv-field">
+          <span class="dv-field__label">Verification status</span>
+          <div class="dv-radio-row">
+            <label><input type="radio" formControlName="isVerified" [value]="true" /> Verified</label>
+            <label><input type="radio" formControlName="isVerified" [value]="false" /> Rejected</label>
+          </div>
+        </div>
+        <label class="dv-field">
+          <span class="dv-field__label">Remarks</span>
+          <textarea formControlName="remarks" rows="4" class="dv-textarea" placeholder="Optional remarks"></textarea>
+        </label>
+        <div class="dv-modal__foot">
+          <button type="button" class="dv-btn dv-btn--ghost" (click)="closeVerificationModal()">Cancel</button>
+          <button type="submit" class="dv-btn dv-btn--primary">Update status</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Preview modal -->
+  <div class="dv-modal" *ngIf="previewModalOpen()" (click)="closePreview()">
+    <div class="dv-modal__panel dv-modal__panel--wide" (click)="$event.stopPropagation()">
+      <div class="dv-modal__head">
+        <h3>
+          <iconify-icon icon="solar:eye-bold"></iconify-icon>
+          {{ previewDoc()?.fileName || 'Preview' }}
+        </h3>
+        <button type="button" class="dv-btn dv-btn--icon" (click)="closePreview()">
+          <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+        </button>
+      </div>
+      <div class="dv-preview-body" *ngIf="previewObjectUrl() && previewDoc() as pd">
+        <img *ngIf="isImagePreview(pd)" [src]="safeBlobUrl(previewObjectUrl())" alt="" />
+        <iframe *ngIf="!isImagePreview(pd)" [src]="safeBlobUrl(previewObjectUrl())" title="Document preview"></iframe>
+      </div>
+    </div>
+  </div>
+</div>

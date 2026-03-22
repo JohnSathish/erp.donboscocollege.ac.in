@@ -1,0 +1,416 @@
+<div class="applications-list">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb-section">
+    <h6 class="page-title">Online Applications</h6>
+    <ul class="breadcrumb">
+      <li>
+        <a routerLink="/admin/dashboard" class="breadcrumb-link">
+          <iconify-icon icon="solar:home-smile-angle-outline" class="breadcrumb-icon"></iconify-icon>
+          Dashboard
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li>
+        <a routerLink="/admin/admissions/applications" class="breadcrumb-link">
+          Online Admission
+        </a>
+      </li>
+      <li class="breadcrumb-separator">-</li>
+      <li class="breadcrumb-current">Applications</li>
+    </ul>
+  </div>
+
+  <!-- Header Actions -->
+  <div class="header-actions">
+    <div class="action-buttons">
+      <a routerLink="/admin/admissions/workflow" class="btn btn-outline-secondary btn-workflow">
+        <iconify-icon icon="solar:map-bold" class="btn-icon"></iconify-icon>
+        Workflow guide
+      </a>
+      <button
+        type="button"
+        (click)="refresh()"
+        [disabled]="loading()"
+        class="btn btn-primary btn-refresh"
+      >
+        <iconify-icon icon="solar:refresh-bold" class="btn-icon"></iconify-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Card -->
+  <div class="card filters-card">
+    <div class="card-body">
+      <div class="filters-grid">
+        <!-- Search -->
+        <div class="filter-item">
+          <label class="filter-label">Search</label>
+          <div class="search-input-wrapper">
+            <input
+              type="text"
+              [formControl]="searchControl"
+              placeholder="Search by name, email, application number..."
+              (keyup.enter)="onSearch()"
+              class="form-control search-input"
+            />
+            <iconify-icon icon="ion:search-outline" class="search-icon"></iconify-icon>
+          </div>
+          <button
+            type="button"
+            (click)="onSearch()"
+            [disabled]="loading()"
+            class="btn btn-primary btn-search"
+          >
+            Search
+          </button>
+        </div>
+
+        <!-- Application Submitted Filter -->
+        <div class="filter-item">
+          <label class="filter-label">Application Submitted</label>
+          <select
+            [formControl]="submittedFilterControl"
+            (change)="onFilterChange()"
+            class="form-select"
+          >
+            <option [value]="null">All</option>
+            <option [value]="true">Yes</option>
+            <option [value]="false">No</option>
+          </select>
+        </div>
+
+        <!-- Payment Completed Filter -->
+        <div class="filter-item">
+          <label class="filter-label">Payment status (application fee)</label>
+          <select
+            [formControl]="paymentFilterControl"
+            (change)="onFilterChange()"
+            class="form-select"
+          >
+            <option [value]="null">All</option>
+            <option [value]="true">Paid</option>
+            <option [value]="false">Pending</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Application status</label>
+          <select [formControl]="statusFilterControl" (change)="onFilterChange()" class="form-select">
+            <option value="">All</option>
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Shift / stream (course)</label>
+          <select [formControl]="shiftFilterControl" (change)="onFilterChange()" class="form-select">
+            <option value="">All</option>
+            <option *ngFor="let sh of shiftOptions" [value]="sh">{{ sh || '—' }}</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Class XII % range</label>
+          <select [formControl]="percentageRangeControl" (change)="onFilterChange()" class="form-select">
+            <option value="all">All</option>
+            <option value="60-70">60 – 70</option>
+            <option value="70-80">70 – 80</option>
+            <option value="80plus">80+</option>
+          </select>
+        </div>
+
+        <div class="filter-item">
+          <label class="filter-label">Admission type</label>
+          <select [formControl]="admissionPathControl" (change)="onFilterChange()" class="form-select">
+            <option value="all">All</option>
+            <option value="normal">Normal</option>
+            <option value="direct">Direct admission</option>
+          </select>
+        </div>
+      </div>
+
+      <p class="filters-hint">
+        Server filters above apply to the full list. Below, optional refiners apply to the
+        <strong>current page</strong> only (after load).
+      </p>
+
+      <div class="filters-grid filters-grid--local">
+        <div class="filter-item">
+          <label class="filter-label">Workflow stage (this page)</label>
+          <select
+            class="form-select"
+            [ngModel]="workflowStageFilter()"
+            (ngModelChange)="workflowStageFilter.set($event)"
+          >
+            <option *ngFor="let o of workflowStageOptions" [value]="o.value">{{ o.label }}</option>
+          </select>
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">Category contains</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="e.g. General, ST, OBC…"
+            [ngModel]="categoryContains()"
+            (ngModelChange)="categoryContains.set($event)"
+          />
+        </div>
+        <div class="filter-item">
+          <label class="filter-label">Major / course contains</label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="e.g. English, Science…"
+            [ngModel]="majorContains()"
+            (ngModelChange)="majorContains.set($event)"
+          />
+        </div>
+        <div class="filter-item filter-item--actions">
+          <label class="filter-label">&nbsp;</label>
+          <button type="button" class="btn btn-outline-secondary" (click)="clearLocalRefiners()">
+            Clear refiners
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applications Table Card -->
+  <div class="card table-card" *ngIf="!loading(); else loadingState">
+    <div class="card-body">
+      <div class="table-header">
+        <p class="table-summary">
+          Total (server): <span class="table-count">{{ totalCount() }}</span> · Showing
+          <span class="table-count">{{ filteredApplications().length }}</span> rows
+        </p>
+      </div>
+
+      <div class="table-wrapper">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Application ID</th>
+              <th>Applicant</th>
+              <th>Course</th>
+              <th>Shift</th>
+              <th>
+                <button type="button" class="th-sort" (click)="toggleSort('classXiiPercentage')">
+                  % (Class XII)
+                  <iconify-icon [icon]="sortIcon('classXiiPercentage')"></iconify-icon>
+                </button>
+              </th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>
+                <button type="button" class="th-sort" (click)="toggleSort('createdOnUtc')">
+                  Created
+                  <iconify-icon [icon]="sortIcon('createdOnUtc')"></iconify-icon>
+                </button>
+              </th>
+              <th>ERP</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let app of filteredApplications(); trackBy: trackByApplicationId"
+              class="table-row"
+              [class.table-row--eligible]="rowEligibleHighlight(app)"
+            >
+              <td class="font-medium">{{ app.uniqueId }}</td>
+              <td>{{ app.fullName }}</td>
+              <td>{{ app.majorSubject || '—' }}</td>
+              <td>{{ app.shift }}</td>
+              <td>{{ formatPct(app) }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="statusBadgeClass(app.status)">
+                  {{ app.status }}
+                </span>
+              </td>
+              <td>
+                <div class="payment-info">
+                  <span
+                    class="status-badge"
+                    [ngClass]="{
+                      'status-paid': app.isPaymentCompleted,
+                      'status-pending': !app.isPaymentCompleted
+                    }"
+                  >
+                    {{ app.isPaymentCompleted ? 'Paid' : 'Pending' }}
+                  </span>
+                </div>
+              </td>
+              <td>{{ app.createdOnUtc | date: 'MMM d, yyyy' }}</td>
+              <td class="mono">{{ app.erpStudentId || '—' }}</td>
+              <td class="text-center">
+                <div class="action-buttons-group">
+                  <button
+                    type="button"
+                    (click)="viewApplication(app.id)"
+                    class="btn btn-outline-primary btn-sm btn-view"
+                  >
+                    View
+                  </button>
+                  <button type="button" class="btn btn-outline-primary btn-sm" (click)="downloadPdf(app)">
+                    PDF
+                  </button>
+                  <button
+                    *ngIf="canShowApprove(app)"
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    (click)="approveApp(app)"
+                    [disabled]="loading()"
+                  >
+                    Approve
+                  </button>
+                  <button
+                    *ngIf="canShowReject(app)"
+                    type="button"
+                    class="btn btn-outline-danger btn-sm"
+                    (click)="rejectApp(app)"
+                    [disabled]="loading()"
+                  >
+                    Reject
+                  </button>
+                  <button
+                    *ngIf="app.status === 'Approved' && app.isPaymentCompleted"
+                    type="button"
+                    class="btn btn-outline-secondary btn-sm"
+                    (click)="syncErp(app)"
+                    [disabled]="erpWorkingId() === app.id"
+                  >
+                    Sync ERP
+                  </button>
+                  <button
+                    *ngIf="app.status === 'DirectAdmissionGranted'"
+                    type="button"
+                    class="btn btn-outline-success btn-sm"
+                    (click)="confirmAdmissionFeePaid(app)"
+                    [disabled]="loading()"
+                  >
+                    Confirm fee paid
+                  </button>
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm"
+                    [disabled]="!isDirectAdmissionEligible(app) || loading()"
+                    [title]="directTooltip(app)"
+                    (click)="openDirectModal(app)"
+                  >
+                    Direct Admission
+                  </button>
+                  <button
+                    *ngIf="canEnroll(app)"
+                    type="button"
+                    (click)="openEnrollModal(app)"
+                    class="btn btn-success btn-sm btn-enroll"
+                    [disabled]="loading()"
+                  >
+                    Enroll
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p *ngIf="!applications().length" class="empty-message">No applications found.</p>
+      <p *ngIf="applications().length && !filteredApplications().length" class="empty-message">
+        No rows match the current refiners. Clear refiners or adjust filters.
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <ng-template #loadingState>
+    <div class="card loading-card">
+      <div class="card-body">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <p class="loading-text">Loading applications…</p>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Direct admission confirmation -->
+  <div *ngIf="showDirectModal()" class="modal-overlay" (click)="closeDirectModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h5 class="modal-title">Direct admission</h5>
+        <button type="button" class="btn-close" (click)="closeDirectModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to grant direct admission? The applicant will be notified by SMS and email with payment instructions.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeDirectModal()">Cancel</button>
+        <button type="button" class="btn btn-success" (click)="confirmDirectAdmission()" [disabled]="loading()">
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error()" class="card error-card">
+    <div class="card-body">
+      <div class="error-content">
+        <iconify-icon icon="solar:danger-triangle-bold" class="error-icon"></iconify-icon>
+        <p class="error-text">{{ error() }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enrollment Modal -->
+  <div *ngIf="showEnrollModal()" class="modal-overlay" (click)="closeEnrollModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h5 class="modal-title">Enroll Application</h5>
+        <button
+          type="button"
+          (click)="closeEnrollModal()"
+          class="btn-close"
+          [disabled]="loading()"
+        >
+          ×
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to enroll this application? This action will convert the approved application to enrolled status.</p>
+        <div class="form-group">
+          <label for="enrollmentRemarks">Remarks (Optional)</label>
+          <textarea
+            id="enrollmentRemarks"
+            [(ngModel)]="enrollmentRemarks"
+            class="form-control"
+            rows="3"
+            placeholder="Enter any remarks about the enrollment..."
+            [disabled]="loading()"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          (click)="closeEnrollModal()"
+          class="btn btn-secondary"
+          [disabled]="loading()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          (click)="enrollApplication()"
+          class="btn btn-success"
+          [disabled]="loading()"
+        >
+          <span *ngIf="loading()">Enrolling...</span>
+          <span *ngIf="!loading()">Confirm Enrollment</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

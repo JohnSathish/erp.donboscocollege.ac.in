@@ -1,0 +1,403 @@
+<div class="admin-dash" [class.admin-dash--busy]="loading() || tableLoading()">
+  <!-- Indeterminate loading bar -->
+  <div class="admin-dash__loadbar" *ngIf="loading() || tableLoading()" aria-hidden="true"></div>
+
+  <div class="admin-dash__shell">
+    <div *ngIf="error()" class="admin-dash__alert" role="alert">{{ error() }}</div>
+
+    <!-- Hero: full-width banner -->
+    <section class="admin-dash__hero" aria-labelledby="acc-hero-title">
+      <div class="admin-dash__hero-inner">
+        <p class="admin-dash__hero-kicker">Welcome back, {{ getUserDisplayName() }}</p>
+        <h1 id="acc-hero-title" class="admin-dash__hero-title">Admission Control Center</h1>
+        <p class="admin-dash__hero-sub">
+          Monitor submissions, verify payments, sync approved students to ERP, and export reports — all in one
+          workspace.
+        </p>
+        <div class="admin-dash__hero-badges">
+          <span class="admin-dash__badge-chip">
+            <iconify-icon icon="solar:document-text-bold" class="admin-dash__badge-ico" aria-hidden="true"></iconify-icon>
+            {{ dashboard()?.submittedApplications ?? 0 }} Submitted
+          </span>
+          <span class="admin-dash__badge-chip admin-dash__badge-chip--accent">
+            <iconify-icon icon="solar:check-circle-bold" class="admin-dash__badge-ico" aria-hidden="true"></iconify-icon>
+            {{ dashboard()?.approvedApplications ?? 0 }} Approved
+          </span>
+          <span class="admin-dash__badge-chip">
+            <iconify-icon icon="solar:clock-circle-bold" class="admin-dash__badge-ico" aria-hidden="true"></iconify-icon>
+            {{ dashboard()?.pendingPipelineCount ?? 0 }} Pending review
+          </span>
+          <span class="admin-dash__badge-chip">
+            <iconify-icon icon="solar:wallet-money-bold" class="admin-dash__badge-ico" aria-hidden="true"></iconify-icon>
+            {{ dashboard()?.paidApplications ?? 0 }} Paid
+          </span>
+          <span class="admin-dash__badge-chip admin-dash__badge-chip--soft">
+            <iconify-icon icon="solar:calendar-bold" class="admin-dash__badge-ico" aria-hidden="true"></iconify-icon>
+            {{ getCurrentDate() }}
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI stats -->
+    <section class="admin-dash__kpi-wrap" aria-label="Admission metrics">
+      <div class="admin-dash__kpi-grid">
+        <article class="admin-dash__kpi">
+          <div class="admin-dash__kpi-icon" aria-hidden="true">
+            <iconify-icon icon="solar:documents-bold"></iconify-icon>
+          </div>
+          <div class="admin-dash__kpi-body">
+            <span class="admin-dash__kpi-label">Total applications</span>
+            <span class="admin-dash__kpi-value">
+              <span
+                class="admin-dash__counter"
+                [countUp]="dashboard()?.submittedApplications ?? 0"
+                [options]="{ duration: 1, formattingFn: customFormattingFn }"
+                >{{ dashboard()?.submittedApplications ?? 0 }}</span
+              >
+            </span>
+            <span class="admin-dash__kpi-hint">Submitted online forms</span>
+          </div>
+        </article>
+        <article class="admin-dash__kpi">
+          <div class="admin-dash__kpi-icon" aria-hidden="true">
+            <iconify-icon icon="solar:wallet-money-bold"></iconify-icon>
+          </div>
+          <div class="admin-dash__kpi-body">
+            <span class="admin-dash__kpi-label">Payment completed</span>
+            <span class="admin-dash__kpi-value">
+              <span
+                class="admin-dash__counter"
+                [countUp]="dashboard()?.paidApplications ?? 0"
+                [options]="{ duration: 1, formattingFn: customFormattingFn }"
+                >{{ dashboard()?.paidApplications ?? 0 }}</span
+              >
+            </span>
+            <span class="admin-dash__kpi-hint">Fees received</span>
+          </div>
+        </article>
+        <article class="admin-dash__kpi">
+          <div class="admin-dash__kpi-icon" aria-hidden="true">
+            <iconify-icon icon="solar:hourglass-line-bold"></iconify-icon>
+          </div>
+          <div class="admin-dash__kpi-body">
+            <span class="admin-dash__kpi-label">Pending review</span>
+            <span class="admin-dash__kpi-value">
+              <span
+                class="admin-dash__counter"
+                [countUp]="dashboard()?.pendingPipelineCount ?? 0"
+                [options]="{ duration: 1, formattingFn: customFormattingFn }"
+                >{{ dashboard()?.pendingPipelineCount ?? 0 }}</span
+              >
+            </span>
+            <span class="admin-dash__kpi-hint">Awaiting decision</span>
+          </div>
+        </article>
+        <article class="admin-dash__kpi">
+          <div class="admin-dash__kpi-icon" aria-hidden="true">
+            <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+          </div>
+          <div class="admin-dash__kpi-body">
+            <span class="admin-dash__kpi-label">Approved</span>
+            <span class="admin-dash__kpi-value">
+              <span
+                class="admin-dash__counter"
+                [countUp]="dashboard()?.approvedApplications ?? 0"
+                [options]="{ duration: 1, formattingFn: customFormattingFn }"
+                >{{ dashboard()?.approvedApplications ?? 0 }}</span
+              >
+            </span>
+            <span class="admin-dash__kpi-hint">Admission granted</span>
+          </div>
+        </article>
+        <article class="admin-dash__kpi">
+          <div class="admin-dash__kpi-icon" aria-hidden="true">
+            <iconify-icon icon="solar:close-circle-bold"></iconify-icon>
+          </div>
+          <div class="admin-dash__kpi-body">
+            <span class="admin-dash__kpi-label">Rejected</span>
+            <span class="admin-dash__kpi-value">
+              <span
+                class="admin-dash__counter"
+                [countUp]="dashboard()?.rejectedApplications ?? 0"
+                [options]="{ duration: 1, formattingFn: customFormattingFn }"
+                >{{ dashboard()?.rejectedApplications ?? 0 }}</span
+              >
+            </span>
+            <span class="admin-dash__kpi-hint">Not admitted</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="admin-dash__card admin-dash__filters-card" aria-label="Filter applications">
+      <h2 class="admin-dash__card-title">Filters</h2>
+      <p class="admin-dash__card-lead">Refine the list — filters apply server-side except course, which filters the current page.</p>
+      <div class="admin-dash__filters-grid">
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">Search</span>
+          <input
+            type="search"
+            class="admin-dash__input"
+            placeholder="Name, email, application ID…"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            (keyup.enter)="applyFilters()"
+            autocomplete="off"
+          />
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">Status</span>
+          <select
+            class="admin-dash__input"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event)"
+          >
+            <option value="">All statuses</option>
+            <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+          </select>
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">Payment</span>
+          <select
+            class="admin-dash__input"
+            [ngModel]="paymentFilter()"
+            (ngModelChange)="paymentFilter.set($event)"
+          >
+            <option value="all">All</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">Shift</span>
+          <select
+            class="admin-dash__input"
+            [ngModel]="shiftFilter()"
+            (ngModelChange)="shiftFilter.set($event)"
+          >
+            <option *ngFor="let s of shiftOptions" [value]="s">{{ s || 'All shifts' }}</option>
+          </select>
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">Course / major</span>
+          <input
+            type="text"
+            class="admin-dash__input"
+            placeholder="Filter current page…"
+            [ngModel]="courseContains()"
+            (ngModelChange)="courseContains.set($event)"
+          />
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">From</span>
+          <input type="date" class="admin-dash__input" [ngModel]="dateFrom()" (ngModelChange)="dateFrom.set($event)" />
+        </label>
+        <label class="admin-dash__field">
+          <span class="admin-dash__field-label">To</span>
+          <input type="date" class="admin-dash__input" [ngModel]="dateTo()" (ngModelChange)="dateTo.set($event)" />
+        </label>
+      </div>
+      <div class="admin-dash__filters-actions">
+        <button type="button" class="admin-dash__btn admin-dash__btn--primary" (click)="applyFilters()">Apply filters</button>
+        <button type="button" class="admin-dash__btn admin-dash__btn--secondary" (click)="resetFilters()">Reset</button>
+      </div>
+    </section>
+
+    <!-- Applications table -->
+    <section class="admin-dash__card admin-dash__table-card" aria-label="Applications">
+      <div class="admin-dash__table-toolbar">
+        <div>
+          <h2 class="admin-dash__card-title admin-dash__card-title--table">Applications</h2>
+          <p class="admin-dash__card-lead">Submitted applications — sort columns, act on rows, export data.</p>
+        </div>
+        <div class="admin-dash__toolbar-actions">
+          <details class="admin-dash__export">
+            <summary class="admin-dash__btn admin-dash__btn--secondary admin-dash__export-summary">Export</summary>
+            <div class="admin-dash__export-menu" role="menu">
+              <button
+                type="button"
+                class="admin-dash__export-item"
+                role="menuitem"
+                (click)="exportExcelAndCloseMenu($event)"
+                [disabled]="exporting()"
+              >
+                <iconify-icon icon="solar:file-text-bold" aria-hidden="true"></iconify-icon>
+                {{ exporting() ? 'Preparing…' : 'Download Excel (.xlsx)' }}
+              </button>
+              <div class="admin-dash__export-item admin-dash__export-item--disabled" role="menuitem" aria-disabled="true">
+                <iconify-icon icon="solar:document-bold" aria-hidden="true"></iconify-icon>
+                Bulk PDF (coming soon)
+              </div>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="admin-dash__table-scroll">
+        <table class="admin-dash__table">
+          <thead>
+            <tr>
+              <th>
+                <button type="button" class="admin-dash__th-btn" (click)="toggleSort('uniqueId')">
+                  App ID <span class="admin-dash__sort">{{ sortIndicator('uniqueId') }}</span>
+                </button>
+              </th>
+              <th>
+                <button type="button" class="admin-dash__th-btn" (click)="toggleSort('fullName')">
+                  Applicant <span class="admin-dash__sort">{{ sortIndicator('fullName') }}</span>
+                </button>
+              </th>
+              <th>Course</th>
+              <th>Shift</th>
+              <th>
+                <button type="button" class="admin-dash__th-btn" (click)="toggleSort('status')">
+                  Status <span class="admin-dash__sort">{{ sortIndicator('status') }}</span>
+                </button>
+              </th>
+              <th>Payment</th>
+              <th>
+                <button type="button" class="admin-dash__th-btn" (click)="toggleSort('createdOnUtc')">
+                  Created <span class="admin-dash__sort">{{ sortIndicator('createdOnUtc') }}</span>
+                </button>
+              </th>
+              <th>ERP</th>
+              <th class="admin-dash__col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!applicationsTable().getRowModel().rows.length && !tableLoading()">
+              <td colspan="9" class="admin-dash__empty">No applications match the current filters.</td>
+            </tr>
+            <tr *ngFor="let row of applicationsTable().getRowModel().rows; trackBy: trackByRow">
+              <td *ngFor="let cell of row.getVisibleCells()" [class.admin-dash__col-actions]="cell.column.id === 'actions'">
+                <ng-container [ngSwitch]="cell.column.id">
+                  <span *ngSwitchCase="'uniqueId'" class="admin-dash__mono">{{ cell.getValue() }}</span>
+                  <span *ngSwitchCase="'fullName'">{{ cell.getValue() }}</span>
+                  <span *ngSwitchCase="'majorSubject'">{{ cell.getValue() || '—' }}</span>
+                  <span *ngSwitchCase="'shift'">{{ cell.getValue() || '—' }}</span>
+                  <span *ngSwitchCase="'status'"
+                    ><span [class]="statusBadgeClass(row.original.status)">{{ cell.getValue() }}</span></span
+                  >
+                  <span *ngSwitchCase="'payment'"
+                    ><span [class]="paymentBadgeClass(row.original.isPaymentCompleted)">{{ cell.getValue() }}</span></span
+                  >
+                  <span *ngSwitchCase="'createdOnUtc'">{{ row.original.createdOnUtc | date : 'mediumDate' }}</span>
+                  <span
+                    *ngSwitchCase="'erp'"
+                    class="admin-dash__erp"
+                    [attr.title]="erpTitle(row.original)"
+                    >{{ erpCellText(row.original) }}</span
+                  >
+                  <span *ngSwitchCase="'actions'">
+                    <div class="admin-dash__row-actions">
+                      <button type="button" class="admin-dash__action admin-dash__action--ghost" (click)="viewDetail(row.original)">
+                        View
+                      </button>
+                      <button type="button" class="admin-dash__action admin-dash__action--ghost" (click)="downloadPdf(row.original)">
+                        PDF
+                      </button>
+                      <button
+                        *ngIf="showErpSync(row.original)"
+                        type="button"
+                        class="admin-dash__action admin-dash__action--ghost"
+                        [disabled]="syncingId() === row.original.id"
+                        (click)="syncErp(row.original)"
+                      >
+                        {{ syncingId() === row.original.id ? 'Sync…' : 'Sync ERP' }}
+                      </button>
+                      <button
+                        *ngIf="canApprove(row.original)"
+                        type="button"
+                        class="admin-dash__action admin-dash__action--success"
+                        (click)="approve(row.original)"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        *ngIf="canReject(row.original)"
+                        type="button"
+                        class="admin-dash__action admin-dash__action--danger"
+                        (click)="reject(row.original)"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </span>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="admin-dash__pager" *ngIf="totalCount() > 0">
+        <span class="admin-dash__pager-info"
+          >{{ totalCount() }} total · Page {{ currentPage() }} / {{ totalPages() }}</span
+        >
+        <div class="admin-dash__pager-controls">
+          <label class="admin-dash__pager-label">
+            Rows per page
+            <select
+              class="admin-dash__input admin-dash__input--inline"
+              [ngModel]="pageSize()"
+              (ngModelChange)="onPageSizeChange(+$event)"
+            >
+              <option *ngFor="let n of pageSizeOptions" [value]="n">{{ n }}</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            class="admin-dash__btn admin-dash__btn--secondary"
+            [disabled]="currentPage() <= 1"
+            (click)="onPageChange(currentPage() - 1)"
+          >
+            Previous
+          </button>
+          <button
+            type="button"
+            class="admin-dash__btn admin-dash__btn--secondary"
+            [disabled]="currentPage() >= totalPages()"
+            (click)="onPageChange(currentPage() + 1)"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Snapshot + shortcuts -->
+    <section class="admin-dash__split" aria-label="Activity and shortcuts">
+      <div class="admin-dash__card admin-dash__panel">
+        <h2 class="admin-dash__card-title">Pipeline snapshot</h2>
+        <ul class="admin-dash__activity">
+          <li *ngFor="let a of recentActivity()">
+            <span class="admin-dash__activity-icon" aria-hidden="true">{{ a.icon }}</span>
+            <div>
+              <p class="admin-dash__activity-text">{{ a.text }}</p>
+              <span class="admin-dash__activity-time">{{ a.time }}</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="admin-dash__card admin-dash__panel">
+        <h2 class="admin-dash__card-title">Shortcuts</h2>
+        <div class="admin-dash__quick-grid">
+          <a
+            *ngFor="let q of quickActions"
+            [routerLink]="q.route"
+            class="admin-dash__quick-btn"
+            [class.admin-dash__quick-btn--indigo]="q.gradient === 'indigo'"
+            [class.admin-dash__quick-btn--sky]="q.gradient === 'sky'"
+            [class.admin-dash__quick-btn--violet]="q.gradient === 'violet'"
+            [class.admin-dash__quick-btn--cyan]="q.gradient === 'cyan'"
+          >
+            <span class="admin-dash__quick-emoji" aria-hidden="true">{{ q.icon }}</span>
+            <span>{{ q.label }}</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

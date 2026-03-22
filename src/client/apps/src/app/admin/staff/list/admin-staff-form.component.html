@@ -1,0 +1,248 @@
+<div class="staff-form">
+  <div class="staff-form__header">
+    <h1>{{ isEditMode() ? 'Edit Staff Member' : 'Add Staff Member' }}</h1>
+    <p>{{ isEditMode() ? 'Update staff member information' : 'Create a new staff member record' }}</p>
+  </div>
+
+  @if (loading() && isEditMode()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading staff member details...
+    </div>
+  } @else {
+    <form [formGroup]="staffForm" (ngSubmit)="onSubmit()" class="staff-form__form">
+      <div class="form-section">
+        <h2 class="section-title">Basic Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="employeeNumber">Employee Number *</label>
+            <input
+              id="employeeNumber"
+              type="text"
+              formControlName="employeeNumber"
+              [class.is-invalid]="getFieldError('employeeNumber')"
+              [readonly]="isEditMode()"
+            />
+            @if (getFieldError('employeeNumber')) {
+              <div class="invalid-feedback">{{ getFieldError('employeeNumber') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="firstName">First Name *</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              [class.is-invalid]="getFieldError('firstName')"
+            />
+            @if (getFieldError('firstName')) {
+              <div class="invalid-feedback">{{ getFieldError('firstName') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name *</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              [class.is-invalid]="getFieldError('lastName')"
+            />
+            @if (getFieldError('lastName')) {
+              <div class="invalid-feedback">{{ getFieldError('lastName') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              [class.is-invalid]="getFieldError('email')"
+            />
+            @if (getFieldError('email')) {
+              <div class="invalid-feedback">{{ getFieldError('email') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number *</label>
+            <input
+              id="mobileNumber"
+              type="tel"
+              formControlName="mobileNumber"
+              [class.is-invalid]="getFieldError('mobileNumber')"
+            />
+            @if (getFieldError('mobileNumber')) {
+              <div class="invalid-feedback">{{ getFieldError('mobileNumber') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="dateOfBirth">Date of Birth *</label>
+            <input
+              id="dateOfBirth"
+              type="date"
+              formControlName="dateOfBirth"
+              [class.is-invalid]="getFieldError('dateOfBirth')"
+              [readonly]="isEditMode()"
+            />
+            @if (getFieldError('dateOfBirth')) {
+              <div class="invalid-feedback">{{ getFieldError('dateOfBirth') }}</div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="gender">Gender *</label>
+            <select
+              id="gender"
+              formControlName="gender"
+              [class.is-invalid]="getFieldError('gender')"
+              [disabled]="isEditMode()"
+            >
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+            @if (getFieldError('gender')) {
+              <div class="invalid-feedback">{{ getFieldError('gender') }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">Employment Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="department">Department</label>
+            <select id="department" formControlName="department">
+              <option value="">Select Department</option>
+              <option value="Computer Science">Computer Science</option>
+              <option value="Mathematics">Mathematics</option>
+              <option value="Physics">Physics</option>
+              <option value="Chemistry">Chemistry</option>
+              <option value="English">English</option>
+              <option value="Administration">Administration</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="designation">Designation</label>
+            <input
+              id="designation"
+              type="text"
+              formControlName="designation"
+              placeholder="e.g., Professor, Assistant Professor"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="employeeType">Employee Type</label>
+            <select id="employeeType" formControlName="employeeType">
+              <option value="">Select Type</option>
+              <option value="Teaching">Teaching</option>
+              <option value="Non-Teaching">Non-Teaching</option>
+              <option value="Administrative">Administrative</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="joinDate">Join Date *</label>
+            <input
+              id="joinDate"
+              type="date"
+              formControlName="joinDate"
+              [class.is-invalid]="getFieldError('joinDate')"
+            />
+            @if (getFieldError('joinDate')) {
+              <div class="invalid-feedback">{{ getFieldError('joinDate') }}</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">Contact & Additional Information</h2>
+        <div class="form-grid">
+          <div class="form-group form-group--full">
+            <label for="address">Address</label>
+            <textarea
+              id="address"
+              formControlName="address"
+              rows="3"
+              placeholder="Full address"
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyContactName">Emergency Contact Name</label>
+            <input
+              id="emergencyContactName"
+              type="text"
+              formControlName="emergencyContactName"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="emergencyContactNumber">Emergency Contact Number</label>
+            <input
+              id="emergencyContactNumber"
+              type="tel"
+              formControlName="emergencyContactNumber"
+            />
+          </div>
+
+          <div class="form-group form-group--full">
+            <label for="qualifications">Qualifications</label>
+            <textarea
+              id="qualifications"
+              formControlName="qualifications"
+              rows="2"
+              placeholder="Educational qualifications"
+            ></textarea>
+          </div>
+
+          <div class="form-group form-group--full">
+            <label for="specialization">Specialization</label>
+            <input
+              id="specialization"
+              type="text"
+              formControlName="specialization"
+              placeholder="Area of specialization"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="onCancel()"
+          [disabled]="loading()"
+        >
+          <iconify-icon icon="solar:close-circle-bold" class="btn-icon"></iconify-icon>
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn btn--primary"
+          [disabled]="loading() || staffForm.invalid"
+        >
+          @if (loading()) {
+            <iconify-icon icon="svg-spinners:3-dots-fade" class="btn-icon"></iconify-icon>
+            Saving...
+          } @else {
+            <iconify-icon icon="solar:check-circle-bold" class="btn-icon"></iconify-icon>
+            {{ isEditMode() ? 'Update Staff Member' : 'Create Staff Member' }}
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>
+

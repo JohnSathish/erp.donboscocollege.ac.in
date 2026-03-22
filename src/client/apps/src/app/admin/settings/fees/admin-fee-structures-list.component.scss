@@ -1,0 +1,7 @@
+@use '../courses/admin-courses-list.component.scss' as *;
+
+.fee-structures-list {
+  @extend .courses-list;
+}
+
+

@@ -1,0 +1,242 @@
+<div class="marks-entry">
+  <div class="marks-entry__header">
+    <h1>Marks Entry</h1>
+    <p>Enter marks for students in assessment components</p>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  <form [formGroup]="assessmentForm" class="marks-entry__selection">
+    <div class="form-row">
+      <div class="form-group">
+        <label for="assessmentId">Select Assessment *</label>
+        <select
+          id="assessmentId"
+          class="select"
+          formControlName="assessmentId"
+          (change)="onAssessmentChange()"
+        >
+          <option value="">-- Select Assessment --</option>
+          @for (assessment of assessments(); track assessment.id) {
+            <option [value]="assessment.id">
+              {{ assessment.code }} - {{ assessment.name }} ({{ assessment.courseName }})
+            </option>
+          }
+        </select>
+      </div>
+
+      @if (selectedAssessment()) {
+        <div class="form-group">
+          <label for="componentId">Select Component *</label>
+          <select
+            id="componentId"
+            class="select"
+            formControlName="componentId"
+            (change)="onComponentChange()"
+          >
+            <option value="">-- Select Component --</option>
+            @for (component of selectedAssessment()!.components; track component.id) {
+              <option [value]="component.id">
+                {{ component.name }} (Max: {{ component.maxMarks }}, Pass: {{ component.passingMarks }})
+              </option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+
+    @if (selectedComponent()) {
+      <div class="component-info">
+        <h3>{{ selectedComponent()!.name }}</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Max Marks:</span>
+            <span class="info-value">{{ maxMarks() }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Passing Marks:</span>
+            <span class="info-value">{{ passingMarks() }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Weightage:</span>
+            <span class="info-value">{{ selectedComponent()!.weightage }}%</span>
+          </div>
+        </div>
+      </div>
+    }
+  </form>
+
+  @if (selectedComponent() && studentsArray.length > 0) {
+    <form [formGroup]="marksForm" class="marks-entry__form">
+      <div class="marks-entry__actions">
+        <h2>Enter Marks</h2>
+        <button
+          type="button"
+          class="btn btn--secondary"
+          (click)="addMoreStudents()"
+        >
+          <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+          Add Student
+        </button>
+      </div>
+
+      <div class="marks-table-wrapper">
+        <table class="marks-table">
+          <thead>
+            <tr>
+              <th>Roll No.</th>
+              <th>Student Name</th>
+              <th>Marks Obtained</th>
+              <th>Percentage</th>
+              <th>Status</th>
+              <th>Absent</th>
+              <th>Exempted</th>
+              <th>Remarks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody formArrayName="students">
+            @for (studentGroup of studentsArray.controls; track $index; let i = $index) {
+              <tr [formGroupName]="i">
+                <td>
+                  <input
+                    type="text"
+                    class="input input--sm"
+                    formControlName="studentRollNumber"
+                    placeholder="Roll No."
+                  />
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    class="input input--sm"
+                    formControlName="studentName"
+                    placeholder="Student Name *"
+                    [class.is-invalid]="getStudentFormGroup(i).get('studentName')?.invalid && getStudentFormGroup(i).get('studentName')?.touched"
+                  />
+                  <input
+                    type="hidden"
+                    formControlName="studentId"
+                  />
+                </td>
+                <td>
+                  <input
+                    type="number"
+                    class="input input--sm"
+                    formControlName="marksObtained"
+                    [min]="0"
+                    [max]="maxMarks()"
+                    step="0.01"
+                    placeholder="0"
+                    [class.is-invalid]="getStudentFormGroup(i).get('marksObtained')?.invalid && getStudentFormGroup(i).get('marksObtained')?.touched"
+                    [disabled]="getStudentFormGroup(i).get('isAbsent')?.value || getStudentFormGroup(i).get('isExempted')?.value"
+                  />
+                  <div class="text-xs text-muted">/ {{ maxMarks() }}</div>
+                </td>
+                <td>
+                  @if (getStudentFormGroup(i).get('marksObtained')?.value !== null) {
+                    <span [class.text-success]="isPassing(getStudentFormGroup(i).get('marksObtained')?.value)"
+                          [class.text-danger]="!isPassing(getStudentFormGroup(i).get('marksObtained')?.value)">
+                      {{ calculatePercentage(getStudentFormGroup(i).get('marksObtained')?.value, maxMarks()) }}%
+                    </span>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+                <td>
+                  @if (getStudentFormGroup(i).get('marksObtained')?.value !== null) {
+                    <span class="badge" [ngClass]="isPassing(getStudentFormGroup(i).get('marksObtained')?.value) ? 'badge--success' : 'badge--danger'">
+                      {{ isPassing(getStudentFormGroup(i).get('marksObtained')?.value) ? 'Pass' : 'Fail' }}
+                    </span>
+                  } @else {
+                    <span class="badge badge--neutral">-</span>
+                  }
+                </td>
+                <td>
+                  <label class="checkbox">
+                    <input
+                      type="checkbox"
+                      formControlName="isAbsent"
+                      (change)="getStudentFormGroup(i).patchValue({ marksObtained: null })"
+                    />
+                    <span>Absent</span>
+                  </label>
+                </td>
+                <td>
+                  <label class="checkbox">
+                    <input
+                      type="checkbox"
+                      formControlName="isExempted"
+                      (change)="getStudentFormGroup(i).patchValue({ marksObtained: null })"
+                    />
+                    <span>Exempted</span>
+                  </label>
+                </td>
+                <td>
+                  <input
+                    type="text"
+                    class="input input--sm"
+                    formControlName="remarks"
+                    placeholder="Remarks"
+                  />
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--danger"
+                    (click)="removeStudent(i)"
+                    title="Remove"
+                  >
+                    <iconify-icon icon="solar:trash-bin-bold"></iconify-icon>
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="marks-entry__footer">
+        <button
+          type="button"
+          class="btn btn--primary"
+          (click)="saveMarks()"
+          [disabled]="saving() || marksForm.invalid"
+        >
+          @if (saving()) {
+            <iconify-icon icon="svg-spinners:3-dots-fade" class="btn-icon"></iconify-icon>
+            Saving...
+          } @else {
+            <iconify-icon icon="solar:diskette-bold" class="btn-icon"></iconify-icon>
+            Save Marks
+          }
+        </button>
+        <div class="text-sm text-muted">
+          Total Students: {{ studentsArray.length }}
+        </div>
+      </div>
+    </form>
+  } @else if (selectedComponent() && studentsArray.length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:users-group-rounded-bold" class="empty-icon"></iconify-icon>
+      <h3>No students found</h3>
+      <p>Add students to start entering marks.</p>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="addMoreStudents()"
+      >
+        Add Student
+      </button>
+    </div>
+  }
+</div>
+
+
+
+

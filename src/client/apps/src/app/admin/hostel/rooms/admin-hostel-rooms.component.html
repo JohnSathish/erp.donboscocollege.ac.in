@@ -1,0 +1,182 @@
+<div class="hostel-rooms">
+  <div class="hostel-rooms__header">
+    <div>
+      <h1>Hostel Management</h1>
+      <p>View and manage hostel rooms</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="router.navigate(['/admin/hostel/rooms/new'])"
+    >
+      <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+      Add Room
+    </button>
+  </div>
+
+  <div class="hostel-rooms__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Search by room number, block, floor..."
+        [formControl]="searchControl"
+        (keyup.enter)="onSearch()"
+      />
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+      >
+        <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+        Search
+      </button>
+    </div>
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Filter by block..."
+        [formControl]="blockFilterControl"
+        (keyup.enter)="onFilterChange()"
+      />
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="roomTypeFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Types</option>
+        <option value="Single">Single</option>
+        <option value="Double">Double</option>
+        <option value="Triple">Triple</option>
+        <option value="Dormitory">Dormitory</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Available">Available</option>
+        <option value="PartiallyOccupied">Partially Occupied</option>
+        <option value="Full">Full</option>
+        <option value="UnderMaintenance">Under Maintenance</option>
+        <option value="Reserved">Reserved</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading hostel rooms...
+    </div>
+  } @else if (rooms().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:home-bold" class="empty-icon"></iconify-icon>
+      <h3>No hostel rooms found</h3>
+      <p>Add your first room to get started.</p>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="router.navigate(['/admin/hostel/rooms/new'])"
+      >
+        Add Room
+      </button>
+    </div>
+  } @else {
+    <div class="hostel-rooms__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Room #</th>
+            <th>Block</th>
+            <th>Floor</th>
+            <th>Type</th>
+            <th>Capacity</th>
+            <th>Occupied</th>
+            <th>Available</th>
+            <th>Rent (₹)</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (room of rooms(); track room.id) {
+            <tr>
+              <td>
+                <strong>{{ room.roomNumber }}</strong>
+              </td>
+              <td>{{ room.blockName }}</td>
+              <td>{{ room.floorNumber }}</td>
+              <td>{{ room.roomType }}</td>
+              <td>{{ room.capacity }} beds</td>
+              <td>{{ room.occupiedBeds }}</td>
+              <td [ngClass]="getOccupancyClass(room)">
+                <strong>{{ room.availableBeds }}</strong>
+              </td>
+              <td>{{ room.monthlyRent || 'N/A' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(room.status)">
+                  {{ room.status }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="router.navigate(['/admin/hostel/rooms', room.id])"
+                    title="View Details"
+                  >
+                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="hostel-rooms__pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }} rooms
+      </div>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() - 1); loadRooms()"
+          [disabled]="currentPage() === 1 || loading()"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}</span>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() + 1); loadRooms()"
+          [disabled]="!hasMore() || loading()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

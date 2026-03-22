@@ -1,0 +1,162 @@
+<div class="issue-return">
+  <div class="issue-return__header">
+    <div>
+      <h1>Book Issues & Returns</h1>
+      <p>Manage book issues and returns</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="router.navigate(['/admin/library/books'])"
+    >
+      <iconify-icon icon="solar:arrow-left-bold" class="btn-icon"></iconify-icon>
+      Back to Books
+    </button>
+  </div>
+
+  <div class="issue-return__filters">
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Issued">Issued</option>
+        <option value="Returned">Returned</option>
+        <option value="Overdue">Overdue</option>
+        <option value="Lost">Lost</option>
+        <option value="Damaged">Damaged</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading book issues...
+    </div>
+  } @else if (issues().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:book-bookmark-bold" class="empty-icon"></iconify-icon>
+      <h3>No book issues found</h3>
+      <p>No books have been issued yet.</p>
+    </div>
+  } @else {
+    <div class="issue-return__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Book</th>
+            <th>Issued To</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Return Date</th>
+            <th>Status</th>
+            <th>Fine</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (issue of issues(); track issue.id) {
+            <tr [class.overdue-row]="isOverdue(issue)">
+              <td>
+                <div class="book-info">
+                  <strong>{{ issue.bookTitle }}</strong>
+                  <span class="isbn">{{ issue.bookIsbn }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="issued-to">
+                  <span class="type-badge">{{ issue.issuedToType }}</span>
+                  <span class="name">
+                    {{ issue.studentName || issue.staffName || 'N/A' }}
+                  </span>
+                </div>
+              </td>
+              <td>{{ issue.issueDate | date: 'shortDate' }}</td>
+              <td>
+                <span [class.text-danger]="isOverdue(issue)">
+                  {{ issue.dueDate | date: 'shortDate' }}
+                  @if (isOverdue(issue)) {
+                    <span class="overdue-indicator">({{ getDaysOverdue(issue) }} days overdue)</span>
+                  }
+                </span>
+              </td>
+              <td>
+                {{ issue.returnDate ? (issue.returnDate | date: 'shortDate') : '-' }}
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(issue.status)">
+                  {{ issue.status }}
+                </span>
+              </td>
+              <td>
+                @if (issue.fineAmount && issue.fineAmount > 0) {
+                  <span class="fine-amount">₹{{ issue.fineAmount }}</span>
+                } @else if (isOverdue(issue)) {
+                  <span class="fine-amount text-danger">₹{{ calculateFine(issue) }}</span>
+                } @else {
+                  <span>-</span>
+                }
+              </td>
+              <td>
+                <div class="action-buttons">
+                  @if (issue.status === 'Issued') {
+                    <button
+                      type="button"
+                      class="btn btn--sm btn--primary"
+                      (click)="returnBook(issue)"
+                      title="Return Book"
+                    >
+                      <iconify-icon icon="solar:check-circle-bold"></iconify-icon>
+                      Return
+                    </button>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="issue-return__pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }} issues
+      </div>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() - 1); loadIssues()"
+          [disabled]="currentPage() === 1 || loading()"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}</span>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() + 1); loadIssues()"
+          [disabled]="!hasMore() || loading()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

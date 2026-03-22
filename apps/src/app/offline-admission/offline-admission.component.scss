@@ -1,0 +1,87 @@
+.offline-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: system-ui, sans-serif;
+}
+
+.offline-page__title {
+  margin: 0 0 0.5rem;
+}
+
+.offline-page__intro {
+  color: #444;
+  margin-bottom: 1rem;
+}
+
+.offline-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.offline-field input[type='password'] {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.35rem 0.5rem;
+}
+
+.offline-btn {
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+}
+
+.offline-btn--ghost {
+  background: transparent;
+  border: 1px solid #ccc;
+}
+
+.offline-page__error {
+  color: #b00020;
+}
+
+.offline-metrics {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f6f6f6;
+  border-radius: 6px;
+}
+
+.offline-grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 720px) {
+  .offline-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.offline-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+}
+
+.offline-card label {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.offline-card input,
+.offline-card select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.25rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.offline-hint {
+  font-size: 0.85rem;
+  color: #555;
+  word-break: break-all;
+}

@@ -1,0 +1,152 @@
+<div class="assessments-list">
+  <div class="assessments-list__header">
+    <div>
+      <h1>Assessments</h1>
+      <p>Manage exams, tests, and evaluations</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="createAssessment()"
+    >
+      <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+      Create Assessment
+    </button>
+  </div>
+
+  <div class="assessments-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Search by name, code, or course..."
+        [formControl]="searchControl"
+        (keyup.enter)="onSearch()"
+      />
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+      >
+        <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+        Search
+      </button>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onStatusFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Draft">Draft</option>
+        <option value="Published">Published</option>
+        <option value="Completed">Completed</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading assessments...
+    </div>
+  } @else if (assessments().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:document-text-bold" class="empty-icon"></iconify-icon>
+      <h3>No assessments found</h3>
+      <p>Create your first assessment to get started.</p>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="createAssessment()"
+      >
+        Create Assessment
+      </button>
+    </div>
+  } @else {
+    <div class="assessments-list__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Course</th>
+            <th>Term</th>
+            <th>Type</th>
+            <th>Max Marks</th>
+            <th>Status</th>
+            <th>Published</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (assessment of assessments(); track assessment.id) {
+            <tr>
+              <td>
+                <strong>{{ assessment.code }}</strong>
+              </td>
+              <td>{{ assessment.name }}</td>
+              <td>{{ assessment.courseName || 'N/A' }}</td>
+              <td>{{ assessment.academicTermName || 'N/A' }}</td>
+              <td>
+                <span class="badge badge--info">{{ assessment.type }}</span>
+              </td>
+              <td>{{ assessment.maxMarks }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(assessment.status)">
+                  {{ assessment.status }}
+                </span>
+              </td>
+              <td>
+                @if (assessment.isPublished) {
+                  <span class="badge badge--success">Yes</span>
+                  @if (assessment.publishedOnUtc) {
+                    <div class="text-sm text-muted">
+                      {{ assessment.publishedOnUtc | date: 'short' }}
+                    </div>
+                  }
+                } @else {
+                  <span class="badge badge--warning">No</span>
+                }
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="viewAssessment(assessment.id)"
+                    title="View Details"
+                  >
+                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                  </button>
+                  @if (!assessment.isPublished) {
+                    <button
+                      type="button"
+                      class="btn btn--sm btn--primary"
+                      (click)="publishAssessment(assessment.id)"
+                      title="Publish"
+                    >
+                      <iconify-icon icon="solar:upload-bold"></iconify-icon>
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+
+
+

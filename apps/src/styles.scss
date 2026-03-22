@@ -1,0 +1,33 @@
+@use 'sass:color';
+
+:root {
+  --font-family-base: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --color-primary: #1b5e9d;
+  --color-accent: #284b7a;
+  --color-surface: #ffffff;
+  --color-border: #d9e2ec;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family-base);
+  background-color: #f3f6ff;
+  color: #1f2933;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

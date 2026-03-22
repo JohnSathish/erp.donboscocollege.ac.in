@@ -1,0 +1,199 @@
+<div class="transport-list">
+  <div class="transport-list__header">
+    <div>
+      <h1>Transport Management</h1>
+      <p>View and manage transport vehicles</p>
+    </div>
+    <button
+      type="button"
+      class="btn btn--primary"
+      (click)="router.navigate(['/admin/transport/vehicles/new'])"
+    >
+      <iconify-icon icon="solar:add-circle-bold" class="btn-icon"></iconify-icon>
+      Add Vehicle
+    </button>
+  </div>
+
+  <div class="transport-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        class="input"
+        placeholder="Search by vehicle number, make, model..."
+        [formControl]="searchControl"
+        (keyup.enter)="onSearch()"
+      />
+      <button
+        type="button"
+        class="btn btn--secondary"
+        (click)="onSearch()"
+      >
+        <iconify-icon icon="solar:magnifer-bold" class="btn-icon"></iconify-icon>
+        Search
+      </button>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="vehicleTypeFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Types</option>
+        <option value="Bus">Bus</option>
+        <option value="Van">Van</option>
+        <option value="Car">Car</option>
+        <option value="Auto">Auto</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <select
+        class="select"
+        [formControl]="statusFilterControl"
+        (change)="onFilterChange()"
+      >
+        <option value="">All Status</option>
+        <option value="Active">Active</option>
+        <option value="Inactive">Inactive</option>
+        <option value="UnderMaintenance">Under Maintenance</option>
+        <option value="Retired">Retired</option>
+      </select>
+    </div>
+  </div>
+
+  @if (error()) {
+    <div class="alert alert--error">
+      <iconify-icon icon="solar:close-circle-bold" class="alert-icon"></iconify-icon>
+      {{ error() }}
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-spinner">
+      <iconify-icon icon="svg-spinners:3-dots-fade" class="spinner-icon"></iconify-icon>
+      Loading vehicles...
+    </div>
+  } @else if (vehicles().length === 0) {
+    <div class="empty-state">
+      <iconify-icon icon="solar:car-bold" class="empty-icon"></iconify-icon>
+      <h3>No vehicles found</h3>
+      <p>Add your first vehicle to get started.</p>
+      <button
+        type="button"
+        class="btn btn--primary"
+        (click)="router.navigate(['/admin/transport/vehicles/new'])"
+      >
+        Add Vehicle
+      </button>
+    </div>
+  } @else {
+    <div class="transport-list__table">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Vehicle #</th>
+            <th>Type</th>
+            <th>Make & Model</th>
+            <th>Year</th>
+            <th>Capacity</th>
+            <th>Driver</th>
+            <th>Route</th>
+            <th>Registration</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (vehicle of vehicles(); track vehicle.id) {
+            <tr>
+              <td>
+                <strong>{{ vehicle.vehicleNumber }}</strong>
+              </td>
+              <td>{{ vehicle.vehicleType }}</td>
+              <td>
+                <div>
+                  <strong>{{ vehicle.make }}</strong>
+                  <div class="model">{{ vehicle.model }}</div>
+                </div>
+              </td>
+              <td>{{ vehicle.year || 'N/A' }}</td>
+              <td>{{ vehicle.capacity }} seats</td>
+              <td>
+                @if (vehicle.driverName) {
+                  <div>
+                    <div>{{ vehicle.driverName }}</div>
+                    @if (vehicle.driverContactNumber) {
+                      <div class="contact">{{ vehicle.driverContactNumber }}</div>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-muted">Not assigned</span>
+                }
+              </td>
+              <td>{{ vehicle.route || 'N/A' }}</td>
+              <td>
+                @if (vehicle.registrationNumber) {
+                  <div>
+                    <div>{{ vehicle.registrationNumber }}</div>
+                    @if (vehicle.registrationExpiryDate) {
+                      <div [class.text-danger]="isRegistrationExpired(vehicle)" [class.text-warning]="isRegistrationExpiring(vehicle)">
+                        Expires: {{ vehicle.registrationExpiryDate | date: 'shortDate' }}
+                      </div>
+                    }
+                  </div>
+                } @else {
+                  <span class="text-muted">N/A</span>
+                }
+              </td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadgeClass(vehicle.status)">
+                  {{ vehicle.status }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--secondary"
+                    (click)="router.navigate(['/admin/transport/vehicles', vehicle.id])"
+                    title="View Details"
+                  >
+                    <iconify-icon icon="solar:eye-bold"></iconify-icon>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="transport-list__pagination">
+      <div class="pagination-info">
+        Showing {{ (currentPage() - 1) * pageSize() + 1 }} to {{ Math.min(currentPage() * pageSize(), totalCount()) }} of {{ totalCount() }} vehicles
+      </div>
+      <div class="pagination-controls">
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() - 1); loadVehicles()"
+          [disabled]="currentPage() === 1 || loading()"
+        >
+          Previous
+        </button>
+        <span class="page-info">Page {{ currentPage() }} of {{ Math.ceil(totalCount() / pageSize()) }}</span>
+        <button
+          type="button"
+          class="btn btn--secondary btn--sm"
+          (click)="currentPage.set(currentPage() + 1); loadVehicles()"
+          [disabled]="!hasMore() || loading()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  }
+</div>
+
+
+
+

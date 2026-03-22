@@ -1,0 +1,179 @@
+.admin-applicant-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.back-button {
+  align-self: flex-start;
+  background: transparent;
+  color: #1d4ed8;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.admin-applicant-detail__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.admin-applicant-detail__header h1 {
+  margin: 0;
+}
+
+.muted {
+  color: #64748b;
+  margin: 0.25rem 0 0;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-chip[data-status='Approved'] {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-chip[data-status='Rejected'] {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-chip[data-status='WaitingList'] {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.status-chip[data-status='EntranceExam'] {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.status-chip[data-status='Submitted'] {
+  background: #e2e8f0;
+  color: #1f2937;
+}
+
+.admin-applicant-detail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+article {
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+article h2 {
+  margin-top: 0;
+}
+
+dl {
+  margin: 0;
+}
+
+dl div {
+  margin-bottom: 0.75rem;
+}
+
+dt {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+dd {
+  margin: 0.25rem 0 0;
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.admin-applicant-detail__status {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: #1f2937;
+}
+
+input,
+select,
+textarea {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5f5;
+  background: #fff;
+}
+
+.remarks textarea {
+  min-height: 120px;
+}
+
+.form-actions {
+  margin-top: 1.25rem;
+}
+
+button[type='submit'] {
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  background: #1d4ed8;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+button[type='submit']:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+button[type='submit']:not(:disabled):hover {
+  background: #2563eb;
+}
+
+.loading,
+.error {
+  text-align: center;
+  color: #475569;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+
+
+
+
+

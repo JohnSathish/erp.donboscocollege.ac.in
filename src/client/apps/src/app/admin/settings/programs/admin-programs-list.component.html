@@ -1,0 +1,127 @@
+<div class="programs-list">
+  <div class="programs-list__header">
+    <h1>Programs</h1>
+    <a routerLink="/admin/settings/programs/new" class="btn btn-primary">Create New Program</a>
+  </div>
+
+  <div class="programs-list__filters">
+    <div class="filter-group">
+      <input
+        type="text"
+        placeholder="Search programs..."
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="onSearch()"
+        class="form-control"
+      />
+      <button (click)="onSearch()" class="btn btn-secondary">Search</button>
+    </div>
+    <div class="filter-group">
+      <select
+        [(ngModel)]="isActiveFilter"
+        (change)="onFilterChange()"
+        class="form-control"
+      >
+        <option [ngValue]="null">All Status</option>
+        <option [ngValue]="true">Active</option>
+        <option [ngValue]="false">Inactive</option>
+      </select>
+    </div>
+  </div>
+
+  @if (isLoading()) {
+    <div class="loading">Loading programs...</div>
+  } @else {
+    <div class="programs-list__table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Name</th>
+            <th>Level</th>
+            <th>Duration</th>
+            <th>Credits</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (program of programs(); track program.id) {
+            <tr>
+              <td><strong>{{ program.code }}</strong></td>
+              <td>{{ program.name }}</td>
+              <td>{{ program.level }}</td>
+              <td>{{ program.durationYears }} year(s)</td>
+              <td>{{ program.totalCredits }}</td>
+              <td>
+                <span
+                  class="badge"
+                  [class.badge-success]="program.isActive"
+                  [class.badge-secondary]="!program.isActive"
+                >
+                  {{ program.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a
+                    [routerLink]="['/admin/settings/programs', program.id]"
+                    class="btn btn-sm btn-primary"
+                  >
+                    View
+                  </a>
+                  <a
+                    [routerLink]="['/admin/settings/programs', program.id, 'edit']"
+                    class="btn btn-sm btn-secondary"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    (click)="toggleStatus(program.id)"
+                    class="btn btn-sm btn-info"
+                  >
+                    {{ program.isActive ? 'Deactivate' : 'Activate' }}
+                  </button>
+                  <button
+                    (click)="deleteProgram(program.id)"
+                    class="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="text-center">No programs found</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    @if (totalCount() > 0) {
+      <div class="pagination">
+        <button
+          (click)="onPageChange(currentPage() - 1)"
+          [disabled]="currentPage() === 1"
+          class="btn btn-sm"
+        >
+          Previous
+        </button>
+        <span
+          >Page {{ currentPage() }} of {{ getTotalPages() }} ({{ totalCount() }}
+          total)</span
+        >
+        <button
+          (click)="onPageChange(currentPage() + 1)"
+          [disabled]="currentPage() >= getTotalPages()"
+          class="btn btn-sm"
+        >
+          Next
+        </button>
+      </div>
+    }
+  }
+</div>
+
+
